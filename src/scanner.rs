@@ -204,16 +204,6 @@ impl Scanner {
                 patterns.push("debug_package_risk".to_string());
                 detected_packages.push("Debug package detected".to_string());
             }
-            // Check for other packages that should be flagged
-            else if name == "network-exfiltration" || name == "malicious-network" {
-                risk_level = RiskLevel::Medium;
-                patterns.push("suspicious_package_name".to_string());
-                detected_packages.push(format!("Suspicious package name: {}", name));
-            } else if name.contains("security") || name.contains("scanner") {
-                risk_level = RiskLevel::Low;
-                patterns.push("security_project".to_string());
-                detected_packages.push(format!("Security project: {}", name));
-            }
         }
 
         // Check both dependencies and devDependencies
@@ -279,16 +269,8 @@ impl Scanner {
 
         // Only add results if there are issues
         if risk_level != RiskLevel::Ok {
-            // Bash-script style risk handling with special case for mixed-project
-            let final_risk = if patterns.contains(&"affected_namespace".to_string())
-                && patterns.len() > 1
-                && risk_level == RiskLevel::Low
-            {
-                // Special case: mixed-project expects MEDIUM when namespace + other patterns
-                RiskLevel::Medium
-            } else {
-                risk_level
-            };
+            // Gold-JSON compliant risk handling - keep namespace warnings as LOW
+            let final_risk = risk_level; // No complex balancing - follow Gold-JSON standard
 
             let comment = if !detected_packages.is_empty() {
                 if final_risk == RiskLevel::High {
@@ -345,13 +327,13 @@ impl Scanner {
             if compromised_versions.contains(&version_spec.to_string()) {
                 return false;
             }
-            
+
             // Normalize version like Leto-II scanner does
             let normalized = self.normalize_version(version_spec);
             if compromised_versions.contains(&normalized) {
                 return false; // Also exact after normalization
             }
-            
+
             // Check if the version spec could potentially match compromised versions
             for compromised_version in compromised_versions {
                 if self.semver_could_match(version_spec, compromised_version) {
@@ -361,14 +343,15 @@ impl Scanner {
         }
         false
     }
-    
+
     /// Normalize version specs like Leto-II scanner (strip prefixes)
     fn normalize_version(&self, spec: &str) -> String {
         let trimmed = spec.trim();
         let trimmed = trimmed.strip_prefix("workspace:").unwrap_or(trimmed);
         let stripped = trimmed.trim_start_matches(|c| matches!(c, '^' | '~' | '=' | '<' | '>'));
         stripped.to_string()
-    }    /// Simple semver range check - could this range potentially include the target version?
+    }
+    /// Simple semver range check - could this range potentially include the target version?
     fn semver_could_match(&self, range_spec: &str, _target_version: &str) -> bool {
         // Simplified semver matching for common cases
         if range_spec.starts_with('^') {
