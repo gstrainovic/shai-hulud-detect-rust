@@ -480,8 +480,11 @@ impl Scanner {
         let filename = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
         let is_documentation =
             filename.ends_with(".md") || filename.ends_with(".txt") || filename.ends_with(".rst");
-        let is_config = filename.contains("config") || filename.ends_with(".json");
+        let is_config = filename.contains("config") && filename.ends_with(".json"); // More specific
         let is_server = filename.contains("server") || filename.contains("express");
+        
+        // Don't adjust package.json - it should follow normal Bash-script rules
+        let is_package_json = filename == "package.json";
 
         // Reduce risk for documentation files
         if is_documentation {
@@ -491,8 +494,9 @@ impl Scanner {
                 risk => risk.clone(),
             }
         }
-        // Reduce risk for legitimate environment variable usage in configs and servers  
-        else if (is_config || is_server)
+        // Reduce risk for legitimate environment variable usage in configs and servers
+        // BUT NOT for package.json which should follow bash-script logic
+        else if !is_package_json && (is_config || is_server)
             && (pattern_name == "credential_scanning" 
                 || pattern_name == "env_var_access"
                 || pattern_name == "typosquatting_detection" 
