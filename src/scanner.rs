@@ -209,8 +209,7 @@ impl Scanner {
                 risk_level = RiskLevel::Medium;
                 patterns.push("suspicious_package_name".to_string());
                 detected_packages.push(format!("Suspicious package name: {}", name));
-            }
-            else if name.contains("security") || name.contains("scanner") {
+            } else if name.contains("security") || name.contains("scanner") {
                 risk_level = RiskLevel::Low;
                 patterns.push("security_project".to_string());
                 detected_packages.push(format!("Security project: {}", name));
@@ -276,13 +275,13 @@ impl Scanner {
                     RiskLevel::Low => {
                         // If we have multiple LOW patterns, upgrade to MEDIUM
                         RiskLevel::Medium
-                    },
+                    }
                     _ => risk_level, // Don't change HIGH or MEDIUM risks
                 }
             } else {
                 risk_level
             };
-            
+
             let comment = if !detected_packages.is_empty() {
                 if final_risk == RiskLevel::High {
                     format!(
