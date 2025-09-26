@@ -49,18 +49,18 @@ impl PatternMatcher {
     fn add_core_patterns(patterns: &mut Vec<Pattern>) {
         // Webhook.site patterns (high risk exfiltration)
         patterns.push(Pattern {
-            name: "webhook_site".to_string(),
+            name: "webhook_site_reference".to_string(),
             regex: Regex::new(r"webhook\.site").unwrap(),
-            description: "webhook.site reference detected".to_string(),
-            risk_level: RiskLevel::High,
+            description: "webhook.site reference".to_string(),
+            risk_level: RiskLevel::Medium,
         });
 
         // Known malicious webhook endpoint
         patterns.push(Pattern {
             name: "malicious_webhook_endpoint".to_string(),
             regex: Regex::new(r"bb8ca5f6-4175-45d2-b042-fc9ebb8170b7").unwrap(),
-            description: "Known malicious webhook endpoint".to_string(),
-            risk_level: RiskLevel::High,
+            description: "malicious webhook endpoint".to_string(),
+            risk_level: RiskLevel::Medium,
         });
 
         // XMLHttpRequest prototype modification (crypto theft)
@@ -75,45 +75,45 @@ impl PatternMatcher {
         patterns.push(Pattern {
             name: "attacker_wallet".to_string(),
             regex: Regex::new(r"0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976").unwrap(),
-            description: "Known attacker wallet address detected".to_string(),
+            description: "Known attacker wallet address detected - HIGH RISK".to_string(),
             risk_level: RiskLevel::High,
         });
 
         // Phishing domain npmjs.help
         patterns.push(Pattern {
-            name: "npmjs_help_domain".to_string(),
+            name: "npmjs_help".to_string(),
             regex: Regex::new(r"npmjs\.help").unwrap(),
             description: "Phishing domain npmjs.help detected".to_string(),
-            risk_level: RiskLevel::High,
+            risk_level: RiskLevel::Medium,
         });
 
         // TruffleHog binary references
         patterns.push(Pattern {
-            name: "trufflehog_binary".to_string(),
+            name: "trufflehog_references".to_string(),
             regex: Regex::new(r"trufflehog|TruffleHog").unwrap(),
-            description: "TruffleHog binary reference detected".to_string(),
+            description: "Contains trufflehog references in source code".to_string(),
             risk_level: RiskLevel::Medium,
         });
 
         // Environment variable scanning patterns
         patterns.push(Pattern {
-            name: "env_var_scanning".to_string(),
+            name: "credential_scanning".to_string(),
             regex: Regex::new(r"(AWS_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN)").unwrap(),
-            description: "Credential scanning patterns detected".to_string(),
+            description: "Contains credential scanning patterns".to_string(),
             risk_level: RiskLevel::Medium,
         });
 
         // Process.env access patterns
         patterns.push(Pattern {
-            name: "process_env_access".to_string(),
+            name: "env_var_access".to_string(),
             regex: Regex::new(r"process\.env\[").unwrap(),
-            description: "Suspicious environment variable access".to_string(),
-            risk_level: RiskLevel::Low,
+            description: "Potentially suspicious environment variable access".to_string(),
+            risk_level: RiskLevel::Medium,
         });
 
         // Ethereum wallet addresses (general pattern)
         patterns.push(Pattern {
-            name: "ethereum_address_patterns".to_string(),
+            name: "ethereum_addresses".to_string(),
             regex: Regex::new(r"0x[a-fA-F0-9]{40}").unwrap(),
             description: "Ethereum wallet address patterns detected".to_string(),
             risk_level: RiskLevel::Medium,

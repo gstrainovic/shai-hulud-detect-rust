@@ -27,7 +27,7 @@
                 {
                     "file": "package.json",
                     "risk_level": "HIGH",
-                    "comment": "Contains known compromised packages: @ctrl/tinycolor@4.1.0, @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49",
+                    "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49. Note: @ctrl/tinycolor@4.1.0 is NOT compromised (only 4.1.1 and 4.1.2 are compromised).",
                     "patterns_detected": [
                         "compromised_packages"
                     ],

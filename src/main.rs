@@ -4,12 +4,17 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
+mod e2e_tests;
 mod hash_checker;
 mod output;
+mod pattern_registry;
+mod pattern_table;
 mod patterns;
 mod scanner;
 
+use e2e_tests::E2ETestRunner;
 use output::{ScanResults, TestResults};
+use pattern_table::print_pattern_table;
 use scanner::Scanner;
 
 /// Shai-Hulud NPM Supply Chain Attack Detector (Rust implementation)
@@ -20,7 +25,7 @@ use scanner::Scanner;
 struct Cli {
     /// Path to scan for indicators of compromise
     #[arg(value_name = "PATH")]
-    path: PathBuf,
+    path: Option<PathBuf>,
 
     /// Enable paranoid mode with additional security checks
     #[arg(long)]
@@ -41,14 +46,47 @@ struct Cli {
     /// Quiet mode - only show summary
     #[arg(long, short)]
     quiet: bool,
+
+    /// Show pattern mappings table
+    #[arg(long)]
+    show_patterns: bool,
+
+    /// Run end-to-end tests against test_verification_detailed.json
+    #[arg(long)]
+    run_e2e_tests: bool,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
+    // Show pattern mappings table if requested
+    if cli.show_patterns {
+        print_pattern_table()?;
+        return Ok(());
+    }
+
+    // Run E2E tests if requested
+    if cli.run_e2e_tests {
+        println!("🧪 Running End-to-End tests against test_verification_detailed.json");
+        let runner =
+            E2ETestRunner::new("test_verification_detailed.json", "../shai-hulud-detect").await?;
+
+        let results = runner.run_all_tests().await?;
+        runner.print_test_summary(&results);
+
+        let failed_count = results.iter().filter(|r| !r.passed).count();
+        std::process::exit(if failed_count == 0 { 0 } else { 1 });
+    }
+
+    // Path is required for scanning
+    let path = cli
+        .path
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("Path is required for scanning"))?;
+
     // Initialize scanner
-    let scanner = Scanner::new(&cli.path, cli.paranoid).await?;
+    let scanner = Scanner::new(path, cli.paranoid).await?;
 
     // Run the scan
     let results = scanner.scan().await?;
