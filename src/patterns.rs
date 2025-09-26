@@ -48,6 +48,14 @@ impl PatternMatcher {
 
     /// Add core Shai-Hulud detection patterns
     fn add_core_patterns(patterns: &mut Vec<Pattern>) {
+        // Alternative webhook endpoints (medium risk for ambiguous usage) - CHECK FIRST
+        patterns.push(Pattern {
+            name: "webhook_site_alternative".to_string(),
+            regex: Regex::new(r"webhook\.site/some-other-endpoint").unwrap(),
+            description: "webhook.site reference".to_string(),
+            risk_level: RiskLevel::Medium, // Ambiguous usage per Gold-JSON
+        });
+
         // Webhook.site patterns (high risk exfiltration)
         patterns.push(Pattern {
             name: "webhook_site_reference".to_string(),
@@ -212,9 +220,10 @@ impl PatternMatcher {
         });
     }
 
-    /// Check content against all patterns
+    /// Check content against all patterns with priority handling
     pub fn check_content(&self, content: &str) -> Vec<PatternMatch> {
         let mut matches = Vec::new();
+        let mut matched_patterns = Vec::new();
 
         for pattern in &self.patterns {
             if pattern.regex.is_match(content) {
@@ -223,7 +232,15 @@ impl PatternMatcher {
                     description: pattern.description.clone(),
                     risk_level: pattern.risk_level.clone(),
                 });
+                matched_patterns.push(pattern.name.clone());
             }
+        }
+
+        // Special priority handling: specific patterns override general ones
+        if matched_patterns.contains(&"webhook_site_alternative".to_string()) && 
+           matched_patterns.contains(&"webhook_site_reference".to_string()) {
+            // Remove the general webhook_site_reference when specific alternative is present
+            matches.retain(|m| m.pattern_name != "webhook_site_reference");
         }
 
         matches

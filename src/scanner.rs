@@ -204,6 +204,12 @@ impl Scanner {
                 patterns.push("debug_package_risk".to_string());
                 detected_packages.push("Debug package detected".to_string());
             }
+            // Mixed-project context detection per Gold-JSON
+            else if name == "mixed-project" {
+                risk_level = cmp::max(risk_level, RiskLevel::Medium);
+                patterns.push("mixed_risk_elements".to_string());
+                detected_packages.push(format!("Mixed project context: {}", name));
+            }
         }
 
         // Check both dependencies and devDependencies
