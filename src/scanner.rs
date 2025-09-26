@@ -221,12 +221,23 @@ impl Scanner {
             if let Some(deps) = package_json.get(dep_type).and_then(|d| d.as_object()) {
                 for (package_name, version_spec) in deps {
                     if let Some(version_spec_str) = version_spec.as_str() {
-                        // Check for compromised packages (HIGH risk)
+                        // Check for compromised packages (HIGH risk - exact matches only)
                         if self.is_compromised_package(package_name, version_spec_str) {
                             detected_packages
                                 .push(format!("{}@{}", package_name, version_spec_str));
                             risk_level = RiskLevel::High;
                             patterns.push("compromised_packages".to_string());
+                        }
+                        // Check for semver risk ranges (MEDIUM risk - potential matches)
+                        else if self
+                            .could_match_compromised_version(package_name, version_spec_str)
+                        {
+                            risk_level = cmp::max(risk_level, RiskLevel::Medium);
+                            patterns.push("semver_risk_ranges".to_string());
+                            detected_packages.push(format!(
+                                "Semver risk: {}@{}",
+                                package_name, version_spec_str
+                            ));
                         }
                         // Check for debug package (specific case)
                         else if package_name == "debug" {
@@ -315,29 +326,49 @@ impl Scanner {
         }
     }
 
-    /// Check if a package and version combination is compromised
+    /// Check if a package and version combination is compromised (EXACT matches only)
     fn is_compromised_package(&self, package_name: &str, version_spec: &str) -> bool {
+        if let Some(versions) = self.compromised_packages.get(package_name) {
+            // Only exact matches for HIGH risk
+            versions.contains(&version_spec.to_string())
+        } else {
+            false
+        }
+    }
+
+    /// Check if a version spec could potentially match a compromised version (semver ranges)
+    /// This mimics bash script's semver_match logic for SUSPICIOUS_FOUND (MEDIUM risk)
+    fn could_match_compromised_version(&self, package_name: &str, version_spec: &str) -> bool {
+        // Only check semver ranges, not exact matches (those are handled above)
         if let Some(compromised_versions) = self.compromised_packages.get(package_name) {
-            // For exact version matches
+            // Skip if this is an exact match (already handled as HIGH risk)
             if compromised_versions.contains(&version_spec.to_string()) {
-                return true;
+                return false;
             }
 
-            // For semver ranges, check if any compromised version could match
-            // This is a simplified check - in practice, you'd want proper semver parsing
-            if version_spec.starts_with('^') || version_spec.starts_with('~') {
-                let base_version = version_spec.trim_start_matches('^').trim_start_matches('~');
-                for compromised_version in compromised_versions {
-                    if compromised_version.starts_with(base_version) {
-                        return true;
-                    }
+            // Check if the version spec could potentially match compromised versions
+            for compromised_version in compromised_versions {
+                if self.semver_could_match(version_spec, compromised_version) {
+                    return true;
                 }
             }
         }
-
         false
     }
 
+    /// Simple semver range check - could this range potentially include the target version?
+    fn semver_could_match(&self, range_spec: &str, _target_version: &str) -> bool {
+        // Simplified semver matching for common cases
+        if range_spec.starts_with('^') {
+            // ^4.0.0 could match 4.1.1, 4.1.2 etc.
+            return true;
+        }
+        if range_spec.starts_with('~') {
+            // ~9.0.35 could match 9.0.36, 9.0.37 etc.
+            return true;
+        }
+        false
+    }
     /// Check if a package is a cryptocurrency library
     fn is_crypto_library(&self, package_name: &str) -> bool {
         let crypto_libs = [
