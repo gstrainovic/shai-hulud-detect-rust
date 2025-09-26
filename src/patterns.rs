@@ -104,20 +104,20 @@ impl PatternMatcher {
             risk_level: RiskLevel::Medium,
         });
 
-        // Environment variable scanning patterns
+        // Environment variable scanning patterns - LOW risk for documentation
         patterns.push(Pattern {
             name: "credential_scanning".to_string(),
             regex: Regex::new(r"(AWS_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN)").unwrap(),
             description: "Contains credential scanning patterns".to_string(),
-            risk_level: RiskLevel::Low, // Reduced from Medium for documentation
+            risk_level: RiskLevel::Low, // Bash script treats documentation mentions as low risk
         });
 
-        // Process.env access patterns
+        // Process.env access patterns - LOW risk like bash script
         patterns.push(Pattern {
             name: "env_var_access".to_string(),
             regex: Regex::new(r"process\.env\[").unwrap(),
             description: "Potentially suspicious environment variable access".to_string(),
-            risk_level: RiskLevel::Low, // Reduced from Medium
+            risk_level: RiskLevel::Low, // Match bash script behavior
         });
 
         // Ethereum wallet addresses (general pattern)
