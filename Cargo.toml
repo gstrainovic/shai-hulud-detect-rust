@@ -1,0 +1,40 @@
+[package]
+name = "shai-hulud-scanner"
+version = "0.1.0"
+edition = "2021"
+authors = ["gstrainovic"]
+description = "A Rust implementation of the Shai-Hulud NPM supply chain attack detector"
+license = "MIT"
+
+[[bin]]
+name = "shai-hulud-scanner"
+path = "src/main.rs"
+
+[dependencies]
+# CLI and argument parsing
+clap = { version = "4.4", features = ["derive"] }
+
+# JSON serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# File system operations
+walkdir = "2.4"
+
+# Crypto for hash calculation
+sha2 = "0.10"
+
+# Error handling
+anyhow = "1.0"
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# Progress indication
+indicatif = "0.17"
+
+# Regex for pattern matching
+regex = "1.10"
+
+# Date/time handling
+chrono = { version = "0.4", features = ["serde"] }
