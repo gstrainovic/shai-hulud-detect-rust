@@ -345,7 +345,13 @@ impl Scanner {
             if compromised_versions.contains(&version_spec.to_string()) {
                 return false;
             }
-
+            
+            // Normalize version like Leto-II scanner does
+            let normalized = self.normalize_version(version_spec);
+            if compromised_versions.contains(&normalized) {
+                return false; // Also exact after normalization
+            }
+            
             // Check if the version spec could potentially match compromised versions
             for compromised_version in compromised_versions {
                 if self.semver_could_match(version_spec, compromised_version) {
@@ -355,8 +361,14 @@ impl Scanner {
         }
         false
     }
-
-    /// Simple semver range check - could this range potentially include the target version?
+    
+    /// Normalize version specs like Leto-II scanner (strip prefixes)
+    fn normalize_version(&self, spec: &str) -> String {
+        let trimmed = spec.trim();
+        let trimmed = trimmed.strip_prefix("workspace:").unwrap_or(trimmed);
+        let stripped = trimmed.trim_start_matches(|c| matches!(c, '^' | '~' | '=' | '<' | '>'));
+        stripped.to_string()
+    }    /// Simple semver range check - could this range potentially include the target version?
     fn semver_could_match(&self, range_spec: &str, _target_version: &str) -> bool {
         // Simplified semver matching for common cases
         if range_spec.starts_with('^') {
