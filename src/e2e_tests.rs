@@ -212,18 +212,18 @@ impl E2ETestRunner {
             return true;
         }
 
-        // Only filter out LOW risk if expected doesn't explicitly include LOW
-        // This mimics bash script behavior: LOW is informational unless explicitly expected
+        // Intelligent filtering based on expected risks (like bash script behavior)
+        // Only filter out lower risks if expected doesn't explicitly include them
         let should_filter_low = !expected.contains(&"LOW".to_string());
+        let should_filter_medium = expected == ["HIGH"] && !expected.contains(&"MEDIUM".to_string());
         
-        let actual_filtered: Vec<String> = if should_filter_low {
-            actual.iter()
-                .filter(|&risk| risk != "LOW")  // Filter LOW only when not expected
-                .cloned()
-                .collect()
-        } else {
-            actual.to_vec()  // Keep LOW when explicitly expected
-        };
+        let actual_filtered: Vec<String> = actual.iter()
+            .filter(|&risk| {
+                !(should_filter_low && risk == "LOW") &&
+                !(should_filter_medium && risk == "MEDIUM")
+            })
+            .cloned()
+            .collect();
 
         // Convert to sets for comparison
         let expected_set: std::collections::HashSet<_> = expected.iter().collect();

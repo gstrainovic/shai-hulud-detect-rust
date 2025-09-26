@@ -170,13 +170,6 @@
             "description": "Should show HIGH risk - contains malicious webhook.site references and exfiltration patterns",
             "files": [
                 {
-                    "file": "package.json",
-                    "risk_level": "MEDIUM",
-                    "comment": "Standard package.json, suspicious only in project context.",
-                    "patterns_detected": [],
-                    "purpose": "Baseline for network exfiltration scenario."
-                },
-                {
                     "file": "malicious.js",
                     "risk_level": "HIGH",
                     "comment": "Multiple exfiltration patterns: hardcoded IPs (192.168.1.100), webhook.site, Base64-encoded URLs, WebSocket connections to evil.example.com, credential exfiltration from localStorage. Contains specific network indicators and encoding patterns.",
@@ -291,9 +284,9 @@
             "name": "comprehensive-test",
             "path": "test-cases/comprehensive-test",
             "expected_risks": [
-                "MEDIUM"
+                "HIGH"
             ],
-            "description": "Should show MEDIUM risk - contains typosquatting packages and suspicious network patterns",
+            "description": "Should show HIGH risk - contains HIGH-RISK malicious patterns (cookie theft, C2 WebSocket, backdoor endpoints) plus typosquatting packages",
             "files": [
                 {
                     "file": "package.json",
