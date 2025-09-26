@@ -179,15 +179,17 @@
                 {
                     "file": "malicious.js",
                     "risk_level": "HIGH",
-                    "comment": "Multiple exfiltration patterns: hardcoded IPs (192.168.1.100), webhook.site, Base64-encoded URLs, WebSocket connections to evil.example.com, credential exfiltration from localStorage.",
+                    "comment": "Multiple exfiltration patterns: hardcoded IPs (192.168.1.100), webhook.site, Base64-encoded URLs, WebSocket connections to evil.example.com, credential exfiltration from localStorage. Contains specific network indicators and encoding patterns.",
                     "patterns_detected": [
                         "hardcoded_ip",
                         "webhook_site",
                         "base64_url",
                         "websocket_exfiltration",
-                        "credential_theft"
+                        "credential_theft",
+                        "private_ip_192_168",
+                        "base64_encoding_patterns"
                     ],
-                    "purpose": "Tests various network-based exfiltration techniques."
+                    "purpose": "Tests various network-based exfiltration techniques with specific IP and encoding indicators."
                 }
             ]
         },
@@ -274,12 +276,14 @@
                 {
                     "file": "package.json",
                     "risk_level": "MEDIUM",
-                    "comment": "Contains typosquatting packages: 'raect' instead of 'react', 'lodsh' instead of 'lodash', 'expres' instead of 'express', '@typеs/node' with Cyrillic 'е'.",
+                    "comment": "Contains specific typosquatting packages: 'raect' instead of 'react', 'lodsh' instead of 'lodash', 'expres' instead of 'express', '@typеs/node' with Cyrillic 'е'.",
                     "patterns_detected": [
                         "typosquatting",
-                        "unicode_substitution"
+                        "unicode_substitution",
+                        "missing_char_typosquat",
+                        "homoglyph_attack"
                     ],
-                    "purpose": "Tests detection of typosquatting attacks on popular NPM packages."
+                    "purpose": "Tests detection of typosquatting attacks with specific character omissions and unicode substitutions."
                 }
             ]
         },
@@ -294,25 +298,31 @@
                 {
                     "file": "package.json",
                     "risk_level": "MEDIUM",
-                    "comment": "Comprehensive test with various suspicious packages.",
+                    "comment": "Comprehensive test with various suspicious packages including typosquatting: 'reаct' with Cyrillic 'а', 'lodsh' missing 'a', '@typescript_eslinter/eslint' namespace typosquat.",
                     "patterns_detected": [
-                        "comprehensive_threats"
+                        "comprehensive_threats",
+                        "typosquatting",
+                        "unicode_substitution",
+                        "missing_char_typosquat",
+                        "namespace_typosquat"
                     ],
-                    "purpose": "Combines different threat types in one test."
+                    "purpose": "Combines different threat types including typosquatting in one test."
                 },
                 {
                     "file": "suspicious.js",
                     "risk_level": "HIGH",
-                    "comment": "Comprehensive malicious patterns: data exfiltration via pastebin.com with Base64-encoded cookies, WebSocket connection to c2-server.evil.com, hardcoded private IP (10.0.1.50:9999/backdoor), Base64-decoded URLs. Definitely malicious.",
+                    "comment": "Comprehensive malicious patterns: data exfiltration via pastebin.com with Base64-encoded cookies, WebSocket connection to c2-server.evil.com, hardcoded private IP (10.0.1.50:9999/backdoor), Base64-decoded URL (evil.com/steal). Contains specific Base64 payload 'aHR0cHM6Ly9ldmlsLmNvbS9zdGVhbA==' and btoa(document.cookie) exfiltration.",
                     "patterns_detected": [
                         "pastebin_exfiltration",
                         "base64_cookie_theft",
                         "c2_websocket",
                         "private_ip_hardcoded",
                         "base64_url_decoding",
-                        "backdoor_endpoint"
+                        "backdoor_endpoint",
+                        "specific_base64_payload",
+                        "evil_domain_c2"
                     ],
-                    "purpose": "Combines multiple high-risk exfiltration techniques in one file."
+                    "purpose": "Combines multiple high-risk exfiltration techniques with specific indicators for precise detection testing."
                 }
             ]
         },
