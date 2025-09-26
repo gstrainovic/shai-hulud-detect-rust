@@ -197,6 +197,15 @@ impl Scanner {
         let mut risk_level = RiskLevel::Ok;
         let mut patterns = Vec::new();
 
+        // Check if this IS the debug package itself
+        if let Some(name) = package_json.get("name").and_then(|n| n.as_str()) {
+            if name == "debug" {
+                risk_level = RiskLevel::Medium;
+                patterns.push("debug_package_risk".to_string());
+                detected_packages.push("Debug package detected".to_string());
+            }
+        }
+
         // Check both dependencies and devDependencies
         for dep_type in ["dependencies", "devDependencies"] {
             if let Some(deps) = package_json.get(dep_type).and_then(|d| d.as_object()) {
@@ -213,7 +222,8 @@ impl Scanner {
                         else if package_name == "debug" {
                             risk_level = RiskLevel::Medium;
                             patterns.push("debug_package_risk".to_string());
-                            detected_packages.push(format!("Debug package detected: {}", package_name));
+                            detected_packages
+                                .push(format!("Debug package detected: {}", package_name));
                         }
                         // Check for crypto libraries (MEDIUM risk)
                         else if self.is_crypto_library(package_name) {
@@ -383,18 +393,27 @@ impl Scanner {
     fn needs_package_analysis(&self, package_name: &str) -> bool {
         // Packages that should be flagged in specific test cases
         let analysis_packages = [
-            "express", "vue", "webpack", "lodash", "react", // common packages that may need flagging
+            "express", "vue", "webpack", "lodash",
+            "react", // common packages that may need flagging
         ];
-        
-        analysis_packages.iter().any(|pkg| package_name.contains(pkg))
+
+        analysis_packages
+            .iter()
+            .any(|pkg| package_name.contains(pkg))
     }
 
     /// Adjust risk level based on file context
-    fn adjust_risk_for_context(&self, file_path: &Path, original_risk: &RiskLevel, pattern_name: &str) -> RiskLevel {
+    fn adjust_risk_for_context(
+        &self,
+        file_path: &Path,
+        original_risk: &RiskLevel,
+        pattern_name: &str,
+    ) -> RiskLevel {
         let filename = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-        let is_documentation = filename.ends_with(".md") || filename.ends_with(".txt") || filename.ends_with(".rst");
+        let is_documentation =
+            filename.ends_with(".md") || filename.ends_with(".txt") || filename.ends_with(".rst");
         let is_config = filename.contains("config") || filename.ends_with(".json");
-        
+
         // Reduce risk for documentation files
         if is_documentation {
             match original_risk {
@@ -404,13 +423,14 @@ impl Scanner {
             }
         }
         // Reduce risk for legitimate environment variable usage in configs
-        else if is_config && (pattern_name == "credential_scanning" || pattern_name == "env_var_access") {
+        else if is_config
+            && (pattern_name == "credential_scanning" || pattern_name == "env_var_access")
+        {
             match original_risk {
                 RiskLevel::Medium => RiskLevel::Low,
                 risk => risk.clone(),
             }
-        }
-        else {
+        } else {
             original_risk.clone()
         }
     }
@@ -462,15 +482,20 @@ impl Scanner {
         for file in files {
             if let Ok(content) = fs::read_to_string(file) {
                 let matches = self.pattern_matcher.check_content(&content);
-                
+
                 if !matches.is_empty() {
                     let mut max_risk = RiskLevel::Ok;
-                    
+
                     // Apply context-aware risk adjustment
                     for pattern_match in &matches {
-                        let adjusted_risk = self.adjust_risk_for_context(file, &pattern_match.risk_level, &pattern_match.pattern_name);
+                        let adjusted_risk = self.adjust_risk_for_context(
+                            file,
+                            &pattern_match.risk_level,
+                            &pattern_match.pattern_name,
+                        );
                         max_risk = cmp::max(max_risk, adjusted_risk);
-                    }                    let patterns: Vec<String> =
+                    }
+                    let patterns: Vec<String> =
                         matches.iter().map(|m| m.pattern_name.clone()).collect();
 
                     let details: Vec<String> = matches
