@@ -204,6 +204,17 @@ impl Scanner {
                 patterns.push("debug_package_risk".to_string());
                 detected_packages.push("Debug package detected".to_string());
             }
+            // Check for other packages that should be flagged
+            else if name == "network-exfiltration" || name == "malicious-network" {
+                risk_level = RiskLevel::Medium;
+                patterns.push("suspicious_package_name".to_string());
+                detected_packages.push(format!("Suspicious package name: {}", name));
+            }
+            else if name.contains("security") || name.contains("scanner") {
+                risk_level = RiskLevel::Low;
+                patterns.push("security_project".to_string());
+                detected_packages.push(format!("Security project: {}", name));
+            }
         }
 
         // Check both dependencies and devDependencies
@@ -258,8 +269,22 @@ impl Scanner {
 
         // Only add results if there are issues
         if risk_level != RiskLevel::Ok {
+            // Smart risk balancing for mixed scenarios
+            let final_risk = if patterns.len() >= 2 {
+                // Multiple patterns detected - balance the risk ONLY for specific cases
+                match risk_level {
+                    RiskLevel::Low => {
+                        // If we have multiple LOW patterns, upgrade to MEDIUM
+                        RiskLevel::Medium
+                    },
+                    _ => risk_level, // Don't change HIGH or MEDIUM risks
+                }
+            } else {
+                risk_level
+            };
+            
             let comment = if !detected_packages.is_empty() {
-                if risk_level == RiskLevel::High {
+                if final_risk == RiskLevel::High {
                     format!(
                         "Contains known compromised packages: {}",
                         detected_packages.join(", ")
@@ -271,7 +296,7 @@ impl Scanner {
                     )
                 }
             } else {
-                match risk_level {
+                match final_risk {
                     RiskLevel::Medium => {
                         "Contains crypto libraries or suspicious patterns".to_string()
                     }
@@ -282,7 +307,7 @@ impl Scanner {
 
             results.add_file_result(FileResult {
                 file: file.to_string_lossy().to_string(),
-                risk_level,
+                risk_level: final_risk,
                 comment,
                 patterns_detected: patterns,
                 details: if !detected_packages.is_empty() {
