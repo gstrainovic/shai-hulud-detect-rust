@@ -78,11 +78,20 @@ impl ScanResults {
     pub fn add_file_result(&mut self, result: FileResult) {
         // Update summary counts
         match result.risk_level {
-            RiskLevel::High => self.summary.high_risk_count += 1,
-            RiskLevel::Medium => self.summary.medium_risk_count += 1,
-            RiskLevel::Low => self.summary.low_risk_count += 1,
+            RiskLevel::High => {
+                self.summary.high_risk_count += 1;
+                self.summary.total_issues += 1;
+            }
+            RiskLevel::Medium => {
+                self.summary.medium_risk_count += 1;
+                self.summary.total_issues += 1;
+            }
+            RiskLevel::Low => {
+                self.summary.low_risk_count += 1;
+                self.summary.total_issues += 1;
+            }
+            RiskLevel::Ok => {} // OK level doesn't count as an issue
         }
-        self.summary.total_issues += 1;
 
         self.results.push(result);
     }

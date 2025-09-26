@@ -3,6 +3,7 @@ use crate::output::{FileResult, ScanResults};
 use crate::patterns::PatternMatcher;
 use crate::patterns::RiskLevel;
 use anyhow::{Context, Result};
+use std::cmp;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -190,34 +191,86 @@ impl Scanner {
         results: &mut ScanResults,
     ) {
         let mut detected_packages = Vec::new();
+        let mut risk_level = RiskLevel::Ok;
+        let mut patterns = Vec::new();
 
         // Check both dependencies and devDependencies
         for dep_type in ["dependencies", "devDependencies"] {
             if let Some(deps) = package_json.get(dep_type).and_then(|d| d.as_object()) {
                 for (package_name, version_spec) in deps {
                     if let Some(version_spec_str) = version_spec.as_str() {
+                        // Check for compromised packages (HIGH risk)
                         if self.is_compromised_package(package_name, version_spec_str) {
                             detected_packages
                                 .push(format!("{}@{}", package_name, version_spec_str));
+                            risk_level = RiskLevel::High;
+                            patterns.push("compromised_packages".to_string());
+                        }
+                        // Check for crypto libraries (MEDIUM risk)
+                        else if self.is_crypto_library(package_name) {
+                            risk_level = cmp::max(risk_level, RiskLevel::Medium);
+                            patterns.push("crypto_libraries".to_string());
+                        }
+                        // Check for typosquatting (MEDIUM risk)
+                        else if self.is_typosquatting_package(package_name) {
+                            risk_level = cmp::max(risk_level, RiskLevel::Medium);
+                            patterns.push("typosquatting".to_string());
+                            detected_packages
+                                .push(format!("Potential typosquatting: {}", package_name));
+                        }
+                        // Check for semver risk ranges (MEDIUM risk)
+                        else if self.is_semver_risk_range(package_name, version_spec_str) {
+                            risk_level = cmp::max(risk_level, RiskLevel::Medium);
+                            patterns.push("semver_risk_ranges".to_string());
+                            detected_packages.push(format!(
+                                "Semver risk: {}@{}",
+                                package_name, version_spec_str
+                            ));
+                        }
+                        // Check for affected namespaces (LOW risk)
+                        else if self.is_affected_namespace(package_name) {
+                            risk_level = cmp::max(risk_level, RiskLevel::Low);
+                            patterns.push("affected_namespace".to_string());
                         }
                     }
                 }
             }
         }
 
-        if !detected_packages.is_empty() {
-            let risk_level = RiskLevel::High; // Compromised packages are always high risk
-            let comment = format!(
-                "Contains known compromised packages: {}",
-                detected_packages.join(", ")
-            );
+        // Only add results if there are issues
+        if risk_level != RiskLevel::Ok {
+            let comment = if !detected_packages.is_empty() {
+                if risk_level == RiskLevel::High {
+                    format!(
+                        "Contains known compromised packages: {}",
+                        detected_packages.join(", ")
+                    )
+                } else {
+                    format!(
+                        "Contains suspicious packages: {}",
+                        detected_packages.join(", ")
+                    )
+                }
+            } else {
+                match risk_level {
+                    RiskLevel::Medium => {
+                        "Contains crypto libraries or suspicious patterns".to_string()
+                    }
+                    RiskLevel::Low => "Contains packages from affected namespaces".to_string(),
+                    _ => "Package analysis detected issues".to_string(),
+                }
+            };
 
             results.add_file_result(FileResult {
                 file: file.to_string_lossy().to_string(),
                 risk_level,
                 comment,
-                patterns_detected: vec!["compromised_packages".to_string()],
-                details: Some(detected_packages),
+                patterns_detected: patterns,
+                details: if !detected_packages.is_empty() {
+                    Some(detected_packages)
+                } else {
+                    None
+                },
             });
         }
     }
@@ -243,6 +296,78 @@ impl Scanner {
         }
 
         false
+    }
+
+    /// Check if a package is a cryptocurrency library
+    fn is_crypto_library(&self, package_name: &str) -> bool {
+        let crypto_libs = [
+            "ethers",
+            "web3",
+            "bitcoin-core",
+            "@ethersproject",
+            "crypto-js",
+            "secp256k1",
+            "bip39",
+            "hdkey",
+            "ethereumjs",
+        ];
+
+        crypto_libs.iter().any(|lib| {
+            package_name == *lib
+                || package_name.starts_with(&format!("{}@", lib))
+                || package_name.starts_with(&format!("{}/", lib))
+        })
+    }
+
+    /// Check if a package name indicates typosquatting
+    fn is_typosquatting_package(&self, package_name: &str) -> bool {
+        let typosquat_patterns = [
+            "raect",
+            "lodsh",
+            "expres",
+            "re\u{0430}ct", // Cyrillic 'а'
+            "@typ\u{0435}s/node",
+            "@typescript_eslinter",
+        ];
+
+        typosquat_patterns
+            .iter()
+            .any(|pattern| package_name.contains(pattern))
+    }
+
+    /// Check if a package version has risky semver ranges
+    fn is_semver_risk_range(&self, package_name: &str, version_spec: &str) -> bool {
+        // Check for packages that could match compromised versions with semver ranges
+        if package_name == "@operato/board" && version_spec.contains("~9.0.35") {
+            return true;
+        }
+        if package_name == "@ctrl/tinycolor"
+            && (version_spec.contains("^4.0.0") || version_spec.contains("~4.1"))
+        {
+            return true;
+        }
+        false
+    }
+
+    /// Check if a package is from an affected namespace
+    fn is_affected_namespace(&self, package_name: &str) -> bool {
+        let affected_namespaces = [
+            "@ctrl",
+            "@crowdstrike",
+            "@art-ws",
+            "@ngx",
+            "@nativescript-community",
+            "@ahmedhfarag",
+            "@operato",
+            "@teselagen",
+            "@things-factory",
+            "@hestjs",
+            "@nstudio",
+        ];
+
+        affected_namespaces
+            .iter()
+            .any(|ns| package_name.starts_with(ns))
     }
 
     /// Check file hashes against known malicious files

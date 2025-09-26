@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 /// Risk levels for detected patterns
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum RiskLevel {
-    Low,
-    Medium,
-    High,
+    Ok = 0,
+    Low = 1,
+    Medium = 2,
+    High = 3,
 }
 
 /// A detected pattern match
@@ -52,7 +53,7 @@ impl PatternMatcher {
             name: "webhook_site_reference".to_string(),
             regex: Regex::new(r"webhook\.site").unwrap(),
             description: "webhook.site reference".to_string(),
-            risk_level: RiskLevel::Medium,
+            risk_level: RiskLevel::High,
         });
 
         // Known malicious webhook endpoint
@@ -60,7 +61,7 @@ impl PatternMatcher {
             name: "malicious_webhook_endpoint".to_string(),
             regex: Regex::new(r"bb8ca5f6-4175-45d2-b042-fc9ebb8170b7").unwrap(),
             description: "malicious webhook endpoint".to_string(),
-            risk_level: RiskLevel::Medium,
+            risk_level: RiskLevel::High,
         });
 
         // XMLHttpRequest prototype modification (crypto theft)
@@ -117,6 +118,22 @@ impl PatternMatcher {
             regex: Regex::new(r"0x[a-fA-F0-9]{40}").unwrap(),
             description: "Ethereum wallet address patterns detected".to_string(),
             risk_level: RiskLevel::Medium,
+        });
+
+        // Typosquatting patterns (for paranoid mode and general detection)
+        patterns.push(Pattern {
+            name: "typosquatting_detection".to_string(),
+            regex: Regex::new(r"(raect|lodsh|expres|reаct)").unwrap(), // Includes Cyrillic 'а'
+            description: "Potential typosquatting package detected".to_string(),
+            risk_level: RiskLevel::Medium,
+        });
+
+        // Credential mentions in documentation
+        patterns.push(Pattern {
+            name: "credential_mentions".to_string(),
+            regex: Regex::new(r"(AWS_ACCESS_KEY|GITHUB_TOKEN|API_KEY|SECRET)").unwrap(),
+            description: "Credential mentions detected".to_string(),
+            risk_level: RiskLevel::Low,
         });
     }
 
