@@ -21,15 +21,25 @@ A fast, reliable Rust implementation of the Shai-Hulud NPM supply chain attack d
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone the Rust implementation repository
 git clone https://github.com/yourusername/shai-hulud-detect-rust.git
 cd shai-hulud-detect-rust
+
+# REQUIRED: Clone the original repository for test cases and compromised packages database
+git clone https://github.com/Cobenian/shai-hulud-detect.git ../shai-hulud-detect
 
 # Build the scanner
 cargo build --release
 
 # The binary will be available at target/release/shai-hulud-scanner
 ```
+
+**⚠️ Important**: You must clone the [original shai-hulud-detect repository](https://github.com/Cobenian/shai-hulud-detect) as it contains:
+- **Test cases** in `test-cases/` directory
+- **Compromised packages database** (`compromised-packages.txt`)
+- **Reference bash implementation** for comparison
+
+The Rust scanner expects the original repository to be available at `../shai-hulud-detect/` relative to this project.
 
 ### Basic Usage
 
