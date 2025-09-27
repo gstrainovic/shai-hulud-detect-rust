@@ -9,6 +9,7 @@ pub struct PatternInfo {
     pub risk_level: String,
     pub description: String,
     pub category: String,
+    #[allow(dead_code)]
     pub notes: String,
 }
 
@@ -68,6 +69,7 @@ impl PatternRegistry {
     }
 
     /// Check if a pattern exists
+    #[allow(dead_code)]
     pub fn has_pattern(&self, pattern_name: &str) -> bool {
         self.patterns.contains_key(pattern_name)
     }

@@ -211,6 +211,7 @@ impl ScanResults {
     }
 
     /// Set the number of files scanned
+    #[allow(dead_code)]
     pub fn set_files_scanned(&mut self, count: usize) {
         self.files_scanned = count;
     }

@@ -38,9 +38,12 @@ pub struct TestComparison {
     pub test_case_name: String,
     pub passed: bool,
     pub issues: Vec<String>,
+    #[allow(dead_code)]
     pub expected_risk_levels: Vec<String>,
+    #[allow(dead_code)]
     pub actual_risk_levels: Vec<String>,
     pub missing_patterns: Vec<String>,
+    #[allow(dead_code)]
     pub unexpected_patterns: Vec<String>,
 }
 
@@ -219,8 +222,7 @@ impl E2ETestRunner {
         
         let actual_filtered: Vec<String> = actual.iter()
             .filter(|&risk| {
-                !(should_filter_low && risk == "LOW") &&
-                !(should_filter_medium && risk == "MEDIUM")
+                !(should_filter_low && risk == "LOW" || should_filter_medium && risk == "MEDIUM")
             })
             .cloned()
             .collect();

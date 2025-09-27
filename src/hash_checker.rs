@@ -9,6 +9,12 @@ pub struct HashChecker {
     malicious_hashes: HashSet<String>,
 }
 
+impl Default for HashChecker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HashChecker {
     /// Create a new hash checker with known malicious hashes
     pub fn new() -> Self {
@@ -53,6 +59,7 @@ impl HashChecker {
     }
 
     /// Get all known malicious hashes for debugging
+    #[allow(dead_code)]
     pub fn get_malicious_hashes(&self) -> &HashSet<String> {
         &self.malicious_hashes
     }
