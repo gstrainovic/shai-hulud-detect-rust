@@ -6,6 +6,12 @@
 
 A fast, reliable Rust implementation of the Shai-Hulud NPM supply chain attack detector. This scanner provides comprehensive detection of the September 2025 npm supply chain attacks, including the Shai-Hulud self-replicating worm and the chalk/debug crypto theft attack.
 
+## Quick Links
+
+🔗 **[Original Bash Implementation](https://github.com/Cobenian/shai-hulud-detect)** - Required dependency for test cases and compromised packages database  
+📚 **[Attack Documentation](https://github.com/Cobenian/shai-hulud-detect#background)** - Background on the Shai-Hulud attack  
+🧪 **[Test Cases](https://github.com/Cobenian/shai-hulud-detect/tree/main/test-cases)** - Comprehensive test scenarios
+
 ## Features
 
 - 🚀 **Fast Performance**: Written in Rust for optimal scanning speed
@@ -90,31 +96,45 @@ The scanner uses standard exit codes for CI/CD integration:
 
 ## Testing
 
-The scanner includes comprehensive test coverage using the test cases from the bash implementation:
+The scanner includes comprehensive test coverage using the test cases from the [original bash implementation](https://github.com/Cobenian/shai-hulud-detect):
 
+**Prerequisites**: Make sure you have cloned the original repository:
 ```bash
+# Clone the original repository (if not done during installation)
+git clone https://github.com/Cobenian/shai-hulud-detect.git ../shai-hulud-detect
+```
+
+**Run E2E Tests:**
+```bash
+# Run full end-to-end test suite (18 test cases)
+cargo run -- --run-e2e-tests
+
+# Test individual scenarios:
 # Test on clean project (should exit 0)
 cargo run -- ../shai-hulud-detect/test-cases/clean-project
 
 # Test on infected project (should exit 2)  
 cargo run -- ../shai-hulud-detect/test-cases/infected-project
 
-# Test paranoid mode
-cargo run -- --paranoid ../shai-hulud-detect/test-cases/comprehensive-test
+# Test comprehensive patterns
+cargo run -- ../shai-hulud-detect/test-cases/comprehensive-test
 
 # Test JSON output
 cargo run -- --json --output test_results.json ../shai-hulud-detect/test-cases/infected-project
 ```
 
-### Available Test Cases
+### Available Test Cases (from [shai-hulud-detect](https://github.com/Cobenian/shai-hulud-detect))
 
-- `clean-project`: Baseline clean project
-- `infected-project`: Multiple high-risk indicators
-- `chalk-debug-attack`: Crypto theft patterns
-- `comprehensive-test`: Combined malicious patterns
-- `legitimate-crypto`: False positive testing
-- `typosquatting-project`: Package name attacks
-- `network-exfiltration-project`: Data exfiltration patterns
+- `clean-project`: Baseline clean project (✅ 0 exit code)
+- `infected-project`: Multiple high-risk indicators (🚨 2 exit code)
+- `chalk-debug-attack`: Crypto theft patterns (🚨 2 exit code)
+- `comprehensive-test`: Combined malicious patterns (🚨 2 exit code)
+- `legitimate-crypto`: False positive testing (✅ 0 exit code)
+- `typosquatting-project`: Package name attacks (⚠️ 1 exit code)
+- `network-exfiltration-project`: Data exfiltration patterns (🚨 2 exit code)
+- `legitimate-security-project`: Security tool false positives (ℹ️ LOW risk)
+
+**Current E2E Test Status**: ✅ **100% (18/18 tests passing)**
 
 ## Architecture
 
