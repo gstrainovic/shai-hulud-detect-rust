@@ -146,17 +146,19 @@ impl Scanner {
 
     /// Exact bash script file matching patterns
     fn matches_bash_script_patterns(&self, path: &Path) -> bool {
-        let filename = path.file_name()
+        let filename = path
+            .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("")
             .to_lowercase();
 
         // Bash script primary patterns: *.js, *.ts, *.json, *.yml, *.yaml
-        if filename.ends_with(".js") 
-            || filename.ends_with(".ts") 
+        if filename.ends_with(".js")
+            || filename.ends_with(".ts")
             || filename.ends_with(".json")
             || filename.ends_with(".yml")
-            || filename.ends_with(".yaml") {
+            || filename.ends_with(".yaml")
+        {
             return true;
         }
 
@@ -175,11 +177,17 @@ impl Scanner {
             return true;
         }
 
+        // Include Markdown files (documentation with potential credentials)
+        if filename.ends_with(".md") {
+            return true;
+        }
+
         // Package manager files (specific find commands)
-        if filename == "package.json" 
+        if filename == "package.json"
             || filename == "package-lock.json"
             || filename == "pnpm-lock.yaml"
-            || filename == "yarn.lock" {
+            || filename == "yarn.lock"
+        {
             return true;
         }
 
@@ -188,34 +196,35 @@ impl Scanner {
 
     /// Intelligent directory skipping - based on bash script selective logic
     fn should_skip_directory(&self, dir_name: &str, path: &Path) -> bool {
-        let path_str = path.to_string_lossy();
-        
+        let _path_str = path.to_string_lossy();
+        let _path_str = path.to_string_lossy();
+
         match dir_name {
             // Always skip build outputs and caches (pure noise)
             "target" | "build" | "dist" | ".cache" | "cache" | "__pycache__" => true,
-            
+
             // Skip version control unless paranoid
             ".git" | ".svn" | ".hg" => !self.paranoid,
-            
+
             // Skip IDE directories
             ".vscode" | ".idea" | ".pytest_cache" => true,
-            
+
             // Node.js: Apply bash script logic - selective scanning
             "node_modules" => {
                 // In normal mode: skip for performance (focus on source code)
                 // In paranoid mode: include but with risk downgrading
                 !self.paranoid
-            },
-            
+            }
+
             // Python virtual environments
             "venv" | "virtualenv" | ".venv" | "env" => !self.paranoid,
-            
+
             // Vendor directories - bash script skips these for most patterns
             "vendor" => {
                 // Skip vendor unless paranoid mode for comprehensive coverage
                 !self.paranoid
-            },
-            
+            }
+
             _ => false,
         }
     }
@@ -223,24 +232,27 @@ impl Scanner {
     /// File inclusion logic - focus on high-value security targets
     fn should_include_file(&self, path: &Path) -> bool {
         let path_str = path.to_string_lossy().to_lowercase();
-        let filename = path.file_name()
+        let filename = path
+            .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("")
             .to_lowercase();
 
         // Always include package manifests (supply chain attack vectors)
-        if filename == "package.json" 
+        if filename == "package.json"
             || filename == "package-lock.json"
             || filename == "pnpm-lock.yaml"
-            || filename == "yarn.lock" {
+            || filename == "yarn.lock"
+        {
             return true;
         }
 
         // Include JavaScript/TypeScript (primary Shai-Hulud targets)
-        if filename.ends_with(".js") 
-            || filename.ends_with(".ts") 
+        if filename.ends_with(".js")
+            || filename.ends_with(".ts")
             || filename.ends_with(".jsx")
-            || filename.ends_with(".tsx") {
+            || filename.ends_with(".tsx")
+        {
             return true;
         }
 
@@ -262,13 +274,14 @@ impl Scanner {
             if filename.ends_with(".py") {
                 return true;
             }
-            
+
             // Config files that might contain malicious patterns
-            if filename.ends_with(".json") 
+            if filename.ends_with(".json")
                 || filename.ends_with(".yaml")
                 || filename.ends_with(".yml")
                 || filename.ends_with(".toml")
-                || filename.ends_with(".md") {
+                || filename.ends_with(".md")
+            {
                 return true;
             }
         }
@@ -603,7 +616,7 @@ impl Scanner {
             filename.ends_with(".md") || filename.ends_with(".txt") || filename.ends_with(".rst");
         let is_config = filename.contains("config") && filename.ends_with(".json"); // More specific
         let is_server = filename.contains("server") || filename.contains("express");
-        
+
         // Don't adjust package.json - it should follow normal Bash-script rules
         let is_package_json = filename == "package.json";
 
@@ -617,10 +630,11 @@ impl Scanner {
         }
         // Reduce risk for legitimate environment variable usage in configs and servers
         // BUT NOT for package.json which should follow bash-script logic
-        else if !is_package_json && (is_config || is_server)
-            && (pattern_name == "credential_scanning" 
+        else if !is_package_json
+            && (is_config || is_server)
+            && (pattern_name == "credential_scanning"
                 || pattern_name == "env_var_access"
-                || pattern_name == "typosquatting_detection" 
+                || pattern_name == "typosquatting_detection"
                 || pattern_name == "credential_mentions")
         {
             match original_risk {

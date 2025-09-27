@@ -1,8 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 mod e2e_tests;
 mod hash_checker;
@@ -13,7 +11,6 @@ mod patterns;
 mod scanner;
 
 use e2e_tests::E2ETestRunner;
-use output::{ScanResults, TestResults};
 use pattern_table::print_pattern_table;
 use scanner::Scanner;
 

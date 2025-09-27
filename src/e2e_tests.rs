@@ -107,7 +107,7 @@ impl E2ETestRunner {
     ) -> Result<TestComparison> {
         let mut issues = Vec::new();
         let mut missing_patterns = Vec::new();
-        let mut unexpected_patterns = Vec::new();
+        let unexpected_patterns = Vec::new();
 
         // Map scan results by filename for easier comparison
         let actual_results: HashMap<String, _> = scan_results
