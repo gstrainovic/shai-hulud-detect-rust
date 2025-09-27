@@ -548,6 +548,18 @@
                     "purpose": "Second test file for multi-hash scenarios."
                 }
             ]
+        },
+        {
+            "name": "react-native-false-positive",
+            "path": "test-cases/react-native-false-positive", 
+            "expected_risks": [
+                {
+                    "risk_level": "LOW",
+                    "pattern_names": ["xmlhttprequest_modification"],
+                    "file_pattern": "XHRInterceptor.js",
+                    "description": "React Native's legitimate XHRInterceptor should be LOW risk (Cobenian issue #35 fix)"
+                }
+            ]
         }
     ]
 }

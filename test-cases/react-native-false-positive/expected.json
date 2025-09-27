@@ -1,0 +1,8 @@
+{
+  "test_case": "react-native-false-positive",
+  "description": "React Native XHRInterceptor should be LOW risk (legitimate debugging tool)",
+  "expected_risk_levels": ["LOW"],
+  "must_contain_patterns": ["XMLHttpRequest prototype modification detected"],
+  "must_not_contain_high_risk": true,
+  "rationale": "React Native's XHRInterceptor.js is legitimate debugging code, not malware. Fixes Cobenian/shai-hulud-detect#35"
+}

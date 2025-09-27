@@ -502,16 +502,26 @@ impl Scanner {
         pattern_name: &str,
     ) -> RiskLevel {
         let filename = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+        let path_str = file_path.to_string_lossy();
+        
         let is_documentation =
             filename.ends_with(".md") || filename.ends_with(".txt") || filename.ends_with(".rst");
-        let is_config = filename.contains("config") && filename.ends_with(".json"); // More specific
+        let is_config = filename.contains("config") && filename.ends_with(".json");
         let is_server = filename.contains("server") || filename.contains("express");
+        
+        // React Native false positive fix (from Cobenian/shai-hulud-detect#35)
+        let is_react_native_xhr = path_str.contains("react-native") && 
+            (filename == "XHRInterceptor.js" || path_str.contains("Libraries/Network"));
 
         // Don't adjust package.json - it should follow normal Bash-script rules
         let is_package_json = filename == "package.json";
 
+        // React Native XHRInterceptor.js is legitimate (Cobenian issue #35)
+        if is_react_native_xhr && pattern_name == "xmlhttprequest_modification" {
+            RiskLevel::Low // React Native's XHRInterceptor is legitimate, not malicious
+        }
         // Reduce risk for documentation files
-        if is_documentation {
+        else if is_documentation {
             match original_risk {
                 RiskLevel::High => RiskLevel::Medium,
                 RiskLevel::Medium => RiskLevel::Low,
