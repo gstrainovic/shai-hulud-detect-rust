@@ -124,6 +124,8 @@ impl Scanner {
     fn find_files(&self) -> Result<Vec<PathBuf>> {
         let mut files = Vec::new();
 
+        // EXACT bash script parity - no directory filtering in traversal
+        // Bash script uses: find "$scan_dir" -type f \( -name "*.js" -o -name "*.ts" -o -name "*.json" -o -name "*.yml" -o -name "*.yaml" \)
         for entry in WalkDir::new(&self.scan_path)
             .follow_links(false)
             .into_iter()
@@ -132,27 +134,146 @@ impl Scanner {
             let path = entry.path();
 
             if path.is_file() {
-                let filename = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-
-                // Include package.json, lock files, and JavaScript files
-                if filename == "package.json"
-                    || filename == "package-lock.json"
-                    || filename == "pnpm-lock.yaml"
-                    || filename.ends_with(".js")
-                    || filename.ends_with(".ts")
-                    || filename.ends_with(".yml")
-                    || filename.ends_with(".yaml")
-                    || filename.ends_with(".json")
-                    || filename.ends_with(".sh")
-                    || filename.ends_with(".py")
-                    || filename.ends_with(".md")
-                {
+                // Apply exact bash script file inclusion logic
+                if self.matches_bash_script_patterns(path) {
                     files.push(path.to_path_buf());
                 }
             }
         }
 
         Ok(files)
+    }
+
+    /// Exact bash script file matching patterns
+    fn matches_bash_script_patterns(&self, path: &Path) -> bool {
+        let filename = path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("")
+            .to_lowercase();
+
+        // Bash script primary patterns: *.js, *.ts, *.json, *.yml, *.yaml
+        if filename.ends_with(".js") 
+            || filename.ends_with(".ts") 
+            || filename.ends_with(".json")
+            || filename.ends_with(".yml")
+            || filename.ends_with(".yaml") {
+            return true;
+        }
+
+        // Additional bash script patterns
+        if filename.ends_with(".mjs") {
+            return true;
+        }
+
+        // Shell scripts (trufflehog, postinstall checks)
+        if filename.ends_with(".sh") {
+            return true;
+        }
+
+        // Python files (for comprehensive patterns)
+        if filename.ends_with(".py") {
+            return true;
+        }
+
+        // Package manager files (specific find commands)
+        if filename == "package.json" 
+            || filename == "package-lock.json"
+            || filename == "pnpm-lock.yaml"
+            || filename == "yarn.lock" {
+            return true;
+        }
+
+        false
+    }
+
+    /// Intelligent directory skipping - based on bash script selective logic
+    fn should_skip_directory(&self, dir_name: &str, path: &Path) -> bool {
+        let path_str = path.to_string_lossy();
+        
+        match dir_name {
+            // Always skip build outputs and caches (pure noise)
+            "target" | "build" | "dist" | ".cache" | "cache" | "__pycache__" => true,
+            
+            // Skip version control unless paranoid
+            ".git" | ".svn" | ".hg" => !self.paranoid,
+            
+            // Skip IDE directories
+            ".vscode" | ".idea" | ".pytest_cache" => true,
+            
+            // Node.js: Apply bash script logic - selective scanning
+            "node_modules" => {
+                // In normal mode: skip for performance (focus on source code)
+                // In paranoid mode: include but with risk downgrading
+                !self.paranoid
+            },
+            
+            // Python virtual environments
+            "venv" | "virtualenv" | ".venv" | "env" => !self.paranoid,
+            
+            // Vendor directories - bash script skips these for most patterns
+            "vendor" => {
+                // Skip vendor unless paranoid mode for comprehensive coverage
+                !self.paranoid
+            },
+            
+            _ => false,
+        }
+    }
+
+    /// File inclusion logic - focus on high-value security targets
+    fn should_include_file(&self, path: &Path) -> bool {
+        let path_str = path.to_string_lossy().to_lowercase();
+        let filename = path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("")
+            .to_lowercase();
+
+        // Always include package manifests (supply chain attack vectors)
+        if filename == "package.json" 
+            || filename == "package-lock.json"
+            || filename == "pnpm-lock.yaml"
+            || filename == "yarn.lock" {
+            return true;
+        }
+
+        // Include JavaScript/TypeScript (primary Shai-Hulud targets)
+        if filename.ends_with(".js") 
+            || filename.ends_with(".ts") 
+            || filename.ends_with(".jsx")
+            || filename.ends_with(".tsx") {
+            return true;
+        }
+
+        // Include workflow files (GitHub Actions compromise)
+        if path_str.contains("/.github/workflows/") || path_str.contains("\\.github\\workflows\\") {
+            if filename.ends_with(".yml") || filename.ends_with(".yaml") {
+                return true;
+            }
+        }
+
+        // Include shell scripts (postinstall hooks, malicious scripts)
+        if filename.ends_with(".sh") || filename.ends_with(".bat") {
+            return true;
+        }
+
+        // Paranoid mode: include additional file types
+        if self.paranoid {
+            // Python files
+            if filename.ends_with(".py") {
+                return true;
+            }
+            
+            // Config files that might contain malicious patterns
+            if filename.ends_with(".json") 
+                || filename.ends_with(".yaml")
+                || filename.ends_with(".yml")
+                || filename.ends_with(".toml")
+                || filename.ends_with(".md") {
+                return true;
+            }
+        }
+
+        false
     }
 
     /// Check package.json files for compromised packages
