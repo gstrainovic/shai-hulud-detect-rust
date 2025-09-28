@@ -127,6 +127,9 @@ impl Scanner {
         // Step 5: Check pnpm lock files specifically
         self.check_pnpm_lockfiles(&files, &mut results).await?;
 
+        // Step 6: Check for suspicious git branches
+        self.check_git_branches(&mut results).await?;
+
         // Finalize results with end timestamp
         results.finalize();
 
@@ -710,6 +713,78 @@ impl Scanner {
             }
         }
 
+        Ok(())
+    }
+
+    /// Check for suspicious git branches by reading .git directory files
+    async fn check_git_branches(&self, results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking for suspicious git branches...");
+        }
+
+        let git_dir = self.scan_path.join(".git");
+        if !git_dir.is_dir() {
+            if self.show_progress {
+                println!("   -> No .git directory found, skipping branch check.");
+            }
+            return Ok(());
+        }
+
+        let suspicious_patterns = [
+            "bak", "backup", "temp", "tmp", "fix", "hotfix", "patch", "creds", 
+            "credentials", "secret", "token", "key", "password", "prod", "release"
+        ];
+
+        let mut branches = std::collections::HashSet::new();
+
+        // Read branches from refs/heads
+        let heads_dir = git_dir.join("refs").join("heads");
+        if heads_dir.is_dir() {
+            for branch_entry in WalkDir::new(heads_dir).into_iter().filter_map(Result::ok) {
+                if branch_entry.file_type().is_file() {
+                    if let Some(branch_name) = branch_entry.path().file_name().and_then(|n| n.to_str()) {
+                        branches.insert(branch_name.to_string());
+                    }
+                }
+            }
+        }
+
+        // Read branches from packed-refs
+        let packed_refs_path = git_dir.join("packed-refs");
+        if packed_refs_path.exists() {
+            if let Ok(content) = fs::read_to_string(&packed_refs_path) {
+                for line in content.lines() {
+                    if line.starts_with('#') { continue; }
+                    let parts: Vec<&str> = line.split_whitespace().collect();
+                    if parts.len() == 2 && parts[1].starts_with("refs/heads/") {
+                        if let Some(branch_name) = parts[1].strip_prefix("refs/heads/") {
+                            branches.insert(branch_name.to_string());
+                        }
+                    }
+                }
+            }
+        }
+        
+        if self.show_progress {
+            println!("   -> Found {} branches to analyze.", branches.len());
+        }
+
+        for branch in &branches {
+            for pattern in &suspicious_patterns {
+                if branch.contains(pattern) {
+                    let repo_path = self.scan_path.to_string_lossy().to_string();
+                    results.add_file_result(FileResult {
+                        file: repo_path,
+                        risk_level: RiskLevel::Medium,
+                        comment: format!("Suspicious git branch detected: {}", branch),
+                        patterns_detected: vec!["suspicious_git_branch".to_string()],
+                        details: Some(vec![format!("Branch name '{}' contains suspicious pattern '{}'", branch, pattern)]),
+                    });
+                    // Avoid duplicate entries for the same branch
+                    break; 
+                }
+            }
+        }
         Ok(())
     }
 }
