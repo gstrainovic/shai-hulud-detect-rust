@@ -152,7 +152,8 @@ impl Scanner {
         self.check_trufflehog_activity(&files, &mut results).await?;
 
         // Step 13: Check for Shai-Hulud repositories and migration patterns
-        self.check_shai_hulud_migration_patterns(&mut results).await?;
+        self.check_shai_hulud_migration_patterns(&mut results)
+            .await?;
 
         // Finalize results with end timestamp
         results.finalize();
@@ -1675,7 +1676,9 @@ impl Scanner {
             let mut risk_level = RiskLevel::Medium;
 
             // Check repository name for Shai-Hulud references
-            if repo_name.to_lowercase().contains("shai-hulud") || repo_name.to_lowercase().contains("shai_hulud") {
+            if repo_name.to_lowercase().contains("shai-hulud")
+                || repo_name.to_lowercase().contains("shai_hulud")
+            {
                 findings.push("Repository name contains 'Shai-Hulud'".to_string());
                 risk_level = RiskLevel::High; // Higher risk for explicit Shai-Hulud naming
             }
@@ -1689,7 +1692,9 @@ impl Scanner {
             let git_config_path = git_dir.join("config");
             if git_config_path.exists() {
                 if let Ok(config_content) = fs::read_to_string(&git_config_path) {
-                    if config_content.to_lowercase().contains("shai-hulud") || config_content.to_lowercase().contains("shai_hulud") {
+                    if config_content.to_lowercase().contains("shai-hulud")
+                        || config_content.to_lowercase().contains("shai_hulud")
+                    {
                         findings.push("Git remote contains 'Shai-Hulud'".to_string());
                         risk_level = RiskLevel::High;
                     }
@@ -1700,10 +1705,14 @@ impl Scanner {
             let data_json_path = repo_dir.join("data.json");
             if data_json_path.exists() {
                 if let Ok(data_content) = fs::read_to_string(&data_json_path) {
-                    let content_sample = data_content.lines().take(5).collect::<Vec<_>>().join("\n");
+                    let content_sample =
+                        data_content.lines().take(5).collect::<Vec<_>>().join("\n");
                     // Check for base64 patterns (eyJ indicates JSON base64, == indicates base64 padding)
                     if content_sample.contains("eyJ") && content_sample.contains("==") {
-                        findings.push("Contains suspicious data.json (possible base64-encoded credentials)".to_string());
+                        findings.push(
+                            "Contains suspicious data.json (possible base64-encoded credentials)"
+                                .to_string(),
+                        );
                         risk_level = RiskLevel::High;
                     }
                 }

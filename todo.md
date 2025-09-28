@@ -142,9 +142,9 @@
 
 
 
-#### 11. Vergleiche vet.exe results von test-cases und ../barcode-scanner-v2 mit rust und bash scanner
+#### 11. Vergleiche vet.exe results von test-cases und ../barcode-scanner-v2 mit rust und bash scanner (mit bash nicht neu scannen)
 
-#### 12. Vergleiche die rust-dev outputs mit rust scanner, was macht rust-dev besser? dies übernehmen
+#### 12. Vergleiche die rust-dev outputs mit rust scanner, was macht rust-dev besser? dies übernehmen (mit bash nicht neu scannen)
 
 
 ## 📊 Fortschritts-Tracking
