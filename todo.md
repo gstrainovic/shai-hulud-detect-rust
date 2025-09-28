@@ -24,9 +24,9 @@
 
 **FEHLENDE MODULE:**
 - [x] **Malicious Workflow Files Scanner** ✅ IMPLEMENTIERT (Commit: 6266445)
-- [ ] **Trufflehog Activity Scanner** - NICHT implementiert  
+- [x] **Trufflehog Activity Scanner** ✅ IMPLEMENTIERT (Commit: TBD)
 - [ ] **Shai-Hulud Migration Patterns** - NICHT implementiert
-- [ ] **Lockfile Integrity Checker** - NICHT implementiert
+- [x] **Lockfile Integrity Checker** ✅ IMPLEMENTIERT (Commit: 524f23d)
 
 ---
 
@@ -36,13 +36,13 @@
 - [ ] **FEHLENDE MODULE zu implementieren:**
   - [x] **Postinstall Hooks Scanner** ✅ IMPLEMENTIERT - 🐛 FIXED
   - [x] **Cryptocurrency Theft Patterns** ✅ IMPLEMENTIERT (Commit: 8a47163)
-  - [ ] **Trufflehog Activity Scanner** (secret scanning activity)
+  - [x] **Trufflehog Activity Scanner** ✅ IMPLEMENTIERT (Commit: TBD)
   - [ ] **Shai-Hulud Migration Patterns** (repository migration detection)
-  - [ ] **Lockfile Integrity Checker** (package lock file integrity)
+  - [x] **Lockfile Integrity Checker** ✅ IMPLEMENTIERT (Commit: 524f23d)
 - [ ] **Vorgehen:** Teilerfolge → Testen → Commiten → Pushen
 - [ ] **Deliverable:** Commits für jede behobene Diskrepanz
 
-**🎯 FORTSCHRITT:** 3/5 Module implementiert
+**🎯 FORTSCHRITT:** 4/5 Module implementiert
 
 ---
 

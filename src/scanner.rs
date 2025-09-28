@@ -148,6 +148,9 @@ impl Scanner {
         // Step 11: Check for lockfile integrity issues
         self.check_lockfile_integrity(&files, &mut results).await?;
 
+        // Step 12: Check for Trufflehog activity and secret scanning
+        self.check_trufflehog_activity(&files, &mut results).await?;
+
         // Finalize results with end timestamp
         results.finalize();
 
@@ -1417,6 +1420,152 @@ impl Scanner {
                             "Recommend regenerating lockfiles and verifying package versions".to_string(),
                             format!("Compromised packages found: {}", found_compromised.join(", ")),
                         ]),
+                    });
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Check for Trufflehog activity and secret scanning patterns
+    async fn check_trufflehog_activity(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking for Trufflehog activity and secret scanning...");
+        }
+
+        // Look for trufflehog binaries (HIGH RISK)
+        let trufflehog_binaries: Vec<_> = files
+            .iter()
+            .filter(|f| {
+                if let Some(filename) = f.file_name().and_then(|n| n.to_str()) {
+                    filename.to_lowercase().contains("trufflehog")
+                } else {
+                    false
+                }
+            })
+            .collect();
+
+        for binary_file in trufflehog_binaries {
+            results.add_file_result(FileResult {
+                file: binary_file.to_string_lossy().to_string(),
+                risk_level: RiskLevel::High,
+                comment: "Trufflehog binary found".to_string(),
+                patterns_detected: vec!["trufflehog_binary".to_string()],
+                details: Some(vec![
+                    "Trufflehog binary detected in project files".to_string(),
+                    "This tool is used for secret scanning and credential harvesting".to_string(),
+                    "Presence of this binary may indicate malicious activity".to_string(),
+                ]),
+            });
+        }
+
+        // Check code files for trufflehog references and credential patterns
+        let code_files: Vec<_> = files
+            .iter()
+            .filter(|f| {
+                if let Some(ext) = f.extension().and_then(|e| e.to_str()) {
+                    matches!(ext, "js" | "ts" | "py" | "sh" | "json" | "yml" | "yaml")
+                } else {
+                    false
+                }
+            })
+            .collect();
+
+        for file in code_files {
+            if let Ok(content) = fs::read_to_string(file) {
+                let mut patterns_found = Vec::new();
+                let mut risk_level = RiskLevel::Ok;
+                let mut details = Vec::new();
+
+                // Check for trufflehog references
+                if content.to_lowercase().contains("trufflehog") {
+                    patterns_found.push("trufflehog_references".to_string());
+                    risk_level = RiskLevel::Medium;
+                    details.push("Contains trufflehog references in source code".to_string());
+
+                    // Higher risk if combined with subprocess/execution patterns
+                    if content.contains("subprocess") && content.contains("curl") {
+                        risk_level = RiskLevel::High;
+                        details.push("Suspicious trufflehog execution pattern detected".to_string());
+                    }
+                }
+
+                // Check for credential scanning patterns
+                let credential_patterns = [
+                    "AWS_ACCESS_KEY", "GITHUB_TOKEN", "NPM_TOKEN", "API_KEY", "SECRET_KEY",
+                    "ACCESS_TOKEN", "PRIVATE_KEY", "SLACK_TOKEN", "DISCORD_TOKEN"
+                ];
+
+                let mut credential_mentions = 0;
+                for pattern in &credential_patterns {
+                    if content.contains(pattern) {
+                        credential_mentions += 1;
+                    }
+                }
+
+                if credential_mentions > 0 {
+                    patterns_found.push("credential_scanning_patterns".to_string());
+                    if risk_level == RiskLevel::Ok {
+                        risk_level = RiskLevel::Medium;
+                    }
+                    details.push("Contains credential scanning patterns".to_string());
+
+                    // Higher risk if combined with exfiltration patterns
+                    if content.contains("webhook.site") || 
+                       (content.contains("curl") && content.contains("POST")) ||
+                       content.contains("https.request") {
+                        risk_level = RiskLevel::High;
+                        details.push("Credential patterns with potential exfiltration detected".to_string());
+                    }
+                }
+
+                // Check for environment variable scanning
+                if content.contains("process.env") || content.contains("os.environ") || content.contains("getenv") {
+                    // Only flag if combined with suspicious patterns
+                    if content.contains("webhook.site") && content.contains("exfiltrat") {
+                        patterns_found.push("environment_scanning_with_exfiltration".to_string());
+                        risk_level = RiskLevel::High;
+                        details.push("Environment scanning with exfiltration detected".to_string());
+                    } else if content.contains("scan") || content.contains("harvest") || content.contains("steal") {
+                        patterns_found.push("suspicious_env_access".to_string());
+                        if risk_level == RiskLevel::Ok {
+                            risk_level = RiskLevel::Medium;
+                        }
+                        details.push("Potentially suspicious environment variable access".to_string());
+                    }
+                }
+
+                // Check for credential mentions (more general)
+                let credential_words = ["password", "secret", "token", "key", "credential"];
+                let mut credential_word_count = 0;
+                for word in &credential_words {
+                    if content.to_lowercase().contains(word) {
+                        credential_word_count += 1;
+                    }
+                }
+
+                if credential_word_count >= 2 && risk_level == RiskLevel::Ok {
+                    patterns_found.push("credential_mentions".to_string());
+                    risk_level = RiskLevel::Low;
+                    details.push("Credential mentions detected".to_string());
+                }
+
+                // Report findings if any patterns detected
+                if !patterns_found.is_empty() {
+                    let comment = match risk_level {
+                        RiskLevel::High => "HIGH RISK: Suspicious Trufflehog/secret scanning activity",
+                        RiskLevel::Medium => "MEDIUM RISK: Potential secret scanning activity",
+                        RiskLevel::Low => "LOW RISK: Credential-related content detected",
+                        _ => "Trufflehog/credential patterns detected",
+                    };
+
+                    results.add_file_result(FileResult {
+                        file: file.to_string_lossy().to_string(),
+                        risk_level,
+                        comment: comment.to_string(),
+                        patterns_detected: patterns_found,
+                        details: Some(details),
                     });
                 }
             }
