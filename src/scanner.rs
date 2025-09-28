@@ -130,6 +130,9 @@ impl Scanner {
         // Step 6: Check for suspicious git branches
         self.check_git_branches(&mut results).await?;
 
+        // Step 7: Check for specialized network exfiltration patterns
+        self.check_specialized_network_patterns(&files, &mut results).await?;
+
         // Finalize results with end timestamp
         results.finalize();
 
@@ -474,9 +477,25 @@ impl Scanner {
     fn analyze_typosquatting(&self, package_name: &str) -> Option<String> {
         // Popular packages that are commonly typosquatted
         let popular_packages = [
-            "react", "lodash", "express", "axios", "jquery", "bootstrap", 
-            "angular", "vue", "webpack", "babel", "eslint", "mocha", "chai",
-            "moment", "commander", "debug", "chalk", "inquirer", "fs-extra"
+            "react",
+            "lodash",
+            "express",
+            "axios",
+            "jquery",
+            "bootstrap",
+            "angular",
+            "vue",
+            "webpack",
+            "babel",
+            "eslint",
+            "mocha",
+            "chai",
+            "moment",
+            "commander",
+            "debug",
+            "chalk",
+            "inquirer",
+            "fs-extra",
         ];
 
         // Known typosquat patterns with their targets and reasons
@@ -484,15 +503,30 @@ impl Scanner {
             ("raect", "react", "character transposition (a<->e)"),
             ("lodsh", "lodash", "missing character (a)"),
             ("expres", "express", "missing character (s)"),
-            ("re\u{0430}ct", "react", "cyrillic character substitution (а instead of a)"),
-            ("@typ\u{0435}s/node", "@types/node", "cyrillic character substitution (е instead of e)"),
-            ("@typescript_eslinter", "@typescript-eslint", "missing hyphen and character change"),
+            (
+                "re\u{0430}ct",
+                "react",
+                "cyrillic character substitution (а instead of a)",
+            ),
+            (
+                "@typ\u{0435}s/node",
+                "@types/node",
+                "cyrillic character substitution (е instead of e)",
+            ),
+            (
+                "@typescript_eslinter",
+                "@typescript-eslint",
+                "missing hyphen and character change",
+            ),
         ];
 
         // Check known typosquats first
         for (typo, original, reason) in &known_typosquats {
             if package_name.contains(typo) {
-                return Some(format!("Known typosquatting of '{}': {} ({})", original, package_name, reason));
+                return Some(format!(
+                    "Known typosquatting of '{}': {} ({})",
+                    original, package_name, reason
+                ));
             }
         }
 
@@ -511,16 +545,23 @@ impl Scanner {
                 } else if package_name.len() == popular.len() - 1 {
                     "missing character"
                 } else if package_name.len() == popular.len() + 1 {
-                    "extra character"  
+                    "extra character"
                 } else {
                     "character difference"
                 };
-                return Some(format!("Potential typosquatting of '{}': {} ({})", popular, package_name, reason));
+                return Some(format!(
+                    "Potential typosquatting of '{}': {} ({})",
+                    popular, package_name, reason
+                ));
             }
 
             // Check for common character swaps
-            if package_name.len() == popular.len() && self.has_character_swap(package_name, popular) {
-                return Some(format!("Potential typosquatting of '{}': {} (character transposition)", popular, package_name));
+            if package_name.len() == popular.len() && self.has_character_swap(package_name, popular)
+            {
+                return Some(format!(
+                    "Potential typosquatting of '{}': {} (character transposition)",
+                    popular, package_name
+                ));
             }
         }
 
@@ -533,18 +574,22 @@ impl Scanner {
         let len2 = s2.len();
         let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
 
-        for i in 0..=len1 { matrix[i][0] = i; }
-        for j in 0..=len2 { matrix[0][j] = j; }
+        for i in 0..=len1 {
+            matrix[i][0] = i;
+        }
+        for j in 0..=len2 {
+            matrix[0][j] = j;
+        }
 
         let chars1: Vec<char> = s1.chars().collect();
         let chars2: Vec<char> = s2.chars().collect();
 
         for i in 1..=len1 {
             for j in 1..=len2 {
-                let cost = if chars1[i-1] == chars2[j-1] { 0 } else { 1 };
+                let cost = if chars1[i - 1] == chars2[j - 1] { 0 } else { 1 };
                 matrix[i][j] = std::cmp::min(
-                    std::cmp::min(matrix[i-1][j] + 1, matrix[i][j-1] + 1),
-                    matrix[i-1][j-1] + cost
+                    std::cmp::min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1),
+                    matrix[i - 1][j - 1] + cost,
                 );
             }
         }
@@ -554,7 +599,9 @@ impl Scanner {
 
     /// Check if two strings differ by exactly one character swap
     fn has_character_swap(&self, s1: &str, s2: &str) -> bool {
-        if s1.len() != s2.len() { return false; }
+        if s1.len() != s2.len() {
+            return false;
+        }
 
         let chars1: Vec<char> = s1.chars().collect();
         let chars2: Vec<char> = s2.chars().collect();
@@ -901,6 +948,65 @@ impl Scanner {
                 }
             }
         }
+        Ok(())
+    }
+
+    /// Check for specialized network exfiltration patterns (separate findings like Bash scanner)
+    async fn check_specialized_network_patterns(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking for specialized network exfiltration patterns...");
+        }
+
+        // Define specialized network patterns to check separately
+        let network_patterns = [
+            ("pastebin_exfiltration", r"pastebin\.com", "Pastebin exfiltration detected"),
+            ("private_ip_hardcoded", r"\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b", "Hardcoded private IP address detected"),
+            ("c2_websocket", r"wss?://[^/\s]+\.(?:evil|malicious|c2|command)\.com", "C2 WebSocket connection detected"),
+            ("base64_decoding", r#"atob\(|Buffer\.from\(.+,\s*["']base64["']"#, "Base64 decoding detected"),
+            ("suspicious_websocket", r#"new\s+WebSocket\s*\(\s*["']wss?://"#, "WebSocket connection to external endpoint detected"),
+            ("webhook_exfiltration", r"https?://webhook\.site/[a-f0-9-]+", "Webhook.site exfiltration detected"),
+            ("discord_webhook", r"https?://discord(?:app)?\.com/api/webhooks/", "Discord webhook exfiltration detected"),
+            ("data_exfiltration", r"(document\.cookie|localStorage|sessionStorage).*(fetch|XMLHttpRequest|axios)", "Data exfiltration pattern detected"),
+        ];
+
+        for file in files {
+            if let Some(filename) = file.file_name().and_then(|n| n.to_str()) {
+                // Only check JavaScript/TypeScript files for network patterns
+                if !(filename.ends_with(".js") || filename.ends_with(".ts") || filename.ends_with(".jsx") || filename.ends_with(".tsx")) {
+                    continue;
+                }
+            }
+
+            if let Ok(content) = fs::read_to_string(file) {
+                for (pattern_name, regex_str, description) in &network_patterns {
+                    if let Ok(regex) = regex::Regex::new(regex_str) {
+                        // Check for matches and report each as a separate finding
+                        let matches: Vec<_> = regex.find_iter(&content).collect();
+                        if !matches.is_empty() {
+                            // Extract specific details about the match
+                            let details = matches.iter()
+                                .take(3) // Limit to first 3 matches to avoid spam
+                                .enumerate()
+                                .map(|(_i, m)| {
+                                    // Try to find line number
+                                    let line_num = content[..m.start()].matches('\n').count() + 1;
+                                    format!("Line {}: {}", line_num, m.as_str())
+                                })
+                                .collect();
+
+                            results.add_file_result(FileResult {
+                                file: file.to_string_lossy().to_string(),
+                                risk_level: RiskLevel::Medium,
+                                comment: format!("Network exfiltration pattern: {}", description),
+                                patterns_detected: vec![pattern_name.to_string()],
+                                details: Some(details),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
         Ok(())
     }
 }
