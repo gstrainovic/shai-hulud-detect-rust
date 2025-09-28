@@ -6,7 +6,7 @@
 
 ### 🔄 IN BEARBEITUNG
 
-[ ] npm run test soll die tests vom ordner shai-hulud-detect\test-cases\ ausführen und mit test_verification_detailed.json, so war es mal, prüfe die git history.
+[ ] cargo test soll die tests vom ordner shai-hulud-detect\test-cases\ ausführen und mit test_verification_detailed.json, so war es mal, prüfe die git history.
 
 
 #### 1. Log-Vergleich Test-Cases Rust vs Bash
@@ -26,10 +26,10 @@
 - **Nächster Schritt:** TODO #2 - Diese Lücken dringend beheben
 
 **FEHLENDE MODULE:**
-- ❌ **Malicious Workflow Files Scanner** - NICHT implementiert
-- ❌ **Trufflehog Activity Scanner** - NICHT implementiert  
-- ❌ **Shai-Hulud Migration Patterns** - NICHT implementiert
-- ❌ **Lockfile Integrity Checker** - NICHT implementiert
+- [x] **Malicious Workflow Files Scanner** ✅ IMPLEMENTIERT (Commit: 6266445)
+- [ ] **Trufflehog Activity Scanner** - NICHT implementiert  
+- [ ] **Shai-Hulud Migration Patterns** - NICHT implementiert
+- [ ] **Lockfile Integrity Checker** - NICHT implementiert
 
 ---
 
@@ -37,15 +37,15 @@
 - [ ] **Status:** 🔥 DRINGEND - Kritische Lücken beheben
 - [ ] **Aufgabe:** Alle kritischen Unterschiede aus #1 implementieren
 - [ ] **FEHLENDE MODULE zu implementieren:**
-  - [ ] **Postinstall Hooks Scanner** ✅ IMPLEMENTIERT - 🐛 Minor bug mit existierendem Test-Case
-  - [ ] **Cryptocurrency Theft Patterns** (dedicated crypto theft detection) - 🔄 IN PROGRESS
+  - [x] **Postinstall Hooks Scanner** ✅ IMPLEMENTIERT - 🐛 FIXED
+  - [x] **Cryptocurrency Theft Patterns** ✅ IMPLEMENTIERT (Commit: 8a47163)
   - [ ] **Trufflehog Activity Scanner** (secret scanning activity)
   - [ ] **Shai-Hulud Migration Patterns** (repository migration detection)
   - [ ] **Lockfile Integrity Checker** (package lock file integrity)
 - [ ] **Vorgehen:** Teilerfolge → Testen → Commiten → Pushen
 - [ ] **Deliverable:** Commits für jede behobene Diskrepanz
 
-**🎯 FORTSCHRITT:** 1/5 Module implementiert (+4 Critical Issues)
+**🎯 FORTSCHRITT:** 3/5 Module implementiert
 
 ---
 
@@ -97,12 +97,12 @@
 ---
 
 #### 8. Code-Qualität & Formatting
-- [ ] **Status:** 🟡 Nicht gestartet
-- [ ] **Aufgaben:** 
-  - [ ] `cargo fmt` ausführen
-  - [ ] Lint-Fixes anwenden  
-  - [ ] `cargo check` ohne Warnungen
-- [ ] **Deliverable:** Sauberer, formatierter Code
+- [x] **Status:** ✅ ABGESCHLOSSEN
+- [x] **Aufgaben:** 
+  - [x] `cargo fmt` ausführen
+  - [x] Lint-Fixes anwenden  
+  - [x] `cargo check` ohne Warnungen
+- [x] **Deliverable:** Sauberer, formatierter Code
 
 ---
 

@@ -121,11 +121,12 @@ impl Scanner {
         // Step 3: Check file hashes against known malicious files
         self.check_file_hashes(&files, &mut results).await?;
 
-                // Step 4: Check for malicious patterns in content
+        // Step 4: Check for malicious patterns in content
         self.check_content_patterns(&files, &mut results).await?;
 
         // Step 4.1: Check for malicious workflow files
-        self.check_malicious_workflow_files(&files, &mut results).await?;
+        self.check_malicious_workflow_files(&files, &mut results)
+            .await?;
 
         // Step 5: Check pnmp lock files specifically
         self.check_pnpm_lockfiles(&files, &mut results).await?;
@@ -637,6 +638,7 @@ impl Scanner {
     }
 
     /// Check if a package name indicates typosquatting (legacy function for compatibility)
+    #[allow(dead_code)]
     fn is_typosquatting_package(&self, package_name: &str) -> bool {
         self.analyze_typosquatting(package_name).is_some()
     }
@@ -1135,10 +1137,10 @@ impl Scanner {
                         for (hook_name, hook_value) in scripts {
                             if let Some(hook_cmd) = hook_value.as_str() {
                                 // Check lifecycle hooks that could be suspicious
-                                if (hook_name == "preinstall"
+                                if hook_name == "preinstall"
                                     || hook_name == "install"
                                     || hook_name == "prepare"
-                                    || hook_name == "prepublishOnly")
+                                    || hook_name == "prepublishOnly"
                                 {
                                     for pattern in &suspicious_patterns {
                                         if hook_cmd.contains(pattern) {
@@ -1305,7 +1307,11 @@ impl Scanner {
     }
 
     /// Check for malicious workflow files (specifically shai-hulud-workflow.yml)
-    async fn check_malicious_workflow_files(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+    async fn check_malicious_workflow_files(
+        &self,
+        files: &[PathBuf],
+        results: &mut ScanResults,
+    ) -> Result<()> {
         if self.show_progress {
             println!("🔍 Checking for malicious workflow files...");
         }
@@ -1314,7 +1320,8 @@ impl Scanner {
             .iter()
             .filter(|f| {
                 if let Some(filename) = f.file_name().and_then(|n| n.to_str()) {
-                    filename == "shai-hulud-workflow.yml" || filename.contains("shai-hulud") && filename.ends_with(".yml")
+                    filename == "shai-hulud-workflow.yml"
+                        || filename.contains("shai-hulud") && filename.ends_with(".yml")
                 } else {
                     false
                 }
@@ -1325,10 +1332,12 @@ impl Scanner {
             results.add_file_result(FileResult {
                 file: file.to_string_lossy().to_string(),
                 risk_level: RiskLevel::High,
-                comment: "Malicious workflow file detected: Known malicious workflow filename".to_string(),
+                comment: "Malicious workflow file detected: Known malicious workflow filename"
+                    .to_string(),
                 patterns_detected: vec!["malicious_workflow_file".to_string()],
                 details: Some(vec![
-                    "shai-hulud-workflow.yml is a known malicious GitHub Actions workflow".to_string(),
+                    "shai-hulud-workflow.yml is a known malicious GitHub Actions workflow"
+                        .to_string(),
                     "This file was used in the September 8, 2025 chalk/debug attack".to_string(),
                     "Remove this file immediately and check repository history".to_string(),
                 ]),

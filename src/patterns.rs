@@ -237,8 +237,9 @@ impl PatternMatcher {
         }
 
         // Special priority handling: specific patterns override general ones
-        if matched_patterns.contains(&"webhook_site_alternative".to_string()) && 
-           matched_patterns.contains(&"webhook_site_reference".to_string()) {
+        if matched_patterns.contains(&"webhook_site_alternative".to_string())
+            && matched_patterns.contains(&"webhook_site_reference".to_string())
+        {
             // Remove the general webhook_site_reference when specific alternative is present
             matches.retain(|m| m.pattern_name != "webhook_site_reference");
         }
