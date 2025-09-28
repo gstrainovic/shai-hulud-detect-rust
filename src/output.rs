@@ -250,7 +250,7 @@ impl ScanResults {
         );
         println!(
             "   Total Critical Issues: {}",
-            self.summary.high_risk_count + self.summary.medium_risk_count
+            self.summary.total_issues
         );
         println!();
 
