@@ -55,11 +55,18 @@
 ---
 
 #### 4. Hardcoded Test-Bypasses prüfen
-- [ ] **Status:** 🟡 Nicht gestartet  
-- [ ] **Aufgabe:** Rust Code auf hardcodierte Sachen durchsuchen
-- [ ] **Ziel:** Vermeiden, dass Tests nur durch Hardcoding bestehen
-- [ ] **Scope:** Besonders Pattern-Matching, Compromised-Package-Lists
-- [ ] **Deliverable:** Liste verdächtiger hardcodierter Werte + Fixes
+- [x] **Status:** ✅ ABGESCHLOSSEN  
+- [x] **Aufgabe:** Rust Code auf hardcodierte Sachen durchsuchen
+- [x] **Ziel:** Vermeiden, dass Tests nur durch Hardcoding bestehen
+- [x] **Scope:** Besonders Pattern-Matching, Compromised-Package-Lists
+- [x] **Deliverable:** Liste verdächtiger hardcodierter Werte + Fixes
+
+**🔧 BEFUNDE & FIXES:**
+- **❌ Entfernt:** `is_semver_risk_range()` - hardcodierte Pakete @operato/board, @ctrl/tinycolor
+- **❌ Entfernt:** `is_affected_namespace()` - hardcodierte Namespace-Liste (11 Einträge)
+- **✅ Ersetzt:** Durch datenbasierte Algorithmen die compromised_packages.txt verwenden
+- **✅ Validiert:** Alle Tests bestehen weiterhin (4 passed, 0 failed)
+- **✅ Integrität:** Scanner funktioniert ohne Hardcoding-"Schummeleien"
 
 ---
 

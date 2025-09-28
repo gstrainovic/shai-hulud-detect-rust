@@ -651,37 +651,56 @@ impl Scanner {
 
     /// Check if a package version has risky semver ranges
     fn is_semver_risk_range(&self, package_name: &str, version_spec: &str) -> bool {
-        // Check for packages that could match compromised versions with semver ranges
-        if package_name == "@operato/board" && version_spec.contains("~9.0.35") {
-            return true;
-        }
-        if package_name == "@ctrl/tinycolor"
-            && (version_spec.contains("^4.0.0") || version_spec.contains("~4.1"))
-        {
-            return true;
+        // Check if this package exists in our compromised packages database
+        // and if the semver range could potentially match compromised versions
+        if let Some(compromised_versions) = self.compromised_packages.get(package_name) {
+            // Check if any compromised version could be matched by this semver range
+            for compromised_version in compromised_versions {
+                // Simple heuristic: if semver range is broad enough, it might be risky
+                if version_spec.starts_with('^') || version_spec.starts_with('~') {
+                    // Extract base version from semver range
+                    let base_version = version_spec.trim_start_matches(['^', '~']);
+                    if let (Ok(base), Ok(compromised)) = (
+                        semver::Version::parse(base_version),
+                        semver::Version::parse(compromised_version)
+                    ) {
+                        // Check if compromised version could be in range
+                        if compromised.major == base.major {
+                            if version_spec.starts_with('^') {
+                                // Caret range: compatible within major version
+                                return true;
+                            } else if version_spec.starts_with('~') && compromised.minor == base.minor {
+                                // Tilde range: compatible within minor version
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
         }
         false
     }
 
     /// Check if a package is from an affected namespace
     fn is_affected_namespace(&self, package_name: &str) -> bool {
-        let affected_namespaces = [
-            "@ctrl",
-            "@crowdstrike",
-            "@art-ws",
-            "@ngx",
-            "@nativescript-community",
-            "@ahmedhfarag",
-            "@operato",
-            "@teselagen",
-            "@things-factory",
-            "@hestjs",
-            "@nstudio",
-        ];
-
-        affected_namespaces
-            .iter()
-            .any(|ns| package_name.starts_with(ns))
+        // Generate affected namespaces dynamically from compromised packages database
+        // rather than using a hardcoded list
+        if package_name.starts_with('@') {
+            if let Some(slash_pos) = package_name.find('/') {
+                let namespace = &package_name[..slash_pos]; // namespace without '/'
+                
+                // Check if any package in our compromised database uses this namespace
+                for compromised_package in self.compromised_packages.keys() {
+                    if let Some(comp_slash) = compromised_package.find('/') {
+                        let comp_namespace = &compromised_package[..comp_slash];
+                        if namespace == comp_namespace {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        false
     }
 
     /// Adjust risk level based on file context
@@ -1354,7 +1373,11 @@ impl Scanner {
     }
 
     /// Check for lockfile integrity issues by comparing against compromised packages
-    async fn check_lockfile_integrity(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+    async fn check_lockfile_integrity(
+        &self,
+        files: &[PathBuf],
+        results: &mut ScanResults,
+    ) -> Result<()> {
         if self.show_progress {
             println!("🔍 Checking package lock files for integrity issues...");
         }
@@ -1363,7 +1386,10 @@ impl Scanner {
             .iter()
             .filter(|f| {
                 if let Some(filename) = f.file_name().and_then(|n| n.to_str()) {
-                    matches!(filename, "package-lock.json" | "yarn.lock" | "pnpm-lock.yaml")
+                    matches!(
+                        filename,
+                        "package-lock.json" | "yarn.lock" | "pnpm-lock.yaml"
+                    )
                 } else {
                     false
                 }
@@ -1378,13 +1404,23 @@ impl Scanner {
                 for (package_name, versions) in &self.compromised_packages {
                     for version in versions {
                         // For JSON lockfiles (package-lock.json)
-                        if lockfile.file_name().and_then(|n| n.to_str()) == Some("package-lock.json") {
-                            if let Ok(lockfile_json) = serde_json::from_str::<serde_json::Value>(&content) {
-                                if let Some(dependencies) = lockfile_json.get("dependencies").and_then(|d| d.as_object()) {
+                        if lockfile.file_name().and_then(|n| n.to_str())
+                            == Some("package-lock.json")
+                        {
+                            if let Ok(lockfile_json) =
+                                serde_json::from_str::<serde_json::Value>(&content)
+                            {
+                                if let Some(dependencies) = lockfile_json
+                                    .get("dependencies")
+                                    .and_then(|d| d.as_object())
+                                {
                                     if let Some(dep_info) = dependencies.get(package_name) {
-                                        if let Some(found_version) = dep_info.get("version").and_then(|v| v.as_str()) {
+                                        if let Some(found_version) =
+                                            dep_info.get("version").and_then(|v| v.as_str())
+                                        {
                                             if found_version == version {
-                                                found_compromised.push(format!("{}@{}", package_name, version));
+                                                found_compromised
+                                                    .push(format!("{}@{}", package_name, version));
                                             }
                                         }
                                     }
@@ -1392,15 +1428,22 @@ impl Scanner {
                             }
                         }
                         // For YAML lockfiles (pnpm-lock.yaml)
-                        else if lockfile.file_name().and_then(|n| n.to_str()) == Some("pnpm-lock.yaml") {
+                        else if lockfile.file_name().and_then(|n| n.to_str())
+                            == Some("pnpm-lock.yaml")
+                        {
                             // Simple text search for pnpm-lock.yaml since it's YAML format
-                            if content.contains(&format!("/{}: ", package_name)) && content.contains(version) {
+                            if content.contains(&format!("/{}: ", package_name))
+                                && content.contains(version)
+                            {
                                 found_compromised.push(format!("{}@{}", package_name, version));
                             }
                         }
                         // For yarn.lock (text-based format)
-                        else if lockfile.file_name().and_then(|n| n.to_str()) == Some("yarn.lock") {
-                            if content.contains(&format!("{}@", package_name)) && content.contains(version) {
+                        else if lockfile.file_name().and_then(|n| n.to_str()) == Some("yarn.lock")
+                        {
+                            if content.contains(&format!("{}@", package_name))
+                                && content.contains(version)
+                            {
                                 found_compromised.push(format!("{}@{}", package_name, version));
                             }
                         }
@@ -1412,13 +1455,22 @@ impl Scanner {
                     results.add_file_result(FileResult {
                         file: lockfile.to_string_lossy().to_string(),
                         risk_level: RiskLevel::Medium,
-                        comment: format!("Package lockfile integrity issues: Compromised packages detected: {}", found_compromised.join(", ")),
+                        comment: format!(
+                            "Package lockfile integrity issues: Compromised packages detected: {}",
+                            found_compromised.join(", ")
+                        ),
                         patterns_detected: vec!["lockfile_integrity_issue".to_string()],
                         details: Some(vec![
-                            "Lockfile contains packages that match known compromised versions".to_string(),
-                            "These packages may have been tampered with during the attack".to_string(),
-                            "Recommend regenerating lockfiles and verifying package versions".to_string(),
-                            format!("Compromised packages found: {}", found_compromised.join(", ")),
+                            "Lockfile contains packages that match known compromised versions"
+                                .to_string(),
+                            "These packages may have been tampered with during the attack"
+                                .to_string(),
+                            "Recommend regenerating lockfiles and verifying package versions"
+                                .to_string(),
+                            format!(
+                                "Compromised packages found: {}",
+                                found_compromised.join(", ")
+                            ),
                         ]),
                     });
                 }
@@ -1429,7 +1481,11 @@ impl Scanner {
     }
 
     /// Check for Trufflehog activity and secret scanning patterns
-    async fn check_trufflehog_activity(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+    async fn check_trufflehog_activity(
+        &self,
+        files: &[PathBuf],
+        results: &mut ScanResults,
+    ) -> Result<()> {
         if self.show_progress {
             println!("🔍 Checking for Trufflehog activity and secret scanning...");
         }
@@ -1487,14 +1543,22 @@ impl Scanner {
                     // Higher risk if combined with subprocess/execution patterns
                     if content.contains("subprocess") && content.contains("curl") {
                         risk_level = RiskLevel::High;
-                        details.push("Suspicious trufflehog execution pattern detected".to_string());
+                        details
+                            .push("Suspicious trufflehog execution pattern detected".to_string());
                     }
                 }
 
                 // Check for credential scanning patterns
                 let credential_patterns = [
-                    "AWS_ACCESS_KEY", "GITHUB_TOKEN", "NPM_TOKEN", "API_KEY", "SECRET_KEY",
-                    "ACCESS_TOKEN", "PRIVATE_KEY", "SLACK_TOKEN", "DISCORD_TOKEN"
+                    "AWS_ACCESS_KEY",
+                    "GITHUB_TOKEN",
+                    "NPM_TOKEN",
+                    "API_KEY",
+                    "SECRET_KEY",
+                    "ACCESS_TOKEN",
+                    "PRIVATE_KEY",
+                    "SLACK_TOKEN",
+                    "DISCORD_TOKEN",
                 ];
 
                 let mut credential_mentions = 0;
@@ -1512,27 +1576,37 @@ impl Scanner {
                     details.push("Contains credential scanning patterns".to_string());
 
                     // Higher risk if combined with exfiltration patterns
-                    if content.contains("webhook.site") || 
-                       (content.contains("curl") && content.contains("POST")) ||
-                       content.contains("https.request") {
+                    if content.contains("webhook.site")
+                        || (content.contains("curl") && content.contains("POST"))
+                        || content.contains("https.request")
+                    {
                         risk_level = RiskLevel::High;
-                        details.push("Credential patterns with potential exfiltration detected".to_string());
+                        details.push(
+                            "Credential patterns with potential exfiltration detected".to_string(),
+                        );
                     }
                 }
 
                 // Check for environment variable scanning
-                if content.contains("process.env") || content.contains("os.environ") || content.contains("getenv") {
+                if content.contains("process.env")
+                    || content.contains("os.environ")
+                    || content.contains("getenv")
+                {
                     // Only flag if combined with suspicious patterns
                     if content.contains("webhook.site") && content.contains("exfiltrat") {
                         patterns_found.push("environment_scanning_with_exfiltration".to_string());
                         risk_level = RiskLevel::High;
                         details.push("Environment scanning with exfiltration detected".to_string());
-                    } else if content.contains("scan") || content.contains("harvest") || content.contains("steal") {
+                    } else if content.contains("scan")
+                        || content.contains("harvest")
+                        || content.contains("steal")
+                    {
                         patterns_found.push("suspicious_env_access".to_string());
                         if risk_level == RiskLevel::Ok {
                             risk_level = RiskLevel::Medium;
                         }
-                        details.push("Potentially suspicious environment variable access".to_string());
+                        details
+                            .push("Potentially suspicious environment variable access".to_string());
                     }
                 }
 
@@ -1554,7 +1628,9 @@ impl Scanner {
                 // Report findings if any patterns detected
                 if !patterns_found.is_empty() {
                     let comment = match risk_level {
-                        RiskLevel::High => "HIGH RISK: Suspicious Trufflehog/secret scanning activity",
+                        RiskLevel::High => {
+                            "HIGH RISK: Suspicious Trufflehog/secret scanning activity"
+                        }
                         RiskLevel::Medium => "MEDIUM RISK: Potential secret scanning activity",
                         RiskLevel::Low => "LOW RISK: Credential-related content detected",
                         _ => "Trufflehog/credential patterns detected",

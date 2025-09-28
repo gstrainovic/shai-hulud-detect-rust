@@ -38,3 +38,4 @@ regex = "1.10"
 
 # Date/time handling
 chrono = { version = "0.4", features = ["serde"] }
+semver = "1.0.27"
