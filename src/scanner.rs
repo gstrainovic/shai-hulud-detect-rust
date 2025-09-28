@@ -151,6 +151,9 @@ impl Scanner {
         // Step 12: Check for Trufflehog activity and secret scanning
         self.check_trufflehog_activity(&files, &mut results).await?;
 
+        // Step 13: Check for Shai-Hulud repositories and migration patterns
+        self.check_shai_hulud_migration_patterns(&mut results).await?;
+
         // Finalize results with end timestamp
         results.finalize();
 
@@ -1646,6 +1649,82 @@ impl Scanner {
                         details: Some(details),
                     });
                 }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Check for Shai-Hulud repositories and migration patterns
+    async fn check_shai_hulud_migration_patterns(&self, results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking for Shai-Hulud repositories and migration patterns...");
+        }
+
+        // Search for .git directories to analyze repository information
+        for entry in walkdir::WalkDir::new(&self.scan_path)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.file_name().to_string_lossy() == ".git" && e.file_type().is_dir())
+        {
+            let git_dir = entry.path();
+            let repo_dir = git_dir.parent().unwrap_or(git_dir);
+            let repo_name = repo_dir.file_name().and_then(|n| n.to_str()).unwrap_or("");
+
+            let mut findings = Vec::new();
+            let mut risk_level = RiskLevel::Medium;
+
+            // Check repository name for Shai-Hulud references
+            if repo_name.to_lowercase().contains("shai-hulud") || repo_name.to_lowercase().contains("shai_hulud") {
+                findings.push("Repository name contains 'Shai-Hulud'".to_string());
+                risk_level = RiskLevel::High; // Higher risk for explicit Shai-Hulud naming
+            }
+
+            // Check for migration pattern repositories (new IoC)
+            if repo_name.contains("-migration") || repo_name.contains("_migration") {
+                findings.push("Repository name contains migration pattern".to_string());
+            }
+
+            // Check Git remote URLs for shai-hulud references
+            let git_config_path = git_dir.join("config");
+            if git_config_path.exists() {
+                if let Ok(config_content) = fs::read_to_string(&git_config_path) {
+                    if config_content.to_lowercase().contains("shai-hulud") || config_content.to_lowercase().contains("shai_hulud") {
+                        findings.push("Git remote contains 'Shai-Hulud'".to_string());
+                        risk_level = RiskLevel::High;
+                    }
+                }
+            }
+
+            // Check for suspicious data.json files with base64-encoded data
+            let data_json_path = repo_dir.join("data.json");
+            if data_json_path.exists() {
+                if let Ok(data_content) = fs::read_to_string(&data_json_path) {
+                    let content_sample = data_content.lines().take(5).collect::<Vec<_>>().join("\n");
+                    // Check for base64 patterns (eyJ indicates JSON base64, == indicates base64 padding)
+                    if content_sample.contains("eyJ") && content_sample.contains("==") {
+                        findings.push("Contains suspicious data.json (possible base64-encoded credentials)".to_string());
+                        risk_level = RiskLevel::High;
+                    }
+                }
+            }
+
+            // Report findings if any Shai-Hulud patterns detected
+            if !findings.is_empty() {
+                results.add_file_result(FileResult {
+                    file: repo_dir.to_string_lossy().to_string(),
+                    risk_level,
+                    comment: format!("Shai-Hulud repository/migration patterns detected: {}", findings.join(", ")),
+                    patterns_detected: vec!["shai_hulud_migration_patterns".to_string()],
+                    details: Some([
+                        findings,
+                        vec![
+                            "Shai-Hulud patterns may indicate compromise or related malicious activity".to_string(),
+                            "Migration patterns are a known indicator from the September 8, 2025 attack".to_string(),
+                            "Verify repository legitimacy and check Git history for suspicious activity".to_string(),
+                        ]
+                    ].concat()),
+                });
             }
         }
 
