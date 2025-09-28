@@ -81,10 +81,58 @@ impl ScanResults {
         }
     }
 
-    /// Add a file result to the scan results
+    /// Add a file result to the scan results with consolidation
     pub fn add_file_result(&mut self, result: FileResult) {
-        // Update summary counts
-        match result.risk_level {
+        // Check if we already have a result for this file
+        let file_path = result.file.clone();
+        let new_risk_level = result.risk_level;
+        
+        if let Some(existing_idx) = self.results.iter().position(|r| r.file == file_path) {
+            // Merge with existing result
+            let old_risk_level = self.results[existing_idx].risk_level;
+            
+            // Use the higher risk level
+            if new_risk_level > old_risk_level {
+                self.results[existing_idx].risk_level = new_risk_level;
+                // Update summary counts
+                self.decrease_summary_counts(&old_risk_level);
+                self.update_summary_counts(&new_risk_level);
+            }
+
+            // Merge patterns_detected (avoid duplicates)
+            for pattern in result.patterns_detected {
+                if !self.results[existing_idx].patterns_detected.contains(&pattern) {
+                    self.results[existing_idx].patterns_detected.push(pattern);
+                }
+            }
+
+            // Merge comments
+            if !self.results[existing_idx].comment.contains(&result.comment) {
+                self.results[existing_idx].comment = format!("{}, {}", self.results[existing_idx].comment, result.comment);
+            }
+
+            // Merge details
+            if let Some(new_details) = result.details {
+                if let Some(existing_details) = &mut self.results[existing_idx].details {
+                    for detail in new_details {
+                        if !existing_details.contains(&detail) {
+                            existing_details.push(detail);
+                        }
+                    }
+                } else {
+                    self.results[existing_idx].details = Some(new_details);
+                }
+            }
+        } else {
+            // New file, add directly and update counts
+            self.update_summary_counts(&new_risk_level);
+            self.results.push(result);
+        }
+    }
+
+    /// Update summary counts for a given risk level
+    fn update_summary_counts(&mut self, risk_level: &RiskLevel) {
+        match risk_level {
             RiskLevel::High => {
                 self.summary.high_risk_count += 1;
                 self.summary.total_issues += 1;
@@ -99,8 +147,31 @@ impl ScanResults {
             }
             RiskLevel::Ok => {} // OK level doesn't count as an issue
         }
+    }
 
-        self.results.push(result);
+    /// Decrease summary counts for a given risk level
+    fn decrease_summary_counts(&mut self, risk_level: &RiskLevel) {
+        match risk_level {
+            RiskLevel::High => {
+                if self.summary.high_risk_count > 0 {
+                    self.summary.high_risk_count -= 1;
+                    self.summary.total_issues -= 1;
+                }
+            }
+            RiskLevel::Medium => {
+                if self.summary.medium_risk_count > 0 {
+                    self.summary.medium_risk_count -= 1;
+                    self.summary.total_issues -= 1;
+                }
+            }
+            RiskLevel::Low => {
+                if self.summary.low_risk_count > 0 {
+                    self.summary.low_risk_count -= 1;
+                    self.summary.total_issues -= 1;
+                }
+            }
+            RiskLevel::Ok => {} // OK level doesn't count as an issue
+        }
     }
 
     /// Get count of high risk issues
