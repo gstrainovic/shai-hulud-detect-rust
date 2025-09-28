@@ -6,33 +6,38 @@
 ## 📋 Aufgaben-Liste
 
 ### ✅ ABGESCHLOSSEN
-- [x] Git Branch Analysis implementiert (Commit: 4852892)
-- [x] Detailed Typosquatting Analysis implementiert (Commit: e361578) 
-- [x] Specialized Network Exfiltration Checks implementiert (Commit: 578c335)
+- [ ] Git Branch Analysis implementiert (Commit: 4852892)
+- [ ] Detailed Typosquatting Analysis implementiert (Commit: e361578) 
+- [ ] Specialized Network Exfiltration Checks implementiert (Commit: 578c335)
 
 ---
 
 ### 🔄 IN BEARBEITUNG
 
+[ ] npm run test soll die tests vom ordner hai-hulud-detect\test-cases\ ausfürhen und mit test_verification_detailed.json, so war es mal, prüfe die git history.
+
+[ ] finde fehler in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json die eindeutig sind und fixe es wie z.b postinstall? C:\Users\gstra\Code\shai-hulud-detect\test-cases\infected-project\package-with-postinstall.json + hätte als postinstall erkannt werden soll gemäss dateiname und dan gäbe es nicht C:\Users\gstra\Code\shai-hulud-detect-rust\tests\test-cases\postinstall-hooks-test
+
+
 #### 1. Log-Vergleich Test-Cases Rust vs Bash
-- [x] **Status:** ✅ ABGESCHLOSSEN - Kritische Lücken gefunden
-- [x] **Aufgabe:** Rust test-cases log mit `logs\bash\bash-testcase.log` vergleichen
-- [x] **Hinweis:** Bash scan NICHT ausführen (sehr langsam), nur bestehende Logs verwenden
-- [x] **Suchen:** Unterschiede in Erkennung, Formatierung, Details
-- [x] **Deliverable:** Liste der gefundenen Unterschiede
+- [ ] **Status:** ✅ ABGESCHLOSSEN - Kritische Lücken gefunde13. finde fehler in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json die eindeutig sind und fixe es wie z.b postinstall? C:\Users\gstra\Code\shai-hulud-detect\test-cases\infected-project\package-with-postinstall.json + hätte als postinstall erkannt werden soll gemäss dateiname und dan gäbe es nicht C:\Users\gstra\Code\shai-hulud-detect-rust\tests\test-cases\postinstall-hooks-testn
+- [ ] **Aufgabe:** Rust test-cases log mit `logs\bash\bash-testcase.log` vergleichen
+- [ ] **Hinweis:** Bash scan NICHT ausführen (sehr langsam), nur bestehende Logs verwenden
+- [ ] **Suchen:** Unterschiede in Erkennung, Formatierung, Details
+- [ ] **Deliverable:** Liste der gefundenen Unterschiede
 
 **🚨 ERGEBNIS:** 
-- **31 weniger Critical Issues** im Rust Scanner (-45%!)
-- **Fehlende Scan-Module:** postinstall hooks, cryptocurrency patterns, Trufflehog, Shai-Hulud migration, lockfile integrity
+- **?? weniger Critical Issues** im Rust Scanner (-??!)
+- **Fehlende Scan-Module:** ??
 - **Nächster Schritt:** TODO #2 - Diese Lücken dringend beheben
 
 ---
 
 #### 2. Gefundene Unterschiede beheben
 - [ ] **Status:** 🔥 DRINGEND - Kritische Lücken beheben
-- [x] **Aufgabe:** Alle kritischen Unterschiede aus #1 implementieren
+- [ ] **Aufgabe:** Alle kritischen Unterschiede aus #1 implementieren
 - [ ] **FEHLENDE MODULE zu implementieren:**
-  - [x] **Postinstall Hooks Scanner** ✅ IMPLEMENTIERT - 🐛 Minor bug mit existierendem Test-Case
+  - [ ] **Postinstall Hooks Scanner** ✅ IMPLEMENTIERT - 🐛 Minor bug mit existierendem Test-Case
   - [ ] **Cryptocurrency Theft Patterns** (dedicated crypto theft detection) - 🔄 IN PROGRESS
   - [ ] **Trufflehog Activity Scanner** (secret scanning activity)
   - [ ] **Shai-Hulud Migration Patterns** (repository migration detection)
@@ -124,16 +129,9 @@
 
 #### 12. Vergleiche die rust-dev outputs mit rust scanner, was macht rust-dev besser? dies übernehmen
 
-13. finde fehler in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json die eindeutig sind und fixe es wie z.b postinstall? C:\Users\gstra\Code\shai-hulud-detect\test-cases\infected-project\package-with-postinstall.json + hätte als postinstall erkannt werden soll gemäss dateiname und dan gäbe es nicht C:\Users\gstra\Code\shai-hulud-detect-rust\tests\test-cases\postinstall-hooks-test
 
 
-14. prüfe, gab es die test_cases in C:\Users\gstra\Code\shai-hulud-detect\test-cases schon aber wurden nicht erkannt und neu erstellt in C:\Users\gstra\Code\shai-hulud-detect-rust\tests\test-cases, fixe falls nötig
-- [x] **Status:** ✅ BEHOBEN - Doppelte Test-Cases entfernt
-- [x] **Gefunden:** `typosquatting-test` und `network-exfiltration-test` waren Duplikate
-- [x] **Entfernt:** Beide duplizierten Test-Cases gelöscht
-- [x] **Behalten:** `git-branch-test` (kein Original), `crypto-theft-test` (erweitert Original), `postinstall-hooks-test` (Original-Bug-Fix)
-- [x] **Validiert:** Existierende Test-Cases in `../shai-hulud-detect/test-cases/` funktionieren mit meinem Scanner
----
+
 
 ## 📊 Fortschritts-Tracking
 
