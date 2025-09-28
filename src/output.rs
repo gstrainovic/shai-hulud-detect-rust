@@ -248,10 +248,7 @@ impl ScanResults {
             "   Low Risk (informational): {}",
             self.summary.low_risk_count
         );
-        println!(
-            "   Total Critical Issues: {}",
-            self.summary.total_issues
-        );
+        println!("   Total Critical Issues: {}", self.summary.total_issues);
         println!();
 
         if self.summary.high_risk_count > 0 {
