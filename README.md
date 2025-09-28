@@ -16,9 +16,11 @@ A fast, reliable Rust implementation of the Shai-Hulud NPM supply chain attack d
 
 - 🚀 **Fast Performance**: Written in Rust for optimal scanning speed
 - 🔍 **Comprehensive Detection**: Covers 621+ compromised packages and malicious patterns
-- 📊 **JSON Output**: Structured results for CI/CD integration
+- 📊 **JSON Output by Default**: Structured results saved automatically to `scan_results.json`
+- � **Clean Console Output**: Progress indicators + summary only, details available in JSON
+- ⏱️ **Timing Information**: Tracks scan duration and timestamps for monitoring
 - 🛡️ **Paranoid Mode**: Additional security checks for thorough analysis
-- 🔧 **CI/CD Ready**: Proper exit codes for automated workflows
+- 🔧 **CI/CD Ready**: Proper exit codes and clean output for automated workflows
 - 📁 **Hash Verification**: Detects known malicious files by SHA-256 hash
 - 🎯 **Pattern Matching**: Advanced regex patterns for suspicious content
 
@@ -50,18 +52,84 @@ The Rust scanner expects the original repository to be available at `../shai-hul
 ### Basic Usage
 
 ```bash
-# Scan a Node.js project
+# Scan a Node.js project (JSON output is default)
 ./target/release/shai-hulud-scanner /path/to/your/project
 
 # Scan with paranoid mode (additional security checks)
 ./target/release/shai-hulud-scanner --paranoid /path/to/your/project
 
-# Output results in JSON format
-./target/release/shai-hulud-scanner --json --output results.json /path/to/your/project
+# Custom JSON output file
+./target/release/shai-hulud-scanner --output custom-results.json /path/to/your/project
 
-# Quiet mode (only show summary)
-./target/release/shai-hulud-scanner --quiet /path/to/your/project
+# Disable JSON output (console summary only)
+./target/release/shai-hulud-scanner --no-json /path/to/your/project
 ```
+
+### New Default Behavior
+
+🔄 **JSON Output by Default**: Results are automatically saved to `scan_results.json`  
+� **Summary Output**: Shows progress and counts only - detailed findings available in JSON  
+⏱️ **Timing Information**: Start time, end time, and scan duration included in output  
+� **Better CI/CD Integration**: Clean console output + structured JSON for automation
+
+### Development Usage
+
+```bash
+# Scan a Node.js project (JSON output is default)
+cargo run /path/to/your/project
+
+# Scan with paranoid mode (additional security checks)
+cargo run -- --paranoid /path/to/your/project
+
+# Custom JSON output file
+cargo run -- --output my-scan-results.json /path/to/your/project
+
+# Disable JSON output (console summary only)
+cargo run -- --no-json /path/to/your/project
+```
+
+```
+
+### Example Output
+
+**Standard Output:**
+```
+📦 Loading compromised packages database...
+📦 Loaded 621 compromised packages from database
+🔍 Starting Shai-Hulud detection scan...
+Scanning directory: /path/to/project
+📄 Results will be saved to scan_results.json
+🔍 Found 1234 files to analyze
+🔍 Checking 45 package.json files for compromised packages...
+🔍 Checking 678 JavaScript files for known malicious content...
+🔍 Checking 1234 files for suspicious content patterns...
+🔍 Checking 2 pnpm-lock.yaml files...
+✅ Scan completed
+📄 Results saved to: scan_results.json
+
+==============================================
+      SHAI-HULUD DETECTION REPORT  
+==============================================
+� HIGH RISK: 2 issues detected
+⚠️  MEDIUM RISK: 5 issues detected
+ℹ️  LOW RISK: 3 informational warnings
+
+==============================================
+�🔍 SUMMARY:
+   Scan Duration: 2.34 seconds
+   High Risk Issues: 2
+   Medium Risk Issues: 5
+   Low Risk (informational): 3
+   Total Critical Issues: 7
+
+⚠️  IMPORTANT:
+   - High risk issues likely indicate actual compromise
+   - Immediate investigation and remediation required
+   - Consider running additional security scans
+==============================================
+```
+
+**Detailed findings are available in the generated JSON file.**
 
 ### Exit Codes
 
@@ -69,6 +137,26 @@ The scanner uses standard exit codes for CI/CD integration:
 - `0`: Clean - no issues found
 - `1`: Medium risk - issues require manual review  
 - `2`: High risk - immediate action required
+
+### JSON Output Structure
+
+Results are automatically saved with timing information:
+```json
+{
+  "scan_path": "/path/to/project", 
+  "start_time": "2025-09-28T10:00:00.000Z",
+  "end_time": "2025-09-28T10:00:02.340Z", 
+  "duration_seconds": 2.34,
+  "files_scanned": 1234,
+  "summary": {
+    "high_risk_count": 0,
+    "medium_risk_count": 0, 
+    "low_risk_count": 0,
+    "total_issues": 0
+  },
+  "results": [...]
+}
+```
 
 ## What It Detects
 
