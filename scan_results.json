@@ -1,15 +1,469 @@
 {
-  "scan_path": "../shai-hulud-detect/test-cases/clean-project/",
-  "start_time": "2025-09-28T00:33:17.630297800Z",
-  "end_time": "2025-09-28T00:33:17.632086600Z",
-  "duration_seconds": 0.001,
-  "timestamp": "2025-09-28T00:33:17.630297800Z",
+  "scan_path": "../shai-hulud-detect/test-cases/",
+  "start_time": "2025-09-28T00:44:10.353706200Z",
+  "end_time": "2025-09-28T00:44:10.373779800Z",
+  "duration_seconds": 0.02,
+  "timestamp": "2025-09-28T00:44:10.353706200Z",
   "files_scanned": 0,
-  "results": [],
+  "results": [
+    {
+      "file": "../shai-hulud-detect/test-cases/chalk-debug-attack\\package.json",
+      "risk_level": "High",
+      "comment": "Contains known compromised packages: ansi-styles@6.2.2, chalk@5.6.1, debug@4.4.2",
+      "patterns_detected": [
+        "compromised_packages",
+        "compromised_packages",
+        "compromised_packages"
+      ],
+      "details": [
+        "ansi-styles@6.2.2",
+        "chalk@5.6.1",
+        "debug@4.4.2"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/common-crypto-libs\\package.json",
+      "risk_level": "Medium",
+      "comment": "Contains crypto libraries or suspicious patterns",
+      "patterns_detected": [
+        "crypto_libraries",
+        "crypto_libraries"
+      ],
+      "details": null
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/comprehensive-test\\package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Potential typosquatting: @typescript_eslinter/eslint, Potential typosquatting: lodsh, Potential typosquatting: reаct",
+      "patterns_detected": [
+        "typosquatting",
+        "typosquatting",
+        "typosquatting"
+      ],
+      "details": [
+        "Potential typosquatting: @typescript_eslinter/eslint",
+        "Potential typosquatting: lodsh",
+        "Potential typosquatting: reаct"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/debug-js\\package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Debug package detected",
+      "patterns_detected": [
+        "debug_package_risk"
+      ],
+      "details": [
+        "Debug package detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\package.json",
+      "risk_level": "High",
+      "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49",
+      "patterns_detected": [
+        "compromised_packages",
+        "affected_namespace",
+        "compromised_packages"
+      ],
+      "details": [
+        "@ctrl/deluge@1.2.0",
+        "@nativescript-community/ui-material-core@7.2.49"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/legitimate-crypto\\package.json",
+      "risk_level": "Medium",
+      "comment": "Contains crypto libraries or suspicious patterns",
+      "patterns_detected": [
+        "crypto_libraries",
+        "crypto_libraries",
+        "crypto_libraries"
+      ],
+      "details": null
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/legitimate-security-project\\package.json",
+      "risk_level": "Low",
+      "comment": "Contains suspicious packages: Security project: security-scanner, Security scanning tool description",
+      "patterns_detected": [
+        "security_project",
+        "security_project"
+      ],
+      "details": [
+        "Security project: security-scanner",
+        "Security scanning tool description"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/mixed-project\\package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Mixed project context: mixed-project",
+      "patterns_detected": [
+        "mixed_risk_elements",
+        "affected_namespace"
+      ],
+      "details": [
+        "Mixed project context: mixed-project"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/namespace-warning\\package.json",
+      "risk_level": "Low",
+      "comment": "Contains packages from affected namespaces",
+      "patterns_detected": [
+        "affected_namespace",
+        "affected_namespace"
+      ],
+      "details": null
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Semver risk: @ctrl/tinycolor@^4.0.0, Semver risk: @operato/board@~9.0.35",
+      "patterns_detected": [
+        "semver_risk_ranges",
+        "semver_risk_ranges"
+      ],
+      "details": [
+        "Semver risk: @ctrl/tinycolor@^4.0.0",
+        "Semver risk: @operato/board@~9.0.35"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/typosquatting-project\\package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Potential typosquatting: @typеs/node, Potential typosquatting: expres, Potential typosquatting: lodsh, Potential typosquatting: raect",
+      "patterns_detected": [
+        "typosquatting",
+        "typosquatting",
+        "typosquatting",
+        "typosquatting"
+      ],
+      "details": [
+        "Potential typosquatting: @typеs/node",
+        "Potential typosquatting: expres",
+        "Potential typosquatting: lodsh",
+        "Potential typosquatting: raect"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/chalk-debug-attack\\malicious-chalk.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "xmlhttprequest_modification",
+        "attacker_wallet",
+        "npmjs_help",
+        "ethereum_addresses"
+      ],
+      "details": [
+        "xmlhttprequest_modification: XMLHttpRequest prototype modification detected",
+        "attacker_wallet: Known attacker wallet address detected - HIGH RISK",
+        "npmjs_help: Phishing domain npmjs.help detected",
+        "ethereum_addresses: Ethereum wallet address patterns detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/chalk-debug-attack\\obfuscated-payload.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "attacker_wallet",
+        "npmjs_help",
+        "ethereum_addresses"
+      ],
+      "details": [
+        "attacker_wallet: Known attacker wallet address detected - HIGH RISK",
+        "npmjs_help: Phishing domain npmjs.help detected",
+        "ethereum_addresses: Ethereum wallet address patterns detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/common-crypto-libs\\ethers-usage.js",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": [
+        "ethereum_addresses: Ethereum wallet address patterns detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/comprehensive-test\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Potential typosquatting package detected",
+      "patterns_detected": [
+        "typosquatting_detection"
+      ],
+      "details": [
+        "typosquatting_detection: Potential typosquatting package detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/comprehensive-test\\suspicious.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: Pastebin exfiltration detected, Hardcoded private IP address detected, C2 WebSocket connection detected",
+      "patterns_detected": [
+        "pastebin_exfiltration",
+        "private_ip_hardcoded",
+        "c2_websocket"
+      ],
+      "details": [
+        "pastebin_exfiltration: Pastebin exfiltration detected",
+        "private_ip_hardcoded: Hardcoded private IP address detected",
+        "c2_websocket: C2 WebSocket connection detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/edge-case-project\\documentation.md",
+      "risk_level": "Low",
+      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "trufflehog_references",
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "trufflehog_references: Contains trufflehog references in source code",
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/edge-case-project\\node_modules\\@types\\node\\process.d.ts",
+      "risk_level": "Low",
+      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/false-positive-project\\express-server.js",
+      "risk_level": "Low",
+      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Potential typosquatting package detected, Credential mentions detected",
+      "patterns_detected": [
+        "credential_scanning",
+        "typosquatting_detection",
+        "credential_mentions"
+      ],
+      "details": [
+        "credential_scanning: Contains credential scanning patterns",
+        "typosquatting_detection: Potential typosquatting package detected",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/false-positive-project\\webpack.config.js",
+      "risk_level": "Low",
+      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\.github\\workflows\\shai-hulud-workflow.yml",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\actual-credential-harvester.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains credential scanning patterns, Potentially suspicious environment variable access, Credential mentions detected",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint",
+        "credential_scanning",
+        "env_var_access",
+        "credential_mentions"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint",
+        "credential_scanning: Contains credential scanning patterns",
+        "env_var_access: Potentially suspicious environment variable access",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\crypto-theft.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "xmlhttprequest_modification",
+        "attacker_wallet",
+        "npmjs_help",
+        "ethereum_addresses"
+      ],
+      "details": [
+        "xmlhttprequest_modification: XMLHttpRequest prototype modification detected",
+        "attacker_wallet: Known attacker wallet address detected - HIGH RISK",
+        "npmjs_help: Phishing domain npmjs.help detected",
+        "ethereum_addresses: Ethereum wallet address patterns detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\malicious-trufflehog-wrapper.sh",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint",
+        "trufflehog_references",
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint",
+        "trufflehog_references: Contains trufflehog references in source code",
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\malicious.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\package-with-postinstall.json",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\trufflehog-script.sh",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "trufflehog_references",
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "trufflehog_references: Contains trufflehog references in source code",
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/legitimate-crypto\\wallet-utils.js",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": [
+        "ethereum_addresses: Ethereum wallet address patterns detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/legitimate-security-project\\security-scanner.py",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "trufflehog_references",
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "trufflehog_references: Contains trufflehog references in source code",
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/mixed-project\\suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: webhook.site reference, webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_alternative",
+        "webhook_site_alternative"
+      ],
+      "details": [
+        "webhook_site_alternative: webhook.site reference",
+        "webhook_site_alternative: webhook.site reference"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/network-exfiltration-project\\malicious.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Hardcoded private IP address detected, C2 WebSocket connection detected",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint",
+        "private_ip_hardcoded",
+        "c2_websocket"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint",
+        "private_ip_hardcoded: Hardcoded private IP address detected",
+        "c2_websocket: C2 WebSocket connection detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/typosquatting-project\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Potential typosquatting package detected",
+      "patterns_detected": [
+        "typosquatting_detection"
+      ],
+      "details": [
+        "typosquatting_detection: Potential typosquatting package detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-lockfile-pnpm\\pnpm-lock.yaml",
+      "risk_level": "High",
+      "comment": "pnpm lockfile contains compromised packages: @ctrl/tinycolor@4.1.2",
+      "patterns_detected": [
+        "compromised_package_in_lockfile"
+      ],
+      "details": [
+        "@ctrl/tinycolor@4.1.2"
+      ]
+    }
+  ],
   "summary": {
-    "high_risk_count": 0,
-    "medium_risk_count": 0,
-    "low_risk_count": 0,
-    "total_issues": 0
+    "high_risk_count": 13,
+    "medium_risk_count": 14,
+    "low_risk_count": 6,
+    "total_issues": 33
   }
 }

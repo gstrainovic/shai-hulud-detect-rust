@@ -178,17 +178,32 @@ impl ScanResults {
             .filter(|r| r.risk_level == RiskLevel::Low)
             .collect();
 
-        // Just show counts, not detailed findings (details are in JSON)
+        // Show detailed findings with context (like Bash scanner)
         if !high_risk.is_empty() {
             println!("🚨 HIGH RISK: {} issues detected", high_risk.len());
+            for result in high_risk {
+                println!("   • {}", result.file);
+                println!("     └─ {}", result.comment);
+            }
+            println!();
         }
 
         if !medium_risk.is_empty() {
             println!("⚠️  MEDIUM RISK: {} issues detected", medium_risk.len());
+            for result in medium_risk {
+                println!("   • {}", result.file);
+                println!("     └─ {}", result.comment);
+            }
+            println!();
         }
 
         if !low_risk.is_empty() {
             println!("ℹ️  LOW RISK: {} informational warnings", low_risk.len());
+            for result in low_risk {
+                println!("   • {}", result.file);
+                println!("     └─ {}", result.comment);
+            }
+            println!();
         }
 
         println!();
