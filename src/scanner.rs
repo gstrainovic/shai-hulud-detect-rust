@@ -131,7 +131,8 @@ impl Scanner {
         self.check_git_branches(&mut results).await?;
 
         // Step 7: Check for specialized network exfiltration patterns
-        self.check_specialized_network_patterns(&files, &mut results).await?;
+        self.check_specialized_network_patterns(&files, &mut results)
+            .await?;
 
         // Finalize results with end timestamp
         results.finalize();
@@ -952,27 +953,67 @@ impl Scanner {
     }
 
     /// Check for specialized network exfiltration patterns (separate findings like Bash scanner)
-    async fn check_specialized_network_patterns(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+    async fn check_specialized_network_patterns(
+        &self,
+        files: &[PathBuf],
+        results: &mut ScanResults,
+    ) -> Result<()> {
         if self.show_progress {
             println!("🔍 Checking for specialized network exfiltration patterns...");
         }
 
         // Define specialized network patterns to check separately
         let network_patterns = [
-            ("pastebin_exfiltration", r"pastebin\.com", "Pastebin exfiltration detected"),
-            ("private_ip_hardcoded", r"\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b", "Hardcoded private IP address detected"),
-            ("c2_websocket", r"wss?://[^/\s]+\.(?:evil|malicious|c2|command)\.com", "C2 WebSocket connection detected"),
-            ("base64_decoding", r#"atob\(|Buffer\.from\(.+,\s*["']base64["']"#, "Base64 decoding detected"),
-            ("suspicious_websocket", r#"new\s+WebSocket\s*\(\s*["']wss?://"#, "WebSocket connection to external endpoint detected"),
-            ("webhook_exfiltration", r"https?://webhook\.site/[a-f0-9-]+", "Webhook.site exfiltration detected"),
-            ("discord_webhook", r"https?://discord(?:app)?\.com/api/webhooks/", "Discord webhook exfiltration detected"),
-            ("data_exfiltration", r"(document\.cookie|localStorage|sessionStorage).*(fetch|XMLHttpRequest|axios)", "Data exfiltration pattern detected"),
+            (
+                "pastebin_exfiltration",
+                r"pastebin\.com",
+                "Pastebin exfiltration detected",
+            ),
+            (
+                "private_ip_hardcoded",
+                r"\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b",
+                "Hardcoded private IP address detected",
+            ),
+            (
+                "c2_websocket",
+                r"wss?://[^/\s]+\.(?:evil|malicious|c2|command)\.com",
+                "C2 WebSocket connection detected",
+            ),
+            (
+                "base64_decoding",
+                r#"atob\(|Buffer\.from\(.+,\s*["']base64["']"#,
+                "Base64 decoding detected",
+            ),
+            (
+                "suspicious_websocket",
+                r#"new\s+WebSocket\s*\(\s*["']wss?://"#,
+                "WebSocket connection to external endpoint detected",
+            ),
+            (
+                "webhook_exfiltration",
+                r"https?://webhook\.site/[a-f0-9-]+",
+                "Webhook.site exfiltration detected",
+            ),
+            (
+                "discord_webhook",
+                r"https?://discord(?:app)?\.com/api/webhooks/",
+                "Discord webhook exfiltration detected",
+            ),
+            (
+                "data_exfiltration",
+                r"(document\.cookie|localStorage|sessionStorage).*(fetch|XMLHttpRequest|axios)",
+                "Data exfiltration pattern detected",
+            ),
         ];
 
         for file in files {
             if let Some(filename) = file.file_name().and_then(|n| n.to_str()) {
                 // Only check JavaScript/TypeScript files for network patterns
-                if !(filename.ends_with(".js") || filename.ends_with(".ts") || filename.ends_with(".jsx") || filename.ends_with(".tsx")) {
+                if !(filename.ends_with(".js")
+                    || filename.ends_with(".ts")
+                    || filename.ends_with(".jsx")
+                    || filename.ends_with(".tsx"))
+                {
                     continue;
                 }
             }
@@ -984,7 +1025,8 @@ impl Scanner {
                         let matches: Vec<_> = regex.find_iter(&content).collect();
                         if !matches.is_empty() {
                             // Extract specific details about the match
-                            let details = matches.iter()
+                            let details = matches
+                                .iter()
                                 .take(3) // Limit to first 3 matches to avoid spam
                                 .enumerate()
                                 .map(|(_i, m)| {

