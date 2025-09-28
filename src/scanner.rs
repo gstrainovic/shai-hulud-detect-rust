@@ -468,7 +468,8 @@ impl Scanner {
                 if self.semver_could_match(version_spec, compromised_version) {
                     matching_versions.push(compromised_version.clone());
                 }
-            }            if matching_versions.is_empty() {
+            }
+            if matching_versions.is_empty() {
                 None
             } else {
                 Some(matching_versions)
@@ -957,7 +958,19 @@ impl Scanner {
                             found_compromised.join(", ")
                         ),
                         patterns_detected: vec!["compromised_package_in_lockfile".to_string()],
-                        details: Some(found_compromised),
+                        details: Some(found_compromised.clone()),
+                    });
+                    
+                    // Additional MEDIUM RISK issue for package integrity (Bash-compatible)
+                    results.add_file_result(FileResult {
+                        file: file.to_string_lossy().to_string(),
+                        risk_level: RiskLevel::Medium,
+                        comment: "Package integrity issues: Recently modified lockfile contains compromised packages".to_string(),
+                        patterns_detected: vec!["package_integrity_issue".to_string()],
+                        details: Some(vec![
+                            "PNPM lockfile contains @ctrl packages (potential worm activity)".to_string(),
+                            "Verify package versions and regenerate lockfiles if necessary".to_string(),
+                        ]),
                     });
                 }
             }
