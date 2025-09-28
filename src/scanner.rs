@@ -328,11 +328,10 @@ impl Scanner {
                             patterns.push("crypto_libraries".to_string());
                         }
                         // Check for typosquatting (MEDIUM risk)
-                        else if self.is_typosquatting_package(package_name) {
-                            risk_level = cmp::max(risk_level, RiskLevel::Medium);
+                        else if let Some(typo_reason) = self.analyze_typosquatting(package_name) {
+                            risk_level = RiskLevel::Medium;
                             patterns.push("typosquatting".to_string());
-                            detected_packages
-                                .push(format!("Potential typosquatting: {}", package_name));
+                            detected_packages.push(typo_reason);
                         }
                         // Check for semver risk ranges (MEDIUM risk)
                         else if self.is_semver_risk_range(package_name, version_spec_str) {
@@ -471,20 +470,117 @@ impl Scanner {
         })
     }
 
-    /// Check if a package name indicates typosquatting
-    fn is_typosquatting_package(&self, package_name: &str) -> bool {
-        let typosquat_patterns = [
-            "raect",
-            "lodsh",
-            "expres",
-            "re\u{0430}ct", // Cyrillic 'а'
-            "@typ\u{0435}s/node",
-            "@typescript_eslinter",
+    /// Check if a package name indicates typosquatting and return detailed reason
+    fn analyze_typosquatting(&self, package_name: &str) -> Option<String> {
+        // Popular packages that are commonly typosquatted
+        let popular_packages = [
+            "react", "lodash", "express", "axios", "jquery", "bootstrap", 
+            "angular", "vue", "webpack", "babel", "eslint", "mocha", "chai",
+            "moment", "commander", "debug", "chalk", "inquirer", "fs-extra"
         ];
 
-        typosquat_patterns
-            .iter()
-            .any(|pattern| package_name.contains(pattern))
+        // Known typosquat patterns with their targets and reasons
+        let known_typosquats = [
+            ("raect", "react", "character transposition (a<->e)"),
+            ("lodsh", "lodash", "missing character (a)"),
+            ("expres", "express", "missing character (s)"),
+            ("re\u{0430}ct", "react", "cyrillic character substitution (а instead of a)"),
+            ("@typ\u{0435}s/node", "@types/node", "cyrillic character substitution (е instead of e)"),
+            ("@typescript_eslinter", "@typescript-eslint", "missing hyphen and character change"),
+        ];
+
+        // Check known typosquats first
+        for (typo, original, reason) in &known_typosquats {
+            if package_name.contains(typo) {
+                return Some(format!("Known typosquatting of '{}': {} ({})", original, package_name, reason));
+            }
+        }
+
+        // Check for similar names to popular packages
+        for popular in &popular_packages {
+            // Skip exact matches
+            if package_name == *popular {
+                continue;
+            }
+
+            // Check for 1-character differences (Levenshtein distance = 1)
+            if self.levenshtein_distance(package_name, popular) == 1 {
+                // Determine the type of difference
+                let reason = if package_name.len() == popular.len() {
+                    "character substitution"
+                } else if package_name.len() == popular.len() - 1 {
+                    "missing character"
+                } else if package_name.len() == popular.len() + 1 {
+                    "extra character"  
+                } else {
+                    "character difference"
+                };
+                return Some(format!("Potential typosquatting of '{}': {} ({})", popular, package_name, reason));
+            }
+
+            // Check for common character swaps
+            if package_name.len() == popular.len() && self.has_character_swap(package_name, popular) {
+                return Some(format!("Potential typosquatting of '{}': {} (character transposition)", popular, package_name));
+            }
+        }
+
+        None
+    }
+
+    /// Calculate Levenshtein distance between two strings
+    fn levenshtein_distance(&self, s1: &str, s2: &str) -> usize {
+        let len1 = s1.len();
+        let len2 = s2.len();
+        let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
+
+        for i in 0..=len1 { matrix[i][0] = i; }
+        for j in 0..=len2 { matrix[0][j] = j; }
+
+        let chars1: Vec<char> = s1.chars().collect();
+        let chars2: Vec<char> = s2.chars().collect();
+
+        for i in 1..=len1 {
+            for j in 1..=len2 {
+                let cost = if chars1[i-1] == chars2[j-1] { 0 } else { 1 };
+                matrix[i][j] = std::cmp::min(
+                    std::cmp::min(matrix[i-1][j] + 1, matrix[i][j-1] + 1),
+                    matrix[i-1][j-1] + cost
+                );
+            }
+        }
+
+        matrix[len1][len2]
+    }
+
+    /// Check if two strings differ by exactly one character swap
+    fn has_character_swap(&self, s1: &str, s2: &str) -> bool {
+        if s1.len() != s2.len() { return false; }
+
+        let chars1: Vec<char> = s1.chars().collect();
+        let chars2: Vec<char> = s2.chars().collect();
+        let mut diff_positions = Vec::new();
+
+        for i in 0..chars1.len() {
+            if chars1[i] != chars2[i] {
+                diff_positions.push(i);
+            }
+        }
+
+        // Exactly 2 different positions that are adjacent and swapped
+        if diff_positions.len() == 2 {
+            let pos1 = diff_positions[0];
+            let pos2 = diff_positions[1];
+            if pos2 == pos1 + 1 {
+                return chars1[pos1] == chars2[pos2] && chars1[pos2] == chars2[pos1];
+            }
+        }
+
+        false
+    }
+
+    /// Check if a package name indicates typosquatting (legacy function for compatibility)
+    fn is_typosquatting_package(&self, package_name: &str) -> bool {
+        self.analyze_typosquatting(package_name).is_some()
     }
 
     /// Check if a package version has risky semver ranges
@@ -731,8 +827,21 @@ impl Scanner {
         }
 
         let suspicious_patterns = [
-            "bak", "backup", "temp", "tmp", "fix", "hotfix", "patch", "creds", 
-            "credentials", "secret", "token", "key", "password", "prod", "release"
+            "bak",
+            "backup",
+            "temp",
+            "tmp",
+            "fix",
+            "hotfix",
+            "patch",
+            "creds",
+            "credentials",
+            "secret",
+            "token",
+            "key",
+            "password",
+            "prod",
+            "release",
         ];
 
         let mut branches = std::collections::HashSet::new();
@@ -742,7 +851,9 @@ impl Scanner {
         if heads_dir.is_dir() {
             for branch_entry in WalkDir::new(heads_dir).into_iter().filter_map(Result::ok) {
                 if branch_entry.file_type().is_file() {
-                    if let Some(branch_name) = branch_entry.path().file_name().and_then(|n| n.to_str()) {
+                    if let Some(branch_name) =
+                        branch_entry.path().file_name().and_then(|n| n.to_str())
+                    {
                         branches.insert(branch_name.to_string());
                     }
                 }
@@ -754,7 +865,9 @@ impl Scanner {
         if packed_refs_path.exists() {
             if let Ok(content) = fs::read_to_string(&packed_refs_path) {
                 for line in content.lines() {
-                    if line.starts_with('#') { continue; }
+                    if line.starts_with('#') {
+                        continue;
+                    }
                     let parts: Vec<&str> = line.split_whitespace().collect();
                     if parts.len() == 2 && parts[1].starts_with("refs/heads/") {
                         if let Some(branch_name) = parts[1].strip_prefix("refs/heads/") {
@@ -764,7 +877,7 @@ impl Scanner {
                 }
             }
         }
-        
+
         if self.show_progress {
             println!("   -> Found {} branches to analyze.", branches.len());
         }
@@ -778,10 +891,13 @@ impl Scanner {
                         risk_level: RiskLevel::Medium,
                         comment: format!("Suspicious git branch detected: {}", branch),
                         patterns_detected: vec!["suspicious_git_branch".to_string()],
-                        details: Some(vec![format!("Branch name '{}' contains suspicious pattern '{}'", branch, pattern)]),
+                        details: Some(vec![format!(
+                            "Branch name '{}' contains suspicious pattern '{}'",
+                            branch, pattern
+                        )]),
                     });
                     // Avoid duplicate entries for the same branch
-                    break; 
+                    break;
                 }
             }
         }
