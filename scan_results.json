@@ -1,24 +1,48 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-28T12:26:44.361807400Z",
-  "end_time": "2025-09-28T12:26:44.786070800Z",
-  "duration_seconds": 0.424,
-  "timestamp": "2025-09-28T12:26:44.361807400Z",
+  "start_time": "2025-09-28T12:50:55.331969400Z",
+  "end_time": "2025-09-28T12:50:55.796307700Z",
+  "duration_seconds": 0.464,
+  "timestamp": "2025-09-28T12:50:55.331969400Z",
   "files_scanned": 0,
   "results": [
     {
       "file": "../shai-hulud-detect/test-cases/chalk-debug-attack\\package.json",
-      "risk_level": "High",
-      "comment": "Contains known compromised packages: ansi-styles@6.2.2, chalk@5.6.1, debug@4.4.2",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: ansi-styles@6.2.2",
       "patterns_detected": [
-        "compromised_packages",
-        "compromised_packages",
-        "compromised_packages"
+        "suspicious_package_version"
       ],
       "details": [
-        "ansi-styles@6.2.2",
-        "chalk@5.6.1",
-        "debug@4.4.2"
+        "Package: ansi-styles@6.2.2",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/chalk-debug-attack\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: chalk@5.6.1",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "Package: chalk@5.6.1",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/chalk-debug-attack\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: debug@4.4.2",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "Package: debug@4.4.2",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
       ]
     },
     {
@@ -59,17 +83,38 @@
     },
     {
       "file": "../shai-hulud-detect/test-cases/infected-project\\package.json",
-      "risk_level": "High",
-      "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @ctrl/deluge@1.2.0",
       "patterns_detected": [
-        "compromised_packages",
-        "affected_namespace",
-        "compromised_packages"
+        "suspicious_package_version"
       ],
       "details": [
-        "@ctrl/deluge@1.2.0",
-        "@nativescript-community/ui-material-core@7.2.49"
+        "Package: @ctrl/deluge@1.2.0",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
       ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @nativescript-community/ui-material-core@7.2.49",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "Package: @nativescript-community/ui-material-core@7.2.49",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project\\package.json",
+      "risk_level": "Low",
+      "comment": "Contains packages from affected namespaces",
+      "patterns_detected": [
+        "affected_namespace"
+      ],
+      "details": null
     },
     {
       "file": "../shai-hulud-detect/test-cases/legitimate-crypto\\package.json",
@@ -1055,9 +1100,9 @@
     }
   ],
   "summary": {
-    "high_risk_count": 24,
-    "medium_risk_count": 51,
-    "low_risk_count": 6,
-    "total_issues": 81
+    "high_risk_count": 22,
+    "medium_risk_count": 56,
+    "low_risk_count": 7,
+    "total_issues": 85
   }
 }

@@ -322,12 +322,20 @@ impl Scanner {
             if let Some(deps) = package_json.get(dep_type).and_then(|d| d.as_object()) {
                 for (package_name, version_spec) in deps {
                     if let Some(version_spec_str) = version_spec.as_str() {
-                        // Check for compromised packages (HIGH risk - exact matches only)
+                        // Check for compromised packages (MEDIUM risk for Bash-compatibility)
+                        // Create separate issue for each compromised package (Bash-compatible)
                         if self.is_compromised_package(package_name, version_spec_str) {
-                            detected_packages
-                                .push(format!("{}@{}", package_name, version_spec_str));
-                            risk_level = RiskLevel::High;
-                            patterns.push("compromised_packages".to_string());
+                            results.add_file_result(FileResult {
+                                file: file.to_string_lossy().to_string(),
+                                risk_level: RiskLevel::Medium,
+                                comment: format!("Suspicious package version: {}@{}", package_name, version_spec_str),
+                                patterns_detected: vec!["suspicious_package_version".to_string()],
+                                details: Some(vec![
+                                    format!("Package: {}@{}", package_name, version_spec_str),
+                                    "This package version matches known compromised versions".to_string(),
+                                    "Manual review required to determine if malicious".to_string(),
+                                ]),
+                            });
                         }
                         // Check for semver risk ranges (MEDIUM risk - potential matches)
                         // Create separate issue for each potentially matching version (Bash-compatible)
