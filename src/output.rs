@@ -82,56 +82,11 @@ impl ScanResults {
     }
 
     /// Add a file result to the scan results with consolidation
+    /// Add a file result to the scan results with pattern-level counting (Bash-compatible)
     pub fn add_file_result(&mut self, result: FileResult) {
-        // Check if we already have a result for this file
-        let file_path = result.file.clone();
-        let new_risk_level = result.risk_level;
-
-        if let Some(existing_idx) = self.results.iter().position(|r| r.file == file_path) {
-            // Merge with existing result
-            let old_risk_level = self.results[existing_idx].risk_level;
-
-            // Use the higher risk level
-            if new_risk_level > old_risk_level {
-                self.results[existing_idx].risk_level = new_risk_level;
-                // Update summary counts
-                self.decrease_summary_counts(&old_risk_level);
-                self.update_summary_counts(&new_risk_level);
-            }
-
-            // Merge patterns_detected (avoid duplicates)
-            for pattern in result.patterns_detected {
-                if !self.results[existing_idx]
-                    .patterns_detected
-                    .contains(&pattern)
-                {
-                    self.results[existing_idx].patterns_detected.push(pattern);
-                }
-            }
-
-            // Merge comments
-            if !self.results[existing_idx].comment.contains(&result.comment) {
-                self.results[existing_idx].comment =
-                    format!("{}, {}", self.results[existing_idx].comment, result.comment);
-            }
-
-            // Merge details
-            if let Some(new_details) = result.details {
-                if let Some(existing_details) = &mut self.results[existing_idx].details {
-                    for detail in new_details {
-                        if !existing_details.contains(&detail) {
-                            existing_details.push(detail);
-                        }
-                    }
-                } else {
-                    self.results[existing_idx].details = Some(new_details);
-                }
-            }
-        } else {
-            // New file, add directly and update counts
-            self.update_summary_counts(&new_risk_level);
-            self.results.push(result);
-        }
+        // Pattern-level counting: Each finding is a separate issue (like Bash scanner)
+        self.update_summary_counts(&result.risk_level);
+        self.results.push(result);
     }
 
     /// Update summary counts for a given risk level
