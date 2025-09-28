@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-28T11:34:48.380437500Z",
-  "end_time": "2025-09-28T11:34:48.810334800Z",
-  "duration_seconds": 0.429,
-  "timestamp": "2025-09-28T11:34:48.380437500Z",
+  "start_time": "2025-09-28T11:51:37.647404700Z",
+  "end_time": "2025-09-28T11:51:38.059091900Z",
+  "duration_seconds": 0.411,
+  "timestamp": "2025-09-28T11:51:37.647404700Z",
   "files_scanned": 0,
   "results": [
     {
@@ -120,14 +120,235 @@
     {
       "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
       "risk_level": "Medium",
-      "comment": "Contains suspicious packages: Semver risk: @ctrl/tinycolor@^4.0.0, Semver risk: @operato/board@~9.0.35",
+      "comment": "Suspicious package version: @ctrl/tinycolor@4.1.1",
       "patterns_detected": [
-        "semver_risk_ranges",
-        "semver_risk_ranges"
+        "suspicious_package_semver"
       ],
       "details": [
-        "Semver risk: @ctrl/tinycolor@^4.0.0",
-        "Semver risk: @operato/board@~9.0.35"
+        "Package: @ctrl/tinycolor@4.1.1",
+        "Semver range ^4.0.0 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @ctrl/tinycolor@4.1.2",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @ctrl/tinycolor@4.1.2",
+        "Semver range ^4.0.0 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.36",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.36",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.37",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.37",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.38",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.38",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.39",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.39",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.40",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.40",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.41",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.41",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.42",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.42",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.43",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.43",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.44",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.44",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.45",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.45",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.46",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.46",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.47",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.47",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.48",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.48",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.49",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.49",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.50",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.50",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.51",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.51",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
       ]
     },
     {
@@ -835,8 +1056,8 @@
   ],
   "summary": {
     "high_risk_count": 24,
-    "medium_risk_count": 34,
+    "medium_risk_count": 51,
     "low_risk_count": 6,
-    "total_issues": 64
+    "total_issues": 81
   }
 }

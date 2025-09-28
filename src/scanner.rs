@@ -330,15 +330,21 @@ impl Scanner {
                             patterns.push("compromised_packages".to_string());
                         }
                         // Check for semver risk ranges (MEDIUM risk - potential matches)
-                        else if self
-                            .could_match_compromised_version(package_name, version_spec_str)
-                        {
-                            risk_level = cmp::max(risk_level, RiskLevel::Medium);
-                            patterns.push("semver_risk_ranges".to_string());
-                            detected_packages.push(format!(
-                                "Semver risk: {}@{}",
-                                package_name, version_spec_str
-                            ));
+                        // Create separate issue for each potentially matching version (Bash-compatible)
+                        else if let Some(matching_versions) = self.get_matching_compromised_versions(package_name, version_spec_str) {
+                            for matching_version in matching_versions {
+                                results.add_file_result(FileResult {
+                                    file: file.to_string_lossy().to_string(),
+                                    risk_level: RiskLevel::Medium,
+                                    comment: format!("Suspicious package version: {}@{}", package_name, matching_version),
+                                    patterns_detected: vec!["suspicious_package_semver".to_string()],
+                                    details: Some(vec![
+                                        format!("Package: {}@{}", package_name, matching_version),
+                                        format!("Semver range {} could match compromised version", version_spec_str),
+                                        "Manual review required to determine if malicious".to_string(),
+                                    ]),
+                                });
+                            }
                         }
                         // Check for debug package (specific case)
                         else if package_name == "debug" {
@@ -425,6 +431,39 @@ impl Scanner {
             versions.contains(&version_spec.to_string())
         } else {
             false
+        }
+    }
+
+    /// Get all compromised versions that could potentially match a semver range
+    fn get_matching_compromised_versions(&self, package_name: &str, version_spec: &str) -> Option<Vec<String>> {
+        if let Some(compromised_versions) = self.compromised_packages.get(package_name) {
+            let mut matching_versions = Vec::new();
+            
+            for compromised_version in compromised_versions {
+                // Skip exact matches (already handled as HIGH risk)
+                if compromised_version == version_spec {
+                    continue;
+                }
+                
+                // Skip normalized exact matches
+                let normalized = self.normalize_version(version_spec);
+                if compromised_version == &normalized {
+                    continue;
+                }
+                
+                // Check if semver range could potentially match this version
+                if self.semver_could_match(version_spec, compromised_version) {
+                    matching_versions.push(compromised_version.clone());
+                }
+            }
+            
+            if matching_versions.is_empty() {
+                None
+            } else {
+                Some(matching_versions)
+            }
+        } else {
+            None
         }
     }
 
