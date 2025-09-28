@@ -86,11 +86,11 @@ impl ScanResults {
         // Check if we already have a result for this file
         let file_path = result.file.clone();
         let new_risk_level = result.risk_level;
-        
+
         if let Some(existing_idx) = self.results.iter().position(|r| r.file == file_path) {
             // Merge with existing result
             let old_risk_level = self.results[existing_idx].risk_level;
-            
+
             // Use the higher risk level
             if new_risk_level > old_risk_level {
                 self.results[existing_idx].risk_level = new_risk_level;
@@ -101,14 +101,18 @@ impl ScanResults {
 
             // Merge patterns_detected (avoid duplicates)
             for pattern in result.patterns_detected {
-                if !self.results[existing_idx].patterns_detected.contains(&pattern) {
+                if !self.results[existing_idx]
+                    .patterns_detected
+                    .contains(&pattern)
+                {
                     self.results[existing_idx].patterns_detected.push(pattern);
                 }
             }
 
             // Merge comments
             if !self.results[existing_idx].comment.contains(&result.comment) {
-                self.results[existing_idx].comment = format!("{}, {}", self.results[existing_idx].comment, result.comment);
+                self.results[existing_idx].comment =
+                    format!("{}, {}", self.results[existing_idx].comment, result.comment);
             }
 
             // Merge details
