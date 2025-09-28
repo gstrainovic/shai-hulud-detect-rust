@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-28T22:28:05.112070900Z",
-  "end_time": "2025-09-28T22:28:05.622858300Z",
-  "duration_seconds": 0.51,
-  "timestamp": "2025-09-28T22:28:05.112070900Z",
+  "start_time": "2025-09-28T22:35:59.270162800Z",
+  "end_time": "2025-09-28T22:35:59.794619200Z",
+  "duration_seconds": 0.524,
+  "timestamp": "2025-09-28T22:35:59.270162800Z",
   "files_scanned": 0,
   "results": [
     {
@@ -56,17 +56,6 @@
       "details": null
     },
     {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
-      ]
-    },
-    {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/package.json",
       "risk_level": "Medium",
       "comment": "Contains suspicious packages: Known typosquatting of '@typescript-eslint': @typescript_eslinter/eslint (missing hyphen and character change), Known typosquatting of 'lodash': lodsh (missing character (a)), Known typosquatting of 'react': reаct (cyrillic character substitution (а instead of a))",
@@ -82,17 +71,6 @@
       ]
     },
     {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
-      ]
-    },
-    {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/debug-js/package.json",
       "risk_level": "Medium",
       "comment": "Contains suspicious packages: Debug package detected",
@@ -101,17 +79,6 @@
       ],
       "details": [
         "Debug package detected"
-      ]
-    },
-    {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/debug-js/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/debug-js/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
       ]
     },
     {
@@ -150,17 +117,6 @@
       "details": null
     },
     {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
-      ]
-    },
-    {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/package.json",
       "risk_level": "Medium",
       "comment": "Contains crypto libraries or suspicious patterns",
@@ -170,17 +126,6 @@
         "crypto_libraries"
       ],
       "details": null
-    },
-    {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
-      ]
     },
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/package.json",
@@ -196,17 +141,6 @@
       ]
     },
     {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
-      ]
-    },
-    {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/mixed-project/package.json",
       "risk_level": "Medium",
       "comment": "Contains suspicious packages: Mixed project context: mixed-project",
@@ -219,17 +153,6 @@
       ]
     },
     {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/mixed-project/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/mixed-project/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
-      ]
-    },
-    {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/namespace-warning/package.json",
       "risk_level": "Low",
       "comment": "Contains packages from affected namespaces",
@@ -238,17 +161,6 @@
         "affected_namespace"
       ],
       "details": null
-    },
-    {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/namespace-warning/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/namespace-warning/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
-      ]
     },
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
@@ -512,17 +424,6 @@
         "Known typosquatting of 'express': expres (missing character (s))",
         "Known typosquatting of 'lodash': lodsh (missing character (a))",
         "Known typosquatting of 'react': raect (character transposition (a<->e))"
-      ]
-    },
-    {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/typosquatting-project/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/typosquatting-project/package.json",
-      "patterns_detected": [
-        "package_json_suspicious"
-      ],
-      "details": [
-        "Found in package.json"
       ]
     },
     {
@@ -849,17 +750,6 @@
       "details": [
         "package.json contains debug@4.4.2, which was compromised in the September 8, 2025 attack",
         "This may indicate workflow compromise or malicious package injection"
-      ]
-    },
-    {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
-      "risk_level": "Medium",
-      "comment": "Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
-      "patterns_detected": [
-        "workflow_file"
-      ],
-      "details": [
-        "Found in package.json"
       ]
     },
     {
@@ -1270,8 +1160,8 @@
   ],
   "summary": {
     "high_risk_count": 22,
-    "medium_risk_count": 69,
+    "medium_risk_count": 59,
     "low_risk_count": 9,
-    "total_issues": 100
+    "total_issues": 90
   }
 }

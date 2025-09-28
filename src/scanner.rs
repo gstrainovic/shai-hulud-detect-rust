@@ -453,14 +453,7 @@ impl Scanner {
                 },
             });
 
-            // Add separate finding to match Bash output
-            results.add_file_result(FileResult {
-                file: self.canonicalize_path(&file),
-                risk_level: RiskLevel::Medium,
-                comment: format!("Found in: {}", self.canonicalize_path(&file)),
-                patterns_detected: vec!["package_json_suspicious".to_string()],
-                details: Some(vec!["Found in package.json".to_string()]),
-            });
+
         }
     }
 
@@ -1533,14 +1526,7 @@ impl Scanner {
                         ]),
                     });
 
-                    // Add to workflow_files to match Bash
-                    results.add_file_result(FileResult {
-                        file: self.canonicalize_path(&file),
-                        risk_level: RiskLevel::Medium,
-                        comment: format!("Found in: {}", self.canonicalize_path(&file)),
-                        patterns_detected: vec!["workflow_file".to_string()],
-                        details: Some(vec!["Found in package.json".to_string()]),
-                    });
+
                 }
             }
         }

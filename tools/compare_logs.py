@@ -6,7 +6,7 @@ from pathlib import Path
 # Script to compare Rust JSON with Bash log for Shai-Hulud detector
 
 # Paths
-RUST_JSON = Path(__file__).resolve().parent.parent / 'scan_results.json'
+RUST_JSON = Path(__file__).resolve().parent.parent / 'logs' /  'rust' / 'test-cases' / 'scan_results.json'
 BASH_LOG = Path(__file__).resolve().parent.parent / 'logs' / 'bash' / 'bash-testcase.log'
 
 # Sections we will compare
@@ -20,13 +20,18 @@ POSIX_PATH_RE = re.compile(r'(/[^:]*?\.(?:js|json|sh|yml|yaml|py|lock|txt|md))')
 ANSI_RE = re.compile(r'\x1b\[[0-9;]*m')
 
 def normalize_message(message: str) -> str:
-    return message
+    msg = message.lower()
+    msg = msg.replace("high risk: ", "")
+    msg = msg.replace("malicious workflow file detected: ", "")
+    msg = msg.replace("suspicious patterns detected: ", "")
+    msg = msg.replace("ethereum wallet address patterns detected", "ethereum wallet address patterns detected")
+    # Add more normalizations as needed
+    return msg.strip()
 
 def normalize_report_path(raw: str) -> str:
     return raw
 
 def extract_bash_findings(bash_path: Path):
-    # Similar to the original script
     if not bash_path.exists():
         print(f"Warning: bash output {bash_path} not found — returning empty findings")
         return {k: {} for k in CHECK_KEYS}
@@ -34,45 +39,53 @@ def extract_bash_findings(bash_path: Path):
     text = ANSI_RE.sub('', raw_text)
     findings = {k: {} for k in CHECK_KEYS}
 
-    section_map = {
-        'Malicious workflow files detected': 'workflow_files',
-        'Files with known malicious hashes': 'malicious_hashes',
-        'Compromised package versions detected': 'compromised_packages',
-        'Suspicious postinstall hooks detected': 'postinstall_hooks',
-        'Suspicious content patterns': 'suspicious_content',
-        'Cryptocurrency theft patterns detected': 'crypto_patterns',
-        'Trufflehog/secret scanning activity detected': 'trufflehog_activity',
-        "Suspicious git branches": 'git_branches',
-        'Shai-Hulud repositories detected': 'shai_hulud_repos',
-        'Package integrity issues detected': 'package_integrity',
-        'Potential typosquatting/homoglyph attacks detected': 'typosquatting',
-        'Network exfiltration patterns detected': 'network_exfiltration'
-    }
-
     lines = text.splitlines()
     for i, line in enumerate(lines):
-        m = POSIX_PATH_RE.search(line)
-        if m:
-            raw = m.group(1)
-            norm = normalize_report_path(raw)
-            sect = None
-            for j in range(max(0, i-8), i+1):
-                l = lines[j]
-                for header, key in section_map.items():
-                    if header in l:
-                        sect = key
-                        break
-                if sect:
-                    break
-            if not sect:
-                if 'postinstall' in line.lower() or 'postinstall' in ''.join(lines[max(0, i-2):i+3]).lower():
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            content = stripped[2:]
+            if ":" in content:
+                raw, comment_part = content.split(":", 1)
+                comment = comment_part.strip()
+            else:
+                raw = content
+                comment = ""
+            if raw.startswith("/"):
+                norm = normalize_report_path(raw)
+                # If comment not set, find │ line
+                if not comment:
+                    for j in range(i + 1, min(i + 10, len(lines))):
+                        if "│  Context:" in lines[j]:
+                            comment = lines[j].split("│  Context:")[1].strip()
+                            break
+                sect = None
+                if 'workflow' in comment.lower() or 'malicious workflow' in comment.lower():
+                    sect = 'workflow_files'
+                elif 'postinstall' in comment.lower():
                     sect = 'postinstall_hooks'
-            if not sect:
-                sect = 'suspicious_content'
-            findings.setdefault(sect, {}).setdefault(norm, [])
-            msg = ANSI_RE.sub('', line).strip()
-            if msg not in findings[sect][norm]:
-                findings[sect][norm].append(msg)
+                elif 'compromised' in comment.lower() or 'integrity' in comment.lower():
+                    sect = 'package_integrity'
+                elif 'crypto' in comment.lower() or 'wallet' in comment.lower() or 'phishing' in comment.lower() or 'xmlhttprequest' in comment.lower():
+                    sect = 'crypto_patterns'
+                elif 'trufflehog' in comment.lower():
+                    sect = 'trufflehog_activity'
+                elif 'git' in comment.lower() or 'branch' in comment.lower():
+                    sect = 'git_branches'
+                elif 'shai-hulud' in comment.lower():
+                    sect = 'shai_hulud_repos'
+                elif 'typosquatting' in comment.lower():
+                    sect = 'typosquatting'
+                elif 'network' in comment.lower() or 'exfiltration' in comment.lower() or 'webhook' in comment.lower():
+                    sect = 'network_exfiltration'
+                elif 'hash' in comment.lower():
+                    sect = 'malicious_hashes'
+                else:
+                    sect = 'suspicious_content'
+                if sect:
+                    findings.setdefault(sect, {}).setdefault(norm, [])
+                    msg = comment
+                    if msg and msg not in findings[sect][norm]:
+                        findings[sect][norm].append(msg)
     return findings
 
 def load_rust_json(path: Path):
@@ -132,12 +145,11 @@ def compare_findings(bash_findings, rust_findings):
         all_paths = set(bash_map.keys()) | set(rust_map.keys())
         diffs = []
         for p in sorted(all_paths):
-            b_orig = bash_map.get(key, {}).get(p, [])
-            r_orig = rust_map.get(key, {}).get(p, [])
+            b_orig = bash_map.get(p, [])
+            r_orig = rust_map.get(p, [])
             b = [normalize_message(msg) for msg in b_orig]
             r = [normalize_message(msg) for msg in r_orig]
-            if b != r:
-                diffs.append({'path': p, 'bash': b, 'rust': r})
+            diffs.append({'path': p, 'bash': b, 'rust': r})
         report[key] = {
             'bash_count': sum(len(v) for v in bash_map.values()),
             'rust_count': sum(len(v) for v in rust_map.values()),
@@ -147,6 +159,7 @@ def compare_findings(bash_findings, rust_findings):
 
 def summarize_comparison(report):
     summary = {
+        'matches': {},
         'bash_only': {},
         'rust_only': {},
         'differences': {},
@@ -154,6 +167,7 @@ def summarize_comparison(report):
         'total_rust': 0
     }
     for key, data in report.items():
+        matches = []
         bash_only = []
         rust_only = []
         diffs = []
@@ -161,12 +175,15 @@ def summarize_comparison(report):
             p = diff['path']
             b = diff['bash']
             r = diff['rust']
-            if b and not r:
+            if b == r and b:
+                matches.append({'path': p, 'details': b})
+            elif b and not r:
                 bash_only.append({'path': p, 'details': b})
             elif r and not b:
                 rust_only.append({'path': p, 'details': r})
             else:
                 diffs.append(diff)
+        summary['matches'][key] = matches
         summary['bash_only'][key] = bash_only
         summary['rust_only'][key] = rust_only
         summary['differences'][key] = diffs
@@ -182,6 +199,14 @@ if __name__ == '__main__':
 
     print('=== RUST JSON vs BASH LOG COMPARISON SUMMARY ===')
     print(f"Total findings - Bash: {summary['total_bash']}, Rust: {summary['total_rust']}")
+    print("\n--- Gemeinsamkeiten ---")
+    for key, items in summary['matches'].items():
+        if items:
+            print(f"{key}: {len(items)} matches")
+            for item in items[:3]:  # Show first 3
+                print(f"  - {item['path']}: {item['details']}")
+            if len(items) > 3:
+                print(f"  ... and {len(items)-3} more")
     print("\n--- Was ist in Bash vorhanden und fehlt in Rust? (Bash-only) ---")
     for key, items in summary['bash_only'].items():
         if items:
