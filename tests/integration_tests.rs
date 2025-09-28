@@ -54,6 +54,7 @@ async fn test_specific_test_cases() {
     let scanner = Scanner::new(
         Path::new("../shai-hulud-detect/test-cases/clean-project"),
         false,
+        true, // show_progress = true for tests
     )
     .await
     .expect("Failed to create scanner");
@@ -72,6 +73,7 @@ async fn test_specific_test_cases() {
         let scanner = Scanner::new(
             Path::new("../shai-hulud-detect/test-cases/infected-project"),
             false,
+            true, // show_progress = true for tests
         )
         .await
         .expect("Failed to create scanner for infected project");

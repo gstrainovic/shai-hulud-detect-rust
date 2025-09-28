@@ -95,7 +95,7 @@ impl E2ETestRunner {
         }
 
         // Run scanner
-        let scanner = Scanner::new(&test_path, false).await?;
+        let scanner = Scanner::new(&test_path, false, true).await?; // Use show_progress = true for tests
         let scan_results = scanner.scan().await?;
 
         // Compare results
@@ -218,9 +218,11 @@ impl E2ETestRunner {
         // Intelligent filtering based on expected risks (like bash script behavior)
         // Only filter out lower risks if expected doesn't explicitly include them
         let should_filter_low = !expected.contains(&"LOW".to_string());
-        let should_filter_medium = expected == ["HIGH"] && !expected.contains(&"MEDIUM".to_string());
-        
-        let actual_filtered: Vec<String> = actual.iter()
+        let should_filter_medium =
+            expected == ["HIGH"] && !expected.contains(&"MEDIUM".to_string());
+
+        let actual_filtered: Vec<String> = actual
+            .iter()
             .filter(|&risk| {
                 !(should_filter_low && risk == "LOW" || should_filter_medium && risk == "MEDIUM")
             })

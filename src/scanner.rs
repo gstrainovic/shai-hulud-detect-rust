@@ -13,6 +13,7 @@ use walkdir::WalkDir;
 pub struct Scanner {
     scan_path: PathBuf,
     paranoid: bool,
+    show_progress: bool,
     pattern_matcher: PatternMatcher,
     hash_checker: HashChecker,
     compromised_packages: HashMap<String, Vec<String>>, // package_name -> versions
@@ -20,15 +21,21 @@ pub struct Scanner {
 
 impl Scanner {
     /// Create a new scanner instance
-    pub async fn new(scan_path: &Path, paranoid: bool) -> Result<Self> {
-        println!("📦 Loading compromised packages database...");
+    pub async fn new(scan_path: &Path, paranoid: bool, show_progress: bool) -> Result<Self> {
+        if !show_progress {
+            println!("📦 Loading compromised packages database...");
+        }
         let compromised_packages = Self::load_compromised_packages()?;
-        let package_count = compromised_packages.values().map(|versions| versions.len())
+        let package_count = compromised_packages
+            .values()
+            .map(|versions| versions.len())
             .sum::<usize>();
-        println!(
-            "📦 Loaded {} compromised packages from database",
-            package_count
-        );
+        if !show_progress {
+            println!(
+                "📦 Loaded {} compromised packages from database",
+                package_count
+            );
+        }
 
         let pattern_matcher = PatternMatcher::new(paranoid);
         let hash_checker = HashChecker::new();
@@ -36,6 +43,7 @@ impl Scanner {
         Ok(Scanner {
             scan_path: scan_path.to_path_buf(),
             paranoid,
+            show_progress,
             pattern_matcher,
             hash_checker,
             compromised_packages,
@@ -89,14 +97,19 @@ impl Scanner {
 
     /// Run the complete scan process
     pub async fn scan(&self) -> Result<ScanResults> {
-        println!("🔍 Starting Shai-Hulud detection scan...");
-        println!("Scanning directory: {}", self.scan_path.display());
+        let mut results = ScanResults::new(&self.scan_path);
+        let start_time = results.start_time;
 
-        if self.paranoid {
-            println!("🔍+ Running in paranoid mode with additional security checks");
+        if !self.show_progress {
+            println!("🕰️ Scan started at: {}", start_time.to_rfc3339());
+            println!("🔍 Starting Shai-Hulud detection scan...");
+            println!("Scanning directory: {}", self.scan_path.display());
+            println!("📄 Results will be saved to scan_results.json");
         }
 
-        let mut results = ScanResults::new(&self.scan_path);
+        if self.paranoid && !self.show_progress {
+            println!("🔍+ Running in paranoid mode with additional security checks");
+        }
 
         // Step 1: Find all relevant files
         let files = self.find_files()?;
@@ -114,7 +127,17 @@ impl Scanner {
         // Step 5: Check pnpm lock files specifically
         self.check_pnpm_lockfiles(&files, &mut results).await?;
 
-        println!("✅ Scan completed");
+        // Finalize results with end timestamp
+        results.finalize();
+
+        if !self.show_progress {
+            let end_time = results.end_time.unwrap_or_else(|| chrono::Utc::now());
+            println!("✅ Scan completed at: {}", end_time.to_rfc3339());
+            if let Some(duration) = results.duration_seconds {
+                println!("⏱️ Total scan duration: {:.2} seconds", duration);
+            }
+        }
+
         Ok(results)
     }
 
@@ -207,10 +230,12 @@ impl Scanner {
             return Ok(());
         }
 
-        println!(
-            "🔍 Checking {} package.json files for compromised packages...",
-            package_files.len()
-        );
+        if !self.show_progress {
+            println!(
+                "🔍 Checking {} package.json files for compromised packages...",
+                package_files.len()
+            );
+        }
 
         for file in package_files {
             if let Ok(content) = fs::read_to_string(file) {
@@ -503,15 +528,15 @@ impl Scanner {
     ) -> RiskLevel {
         let filename = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
         let path_str = file_path.to_string_lossy();
-        
+
         let is_documentation =
             filename.ends_with(".md") || filename.ends_with(".txt") || filename.ends_with(".rst");
         let is_config = filename.contains("config") && filename.ends_with(".json");
         let is_server = filename.contains("server") || filename.contains("express");
-        
+
         // React Native false positive fix (from Cobenian/shai-hulud-detect#35)
-        let is_react_native_xhr = path_str.contains("react-native") && 
-            (filename == "XHRInterceptor.js" || path_str.contains("Libraries/Network"));
+        let is_react_native_xhr = path_str.contains("react-native")
+            && (filename == "XHRInterceptor.js" || path_str.contains("Libraries/Network"));
 
         // Don't adjust package.json - it should follow normal Bash-script rules
         let is_package_json = filename == "package.json";
@@ -557,10 +582,12 @@ impl Scanner {
             return Ok(());
         }
 
-        println!(
-            "🔍 Checking {} JavaScript files for known malicious content...",
-            js_files.len()
-        );
+        if !self.show_progress {
+            println!(
+                "🔍 Checking {} JavaScript files for known malicious content...",
+                js_files.len()
+            );
+        }
 
         for file in js_files {
             if let Some(hash) = self.hash_checker.calculate_file_hash(file)? {
@@ -585,10 +612,12 @@ impl Scanner {
         files: &[PathBuf],
         results: &mut ScanResults,
     ) -> Result<()> {
-        println!(
-            "🔍 Checking {} files for suspicious content patterns...",
-            files.len()
-        );
+        if !self.show_progress {
+            println!(
+                "🔍 Checking {} files for suspicious content patterns...",
+                files.len()
+            );
+        }
 
         for file in files {
             if let Ok(content) = fs::read_to_string(file) {

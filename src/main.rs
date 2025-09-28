@@ -15,10 +15,15 @@ use pattern_table::print_pattern_table;
 use scanner::Scanner;
 
 /// Shai-Hulud NPM Supply Chain Attack Detector (Rust implementation)
+///
+/// By default, this tool:
+/// - Saves results to scan_results.json (use --no-json to disable)
+/// - Shows progress and summary only (details available in JSON)
+/// - Tracks scan timing and performance metrics
 #[derive(Parser)]
 #[command(name = "shai-hulud-scanner")]
 #[command(about = "A Rust implementation of the Shai-Hulud NPM supply chain attack detector")]
-#[command(version = "0.1.0")]
+#[command(version = "0.2.0")]
 struct Cli {
     /// Path to scan for indicators of compromise
     #[arg(value_name = "PATH")]
@@ -28,9 +33,9 @@ struct Cli {
     #[arg(long)]
     paranoid: bool,
 
-    /// Output results in JSON format
-    #[arg(long, short)]
-    json: bool,
+    /// Disable JSON output (JSON is default)
+    #[arg(long)]
+    no_json: bool,
 
     /// Output file for JSON results (default: scan_results.json)
     #[arg(long, value_name = "FILE")]
@@ -39,10 +44,6 @@ struct Cli {
     /// Run in test mode using test-cases validation
     #[arg(long)]
     test: bool,
-
-    /// Quiet mode - only show summary
-    #[arg(long, short)]
-    quiet: bool,
 
     /// Show pattern mappings table
     #[arg(long)]
@@ -83,7 +84,7 @@ async fn main() -> Result<()> {
         .ok_or_else(|| anyhow::anyhow!("Path is required for scanning"))?;
 
     // Initialize scanner
-    let scanner = Scanner::new(path, cli.paranoid).await?;
+    let scanner = Scanner::new(path, cli.paranoid, true).await?; // Always show progress
 
     // Run the scan
     let results = scanner.scan().await?;
@@ -97,21 +98,17 @@ async fn main() -> Result<()> {
         _ => 2, // High risk found - failure
     };
 
-    // Output results
-    if cli.json || cli.output.is_some() {
+    // Output results - JSON is now default
+    if !cli.no_json {
         let output_file = cli
             .output
             .unwrap_or_else(|| PathBuf::from("scan_results.json"));
         results.save_json(&output_file)?;
-
-        if !cli.quiet {
-            println!("Results saved to: {}", output_file.display());
-        }
+        println!("📄 Results saved to: {}", output_file.display());
     }
 
-    if !cli.quiet {
-        results.print_summary();
-    }
+    // Always show only summary (details are in JSON)
+    results.print_summary();
 
     // Exit with appropriate code for CI/CD
     std::process::exit(exit_code);

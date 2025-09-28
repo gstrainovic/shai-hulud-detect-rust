@@ -9,7 +9,10 @@ use std::path::Path;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScanResults {
     pub scan_path: String,
-    pub timestamp: DateTime<Utc>,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub duration_seconds: Option<f64>,
+    pub timestamp: DateTime<Utc>, // Kept for backwards compatibility
     pub files_scanned: usize,
     pub results: Vec<FileResult>,
     pub summary: ScanSummary,
@@ -60,9 +63,13 @@ pub enum TestStatus {
 impl ScanResults {
     /// Create new scan results
     pub fn new(scan_path: &Path) -> Self {
+        let now = Utc::now();
         ScanResults {
             scan_path: scan_path.to_string_lossy().to_string(),
-            timestamp: Utc::now(),
+            start_time: now,
+            end_time: None,
+            duration_seconds: None,
+            timestamp: now, // For backwards compatibility
             files_scanned: 0,
             results: Vec::new(),
             summary: ScanSummary {
@@ -111,6 +118,15 @@ impl ScanResults {
         self.summary.low_risk_count
     }
 
+    /// Finalize scan results with end time
+    pub fn finalize(&mut self) {
+        self.end_time = Some(Utc::now());
+        if let Some(end_time) = self.end_time {
+            self.duration_seconds =
+                Some((end_time - self.start_time).num_milliseconds() as f64 / 1000.0);
+        }
+    }
+
     /// Save results to JSON file
     pub fn save_json(&self, path: &Path) -> Result<()> {
         let json = serde_json::to_string_pretty(self)?;
@@ -129,6 +145,19 @@ impl ScanResults {
         if self.summary.total_issues == 0 {
             println!("✅ No indicators of Shai-Hulud compromise detected.");
             println!("Your system appears clean from this specific attack.");
+            println!();
+
+            // Show summary even for clean scans
+            println!("==============================================");
+            println!("🔍 SUMMARY:");
+            if let Some(duration) = self.duration_seconds {
+                println!("   Scan Duration: {:.2} seconds", duration);
+            }
+            println!("   High Risk Issues: 0");
+            println!("   Medium Risk Issues: 0");
+            println!("   Low Risk (informational): 0");
+            println!("   Total Critical Issues: 0");
+            println!("==============================================");
             return;
         }
 
@@ -149,51 +178,35 @@ impl ScanResults {
             .filter(|r| r.risk_level == RiskLevel::Low)
             .collect();
 
-        // Print high risk issues
+        // Just show counts, not detailed findings (details are in JSON)
         if !high_risk.is_empty() {
             println!("🚨 HIGH RISK: {} issues detected", high_risk.len());
-            for result in high_risk {
-                println!("   - {}", result.file);
-                println!("     {}", result.comment);
-                if let Some(details) = &result.details {
-                    for detail in details.iter().take(3) {
-                        // Limit output
-                        println!("     • {}", detail);
-                    }
-                }
-                println!();
-            }
         }
 
-        // Print medium risk issues
         if !medium_risk.is_empty() {
             println!("⚠️  MEDIUM RISK: {} issues detected", medium_risk.len());
-            for result in medium_risk {
-                println!("   - {}", result.file);
-                println!("     {}", result.comment);
-                println!();
-            }
         }
 
-        // Print low risk issues
         if !low_risk.is_empty() {
             println!("ℹ️  LOW RISK: {} informational warnings", low_risk.len());
-            for result in low_risk {
-                println!("   - {}", result.file);
-                println!("     {}", result.comment);
-                println!();
-            }
         }
 
+        println!();
         println!("==============================================");
         println!("🔍 SUMMARY:");
+        if let Some(duration) = self.duration_seconds {
+            println!("   Scan Duration: {:.2} seconds", duration);
+        }
         println!("   High Risk Issues: {}", self.summary.high_risk_count);
         println!("   Medium Risk Issues: {}", self.summary.medium_risk_count);
         println!(
             "   Low Risk (informational): {}",
             self.summary.low_risk_count
         );
-        println!("   Total Critical Issues: {}", self.summary.total_issues);
+        println!(
+            "   Total Critical Issues: {}",
+            self.summary.high_risk_count + self.summary.medium_risk_count
+        );
         println!();
 
         if self.summary.high_risk_count > 0 {
