@@ -32,7 +32,11 @@
 **📊 KRITISCHE LÜCKEN-ANALYSE RESULTAT:**
 - **Ursprünglich:** 24 fehlende Critical Issues (-35%)
 - **Nach Implementierung:** Alle 5 kritischen Module implementiert
-- **Erwartetes Ergebnis:** Rust Scanner sollte Bash Scanner erreichen oder übertreffen
+- **🚨 AKTUELLE DISKREPANZ:** Rust Scanner findet IMMER NOCH 10 weniger Critical Issues (58 vs 68)
+- **KLASSIFIZIERUNGS-PROBLEM:** Zu viele HIGH RISK (24 vs 10), zu wenige MEDIUM RISK (34 vs 58)
+- **STATUS:** ❌ PARITÄT NICHT ERREICHT - Dringende Korrektur erforderlich
+
+**🔴 BLOCKIERT:** TODO #13 (Barcode-Scanner Fixes) bis Parität erreicht ist
 
 ---
 
@@ -142,14 +146,6 @@
 
 #### 12. Vergleiche die rust-dev outputs mit rust scanner, was macht rust-dev besser? dies übernehmen
 
-#### 13. Barcode-Scanner-v2 Shai-Hulud Fixes
-- [ ] **Status:** 🟡 Nicht gestartet
-- [ ] **Aufgabe:** Shai-Hulud Issues in `../barcode-scanner-v2` beheben
-- [ ] **Scope:** Alle vom Scanner gefundenen Issues
-- [ ] **Deliverable:** Sauberes barcode-scanner-v2 Projekt
-
-
-
 
 ## 📊 Fortschritts-Tracking
 
@@ -168,9 +164,16 @@
 
 ## 🎯 Nächste Schritte
 
-1. **SOFORT:** Log-Vergleich Rust vs Bash (#1)
-2. **DANN:** Gefundene Unterschiede beheben (#2) 
-3. **PARALLEL:** Hardcoded Sachen prüfen (#4)
+**🔴 KRITISCHE PRIORITÄT:**
+1. **SOFORT:** Rust-Bash Scanner Parität erreichen (58 → 68 Critical Issues)
+2. **DANN:** Risk-Level-Klassifizierung korrigieren (HIGH/MEDIUM Balance)
+3. **BLOCKIERT:** Alle anderen TODOs bis Parität erreicht ist
+
+**🚨 PARITÄT-PROBLEM:**
+- Rust Scanner: 58 Critical Issues (24 HIGH, 34 MEDIUM, 6 LOW)
+- Bash Scanner: 68 Critical Issues (10 HIGH, 58 MEDIUM, 7 LOW)
+- **Defizit:** -10 Critical Issues (-15%)
+- **Fehl-Klassifizierung:** +14 HIGH RISK (falsch hoch), -24 MEDIUM RISK (fehlen)
 
 ---
 
