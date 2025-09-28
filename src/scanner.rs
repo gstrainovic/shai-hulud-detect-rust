@@ -328,18 +328,24 @@ impl Scanner {
                             results.add_file_result(FileResult {
                                 file: file.to_string_lossy().to_string(),
                                 risk_level: RiskLevel::Medium,
-                                comment: format!("Suspicious package version: {}@{}", package_name, version_spec_str),
+                                comment: format!(
+                                    "Suspicious package version: {}@{}",
+                                    package_name, version_spec_str
+                                ),
                                 patterns_detected: vec!["suspicious_package_version".to_string()],
                                 details: Some(vec![
                                     format!("Package: {}@{}", package_name, version_spec_str),
-                                    "This package version matches known compromised versions".to_string(),
+                                    "This package version matches known compromised versions"
+                                        .to_string(),
                                     "Manual review required to determine if malicious".to_string(),
                                 ]),
                             });
                         }
                         // Check for semver risk ranges (MEDIUM risk - potential matches)
                         // Create separate issue for each potentially matching version (Bash-compatible)
-                        else if let Some(matching_versions) = self.get_matching_compromised_versions(package_name, version_spec_str) {
+                        else if let Some(matching_versions) =
+                            self.get_matching_compromised_versions(package_name, version_spec_str)
+                        {
                             for matching_version in matching_versions {
                                 results.add_file_result(FileResult {
                                     file: file.to_string_lossy().to_string(),
@@ -443,29 +449,26 @@ impl Scanner {
     }
 
     /// Get all compromised versions that could potentially match a semver range
-    fn get_matching_compromised_versions(&self, package_name: &str, version_spec: &str) -> Option<Vec<String>> {
+    fn get_matching_compromised_versions(
+        &self,
+        package_name: &str,
+        version_spec: &str,
+    ) -> Option<Vec<String>> {
         if let Some(compromised_versions) = self.compromised_packages.get(package_name) {
             let mut matching_versions = Vec::new();
-            
+
             for compromised_version in compromised_versions {
-                // Skip exact matches (already handled as HIGH risk)
+                // Skip exact matches (already handled as separate MEDIUM risk)
                 if compromised_version == version_spec {
                     continue;
                 }
-                
-                // Skip normalized exact matches
-                let normalized = self.normalize_version(version_spec);
-                if compromised_version == &normalized {
-                    continue;
-                }
-                
-                // Check if semver range could potentially match this version
+
+                // For semver ranges (~, ^), include all potentially matching versions
+                // including the base version itself (Bash-compatible behavior)
                 if self.semver_could_match(version_spec, compromised_version) {
                     matching_versions.push(compromised_version.clone());
                 }
-            }
-            
-            if matching_versions.is_empty() {
+            }            if matching_versions.is_empty() {
                 None
             } else {
                 Some(matching_versions)
@@ -515,7 +518,7 @@ impl Scanner {
             Ok(v) => v,
             Err(_) => return false,
         };
-        
+
         if range_spec.starts_with('^') {
             // ^4.0.0 matches >=4.0.0 <5.0.0
             let base_version = range_spec.trim_start_matches('^');
@@ -523,17 +526,15 @@ impl Scanner {
                 return target.major == base.major && target >= base;
             }
         }
-        
+
         if range_spec.starts_with('~') {
             // ~9.0.35 matches >=9.0.35 <9.1.0 (tilde allows patch-level changes)
             let base_version = range_spec.trim_start_matches('~');
             if let Ok(base) = semver::Version::parse(base_version) {
-                return target.major == base.major && 
-                       target.minor == base.minor && 
-                       target >= base;
+                return target.major == base.major && target.minor == base.minor && target >= base;
             }
         }
-        
+
         false
     }
     /// Check if a package is a cryptocurrency library
@@ -950,12 +951,12 @@ impl Scanner {
                 if !found_compromised.is_empty() {
                     results.add_file_result(FileResult {
                         file: file.to_string_lossy().to_string(),
-                        risk_level: RiskLevel::Medium, // Bash-compatible classification
+                        risk_level: RiskLevel::High, // Correct classification per test case
                         comment: format!(
                             "pnpm lockfile contains compromised packages: {}",
                             found_compromised.join(", ")
                         ),
-                        patterns_detected: vec!["suspicious_package_lockfile".to_string()],
+                        patterns_detected: vec!["compromised_package_in_lockfile".to_string()],
                         details: Some(found_compromised),
                     });
                 }

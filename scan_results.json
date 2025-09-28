@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-28T18:16:05.590567600Z",
-  "end_time": "2025-09-28T18:16:06.066934300Z",
-  "duration_seconds": 0.476,
-  "timestamp": "2025-09-28T18:16:05.590567600Z",
+  "start_time": "2025-09-28T18:34:33.389260900Z",
+  "end_time": "2025-09-28T18:34:33.806519900Z",
+  "duration_seconds": 0.417,
+  "timestamp": "2025-09-28T18:34:33.389260900Z",
   "files_scanned": 0,
   "results": [
     {
@@ -327,6 +327,19 @@
       ],
       "details": [
         "Package: @operato/board@9.0.46",
+        "Semver range ~9.0.35 could match compromised version",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/semver-matching\\package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@9.0.35",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@9.0.35",
         "Semver range ~9.0.35 could match compromised version",
         "Manual review required to determine if malicious"
       ]
@@ -729,10 +742,10 @@
     },
     {
       "file": "../shai-hulud-detect/test-cases/infected-lockfile-pnpm\\pnpm-lock.yaml",
-      "risk_level": "Medium",
+      "risk_level": "High",
       "comment": "pnpm lockfile contains compromised packages: @ctrl/tinycolor@4.1.2",
       "patterns_detected": [
-        "suspicious_package_lockfile"
+        "compromised_package_in_lockfile"
       ],
       "details": [
         "@ctrl/tinycolor@4.1.2"
@@ -1100,9 +1113,9 @@
     }
   ],
   "summary": {
-    "high_risk_count": 21,
+    "high_risk_count": 22,
     "medium_risk_count": 57,
     "low_risk_count": 7,
-    "total_issues": 85
+    "total_issues": 86
   }
 }
