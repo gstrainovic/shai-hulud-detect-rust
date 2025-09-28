@@ -15,19 +15,32 @@
 ### 🔄 IN BEARBEITUNG
 
 #### 1. Log-Vergleich Test-Cases Rust vs Bash
-- [ ] **Status:** 🟡 Nicht gestartet
-- [ ] **Aufgabe:** Rust test-cases log mit `logs\bash\bash-testcase.log` vergleichen
-- [ ] **Hinweis:** Bash scan NICHT ausführen (sehr langsam), nur bestehende Logs verwenden
-- [ ] **Suchen:** Unterschiede in Erkennung, Formatierung, Details
-- [ ] **Deliverable:** Liste der gefundenen Unterschiede
+- [x] **Status:** ✅ ABGESCHLOSSEN - Kritische Lücken gefunden
+- [x] **Aufgabe:** Rust test-cases log mit `logs\bash\bash-testcase.log` vergleichen
+- [x] **Hinweis:** Bash scan NICHT ausführen (sehr langsam), nur bestehende Logs verwenden
+- [x] **Suchen:** Unterschiede in Erkennung, Formatierung, Details
+- [x] **Deliverable:** Liste der gefundenen Unterschiede
+
+**🚨 ERGEBNIS:** 
+- **31 weniger Critical Issues** im Rust Scanner (-45%!)
+- **Fehlende Scan-Module:** postinstall hooks, cryptocurrency patterns, Trufflehog, Shai-Hulud migration, lockfile integrity
+- **Nächster Schritt:** TODO #2 - Diese Lücken dringend beheben
 
 ---
 
 #### 2. Gefundene Unterschiede beheben
-- [ ] **Status:** 🟡 Abhängig von #1
-- [ ] **Aufgabe:** Alle kritischen Unterschiede aus #1 implementieren
+- [ ] **Status:** � DRINGEND - Kritische Lücken beheben
+- [x] **Aufgabe:** Alle kritischen Unterschiede aus #1 implementieren
+- [ ] **FEHLENDE MODULE zu implementieren:**
+  - [ ] **Postinstall Hooks Scanner** (suspicious postinstall hooks)
+  - [ ] **Cryptocurrency Theft Patterns** (dedicated crypto theft detection)
+  - [ ] **Trufflehog Activity Scanner** (secret scanning activity)
+  - [ ] **Shai-Hulud Migration Patterns** (repository migration detection)
+  - [ ] **Lockfile Integrity Checker** (package lock file integrity)
 - [ ] **Vorgehen:** Teilerfolge → Testen → Commiten → Pushen
 - [ ] **Deliverable:** Commits für jede behobene Diskrepanz
+
+**🎯 ZIEL:** +31 Critical Issues erreichen (von 37 auf 68)
 
 ---
 
@@ -107,6 +120,9 @@
 - [ ] **Scope:** Alle vom Scanner gefundenen Issues
 - [ ] **Deliverable:** Sauberes barcode-scanner-v2 Projekt
 
+#### 11. Vergleiche vet.exe results von test-cases und ../barcode-scanner-v2 mit rust und bash scanner
+
+#### 12. Vergleiche die rust-dev outputs mit rust scanner, was macht rust-dev besser? dies übernehmen
 ---
 
 ## 📊 Fortschritts-Tracking

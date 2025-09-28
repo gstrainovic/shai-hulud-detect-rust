@@ -134,6 +134,9 @@ impl Scanner {
         self.check_specialized_network_patterns(&files, &mut results)
             .await?;
 
+        // Step 8: Check for suspicious postinstall hooks
+        self.check_postinstall_hooks(&files, &mut results).await?;
+
         // Finalize results with end timestamp
         results.finalize();
 
@@ -1043,6 +1046,82 @@ impl Scanner {
                                 patterns_detected: vec![pattern_name.to_string()],
                                 details: Some(details),
                             });
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Check for suspicious postinstall hooks in package.json files
+    async fn check_postinstall_hooks(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking for suspicious postinstall hooks...");
+        }
+
+        let suspicious_patterns = [
+            "curl", "wget", "node -e", "eval", "bash", "sh", "python", 
+            "powershell", "cmd", "echo", ">", ">>", "|", "&&", "||"
+        ];
+
+        let package_files: Vec<_> = files
+            .iter()
+            .filter(|f| f.file_name().and_then(|n| n.to_str()) == Some("package.json"))
+            .collect();
+
+        for file in package_files {
+            if let Ok(content) = fs::read_to_string(file) {
+                if let Ok(package_json) = serde_json::from_str::<serde_json::Value>(&content) {
+                    // Check scripts section for postinstall
+                    if let Some(scripts) = package_json.get("scripts").and_then(|s| s.as_object()) {
+                        if let Some(postinstall) = scripts.get("postinstall").and_then(|p| p.as_str()) {
+                            // Check if postinstall command contains suspicious patterns
+                            for pattern in &suspicious_patterns {
+                                if postinstall.contains(pattern) {
+                                    results.add_file_result(FileResult {
+                                        file: file.to_string_lossy().to_string(),
+                                        risk_level: RiskLevel::High,
+                                        comment: format!("Suspicious postinstall hook detected: {}", postinstall),
+                                        patterns_detected: vec!["suspicious_postinstall_hook".to_string()],
+                                        details: Some(vec![
+                                            format!("Postinstall command: {}", postinstall),
+                                            format!("Suspicious pattern: {}", pattern),
+                                            "Postinstall hooks can execute arbitrary code during package installation".to_string(),
+                                        ]),
+                                    });
+                                    break; // Avoid duplicate entries for the same postinstall hook
+                                }
+                            }
+                        }
+                    }
+
+                    // Also check for preinstall and other suspicious lifecycle hooks
+                    if let Some(scripts) = package_json.get("scripts").and_then(|s| s.as_object()) {
+                        for (hook_name, hook_value) in scripts {
+                            if let Some(hook_cmd) = hook_value.as_str() {
+                                // Check lifecycle hooks that could be suspicious
+                                if (hook_name == "preinstall" || hook_name == "install" || 
+                                    hook_name == "prepare" || hook_name == "prepublishOnly") {
+                                    for pattern in &suspicious_patterns {
+                                        if hook_cmd.contains(pattern) {
+                                            results.add_file_result(FileResult {
+                                                file: file.to_string_lossy().to_string(),
+                                                risk_level: RiskLevel::Medium,
+                                                comment: format!("Suspicious {} hook detected: {}", hook_name, hook_cmd),
+                                                patterns_detected: vec!["suspicious_lifecycle_hook".to_string()],
+                                                details: Some(vec![
+                                                    format!("Hook type: {}", hook_name),
+                                                    format!("Command: {}", hook_cmd),
+                                                    format!("Suspicious pattern: {}", pattern),
+                                                ]),
+                                            });
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

