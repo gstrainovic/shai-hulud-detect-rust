@@ -452,8 +452,6 @@ impl Scanner {
                     None
                 },
             });
-
-
         }
     }
 
@@ -1525,8 +1523,6 @@ impl Scanner {
                             "This may indicate workflow compromise or malicious package injection".to_string(),
                         ]),
                     });
-
-
                 }
             }
         }
