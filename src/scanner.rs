@@ -121,10 +121,13 @@ impl Scanner {
         // Step 3: Check file hashes against known malicious files
         self.check_file_hashes(&files, &mut results).await?;
 
-        // Step 4: Check for malicious patterns in content
+                // Step 4: Check for malicious patterns in content
         self.check_content_patterns(&files, &mut results).await?;
 
-        // Step 5: Check pnpm lock files specifically
+        // Step 4.1: Check for malicious workflow files
+        self.check_malicious_workflow_files(&files, &mut results).await?;
+
+        // Step 5: Check pnmp lock files specifically
         self.check_pnpm_lockfiles(&files, &mut results).await?;
 
         // Step 6: Check for suspicious git branches
@@ -1091,7 +1094,8 @@ impl Scanner {
             .iter()
             .filter(|f| {
                 if let Some(filename) = f.file_name().and_then(|n| n.to_str()) {
-                    filename == "package.json" || (filename.contains("package") && filename.ends_with(".json"))
+                    filename == "package.json"
+                        || (filename.contains("package") && filename.ends_with(".json"))
                 } else {
                     false
                 }
@@ -1295,6 +1299,40 @@ impl Scanner {
                     });
                 }
             }
+        }
+
+        Ok(())
+    }
+
+    /// Check for malicious workflow files (specifically shai-hulud-workflow.yml)
+    async fn check_malicious_workflow_files(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking for malicious workflow files...");
+        }
+
+        let workflow_files: Vec<_> = files
+            .iter()
+            .filter(|f| {
+                if let Some(filename) = f.file_name().and_then(|n| n.to_str()) {
+                    filename == "shai-hulud-workflow.yml" || filename.contains("shai-hulud") && filename.ends_with(".yml")
+                } else {
+                    false
+                }
+            })
+            .collect();
+
+        for file in workflow_files {
+            results.add_file_result(FileResult {
+                file: file.to_string_lossy().to_string(),
+                risk_level: RiskLevel::High,
+                comment: "Malicious workflow file detected: Known malicious workflow filename".to_string(),
+                patterns_detected: vec!["malicious_workflow_file".to_string()],
+                details: Some(vec![
+                    "shai-hulud-workflow.yml is a known malicious GitHub Actions workflow".to_string(),
+                    "This file was used in the September 8, 2025 chalk/debug attack".to_string(),
+                    "Remove this file immediately and check repository history".to_string(),
+                ]),
+            });
         }
 
         Ok(())

