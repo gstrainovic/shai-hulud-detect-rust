@@ -1,13 +1,59 @@
 {
-  "scan_path": "tests/test-cases/crypto-theft-test/",
-  "start_time": "2025-09-28T02:38:17.733985100Z",
-  "end_time": "2025-09-28T02:38:17.766910400Z",
-  "duration_seconds": 0.032,
-  "timestamp": "2025-09-28T02:38:17.733985100Z",
+  "scan_path": "../shai-hulud-detect/test-cases/infected-project/",
+  "start_time": "2025-09-28T07:48:57.024942200Z",
+  "end_time": "2025-09-28T07:48:57.108997900Z",
+  "duration_seconds": 0.084,
+  "timestamp": "2025-09-28T07:48:57.024942200Z",
   "files_scanned": 0,
   "results": [
     {
-      "file": "tests/test-cases/crypto-theft-test/malicious.js",
+      "file": "../shai-hulud-detect/test-cases/infected-project/package.json",
+      "risk_level": "High",
+      "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49",
+      "patterns_detected": [
+        "compromised_packages",
+        "affected_namespace",
+        "compromised_packages"
+      ],
+      "details": [
+        "@ctrl/deluge@1.2.0",
+        "@nativescript-community/ui-material-core@7.2.49"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/.github\\workflows\\shai-hulud-workflow.yml",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains credential scanning patterns, Potentially suspicious environment variable access, Credential mentions detected",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint",
+        "credential_scanning",
+        "env_var_access",
+        "credential_mentions"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint",
+        "credential_scanning: Contains credential scanning patterns",
+        "env_var_access: Potentially suspicious environment variable access",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
       "risk_level": "High",
       "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
       "patterns_detected": [
@@ -24,7 +70,67 @@
       ]
     },
     {
-      "file": "tests/test-cases/crypto-theft-test/malicious.js",
+      "file": "../shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint",
+        "trufflehog_references",
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint",
+        "trufflehog_references: Contains trufflehog references in source code",
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/malicious.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "patterns_detected": [
+        "webhook_site_reference",
+        "malicious_webhook_endpoint"
+      ],
+      "details": [
+        "webhook_site_reference: webhook.site reference",
+        "malicious_webhook_endpoint: malicious webhook endpoint"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "patterns_detected": [
+        "trufflehog_references",
+        "credential_scanning",
+        "credential_mentions"
+      ],
+      "details": [
+        "trufflehog_references: Contains trufflehog references in source code",
+        "credential_scanning: Contains credential scanning patterns",
+        "credential_mentions: Credential mentions detected"
+      ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
       "risk_level": "High",
       "comment": "Cryptocurrency theft pattern: XMLHttpRequest prototype modification detected",
       "patterns_detected": [
@@ -34,12 +140,23 @@
         "XMLHttpRequest prototype modification is a common crypto theft technique",
         "This pattern was used in the September 8, 2025 chalk/debug attack"
       ]
+    },
+    {
+      "file": "../shai-hulud-detect/test-cases/infected-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Webhook.site exfiltration detected",
+      "patterns_detected": [
+        "webhook_exfiltration"
+      ],
+      "details": [
+        "Line 3: https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7"
+      ]
     }
   ],
   "summary": {
-    "high_risk_count": 2,
-    "medium_risk_count": 0,
+    "high_risk_count": 8,
+    "medium_risk_count": 2,
     "low_risk_count": 0,
-    "total_issues": 2
+    "total_issues": 10
   }
 }

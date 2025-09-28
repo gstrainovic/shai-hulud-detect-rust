@@ -128,6 +128,11 @@
 
 
 14. prüfe, gab es die test_cases in C:\Users\gstra\Code\shai-hulud-detect\test-cases schon aber wurden nicht erkannt und neu erstellt in C:\Users\gstra\Code\shai-hulud-detect-rust\tests\test-cases, fixe falls nötig
+- [x] **Status:** ✅ BEHOBEN - Doppelte Test-Cases entfernt
+- [x] **Gefunden:** `typosquatting-test` und `network-exfiltration-test` waren Duplikate
+- [x] **Entfernt:** Beide duplizierten Test-Cases gelöscht
+- [x] **Behalten:** `git-branch-test` (kein Original), `crypto-theft-test` (erweitert Original), `postinstall-hooks-test` (Original-Bug-Fix)
+- [x] **Validiert:** Existierende Test-Cases in `../shai-hulud-detect/test-cases/` funktionieren mit meinem Scanner
 ---
 
 ## 📊 Fortschritts-Tracking
