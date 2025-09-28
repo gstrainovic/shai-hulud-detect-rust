@@ -165,15 +165,43 @@
 ## 🎯 Nächste Schritte
 
 **🔴 KRITISCHE PRIORITÄT:**
-1. **SOFORT:** Rust-Bash Scanner Parität erreichen (58 → 68 Critical Issues)
-2. **DANN:** Risk-Level-Klassifizierung korrigieren (HIGH/MEDIUM Balance)
+1. **SOFORT:** Rust-Bash Scanner Parität erreichen (29 → 68 Critical Issues)
+2. **EXPERIMENT:** Pattern-Level vs File-Level Counting testen
 3. **BLOCKIERT:** Alle anderen TODOs bis Parität erreicht ist
 
 **🚨 PARITÄT-PROBLEM:**
-- Rust Scanner: 58 Critical Issues (24 HIGH, 34 MEDIUM, 6 LOW)
+- Rust Scanner: 29 Critical Issues (14 HIGH, 15 MEDIUM, 3 LOW) [nach Consolidation]
 - Bash Scanner: 68 Critical Issues (10 HIGH, 58 MEDIUM, 7 LOW)
-- **Defizit:** -10 Critical Issues (-15%)
-- **Fehl-Klassifizierung:** +14 HIGH RISK (falsch hoch), -24 MEDIUM RISK (fehlen)
+- **Defizit:** -39 Critical Issues (-57%)
+
+**🔬 ROOT CAUSE IDENTIFIZIERT:**
+Bash Scanner zählt **jeden Pattern-Match als separate Issue**:
+- "Suspicious package versions": 18 einzelne Package-Matches
+- "Suspicious content patterns": 11 einzelne Pattern-Matches  
+- "Secret scanning patterns": 9 einzelne Pattern-Matches
+- "Crypto manipulation patterns": 11 einzelne Pattern-Matches
+
+**🧪 EXPERIMENT-PLAN:**
+
+**Branch 1: pattern-level-counting**
+- [ ] **Option 1**: Jeden Pattern-Match als separate Issue zählen (Bash-kompatibel)
+- [ ] **Implementierung**: Revert Consolidation, zähle Pattern-Matches einzeln
+- [ ] **Erwartung**: ~68 Critical Issues (Bash-Parität)
+- [ ] **test_verification_detailed.json**: Wahrscheinlich KEINE Änderung nötig (E2E Tests erwarten File-Level)
+
+**Branch 2: enhanced-file-level** 
+- [ ] **Option 2**: Behalte File-Level-Consolidation, erweitere Pattern-Detection
+- [ ] **Implementierung**: Mehr Pattern-Typen implementieren, bessere MEDIUM RISK Classification  
+- [ ] **Erwartung**: ~40-50 Critical Issues (zwischen aktuell und Bash)
+- [ ] **test_verification_detailed.json**: Möglicherweise Anpassung der expected_risks Arrays
+
+**📋 VERGLEICHSTEST-PLAN:**
+1. **Branch pattern-level-counting erstellen und testen**
+2. **Branch enhanced-file-level erstellen und testen** 
+3. **E2E Tests (`cargo test`) auf beiden Branches ausführen**
+4. **test_verification_detailed.json Kompatibilität prüfen**
+5. **Performance und Ausgabe-Qualität vergleichen**
+6. **Entscheidung**: Besten Ansatz in main mergen
 
 ---
 
