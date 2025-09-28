@@ -108,31 +108,6 @@ impl ScanResults {
         }
     }
 
-    /// Decrease summary counts for a given risk level
-    fn decrease_summary_counts(&mut self, risk_level: &RiskLevel) {
-        match risk_level {
-            RiskLevel::High => {
-                if self.summary.high_risk_count > 0 {
-                    self.summary.high_risk_count -= 1;
-                    self.summary.total_issues -= 1;
-                }
-            }
-            RiskLevel::Medium => {
-                if self.summary.medium_risk_count > 0 {
-                    self.summary.medium_risk_count -= 1;
-                    self.summary.total_issues -= 1;
-                }
-            }
-            RiskLevel::Low => {
-                if self.summary.low_risk_count > 0 {
-                    self.summary.low_risk_count -= 1;
-                    self.summary.total_issues -= 1;
-                }
-            }
-            RiskLevel::Ok => {} // OK level doesn't count as an issue
-        }
-    }
-
     /// Get count of high risk issues
     pub fn high_risk_count(&self) -> usize {
         self.summary.high_risk_count
@@ -164,31 +139,55 @@ impl ScanResults {
         Ok(())
     }
 
-    /// Print summary to console
-    pub fn print_summary(&self) {
-        println!();
-        println!("==============================================");
-        println!("      SHAI-HULUD DETECTION REPORT");
-        println!("==============================================");
-        println!();
+    /// Print summary to console and optionally to a file
+    pub fn print_summary_to_file(&self, log_file: Option<&Path>) {
+        let output = self.format_summary();
+        print!("{}", output);
+        if let Some(file) = log_file {
+            if let Some(parent) = file.parent() {
+                if let Err(e) = std::fs::create_dir_all(parent) {
+                    eprintln!(
+                        "Warning: Failed to create log directory {}: {}",
+                        parent.display(),
+                        e
+                    );
+                    return;
+                }
+            }
+            if let Ok(_) = std::fs::write(file, &output) {
+                println!("📄 Console log saved to: {}", file.display());
+            } else {
+                eprintln!("Warning: Failed to write log file: {}", file.display());
+            }
+        }
+    }
+
+    /// Format summary as string
+    fn format_summary(&self) -> String {
+        let mut output = String::new();
+
+        output.push_str("==============================================\n");
+        output.push_str("      SHAI-HULUD DETECTION REPORT\n");
+        output.push_str("==============================================\n");
+        output.push_str("\n");
 
         if self.summary.total_issues == 0 {
-            println!("✅ No indicators of Shai-Hulud compromise detected.");
-            println!("Your system appears clean from this specific attack.");
-            println!();
+            output.push_str("✅ No indicators of Shai-Hulud compromise detected.\n");
+            output.push_str("Your system appears clean from this specific attack.\n");
+            output.push_str("\n");
 
             // Show summary even for clean scans
-            println!("==============================================");
-            println!("🔍 SUMMARY:");
+            output.push_str("==============================================\n");
+            output.push_str("🔍 SUMMARY:\n");
             if let Some(duration) = self.duration_seconds {
-                println!("   Scan Duration: {:.2} seconds", duration);
+                output.push_str(&format!("   Scan Duration: {:.2} seconds\n", duration));
             }
-            println!("   High Risk Issues: 0");
-            println!("   Medium Risk Issues: 0");
-            println!("   Low Risk (informational): 0");
-            println!("   Total Critical Issues: 0");
-            println!("==============================================");
-            return;
+            output.push_str("   High Risk Issues: 0\n");
+            output.push_str("   Medium Risk Issues: 0\n");
+            output.push_str("   Low Risk (informational): 0\n");
+            output.push_str("   Total Critical Issues: 0\n");
+            output.push_str("==============================================\n");
+            return output;
         }
 
         // Group results by risk level
@@ -210,59 +209,78 @@ impl ScanResults {
 
         // Show detailed findings with context (like Bash scanner)
         if !high_risk.is_empty() {
-            println!("🚨 HIGH RISK: {} issues detected", high_risk.len());
+            output.push_str(&format!(
+                "🚨 HIGH RISK: {} issues detected\n",
+                high_risk.len()
+            ));
             for result in high_risk {
-                println!("   • {}", result.file);
-                println!("     └─ {}", result.comment);
+                output.push_str(&format!("   • {}\n", result.file));
+                output.push_str(&format!("     └─ {}\n", result.comment));
             }
-            println!();
+            output.push_str("\n");
         }
 
         if !medium_risk.is_empty() {
-            println!("⚠️  MEDIUM RISK: {} issues detected", medium_risk.len());
+            output.push_str(&format!(
+                "⚠️  MEDIUM RISK: {} issues detected\n",
+                medium_risk.len()
+            ));
             for result in medium_risk {
-                println!("   • {}", result.file);
-                println!("     └─ {}", result.comment);
+                output.push_str(&format!("   • {}\n", result.file));
+                output.push_str(&format!("     └─ {}\n", result.comment));
             }
-            println!();
+            output.push_str("\n");
         }
 
         if !low_risk.is_empty() {
-            println!("ℹ️  LOW RISK: {} informational warnings", low_risk.len());
+            output.push_str(&format!(
+                "ℹ️  LOW RISK: {} informational warnings\n",
+                low_risk.len()
+            ));
             for result in low_risk {
-                println!("   • {}", result.file);
-                println!("     └─ {}", result.comment);
+                output.push_str(&format!("   • {}\n", result.file));
+                output.push_str(&format!("     └─ {}\n", result.comment));
             }
-            println!();
+            output.push_str("\n");
         }
 
-        println!();
-        println!("==============================================");
-        println!("🔍 SUMMARY:");
+        output.push_str("\n");
+        output.push_str("==============================================\n");
+        output.push_str("🔍 SUMMARY:\n");
         if let Some(duration) = self.duration_seconds {
-            println!("   Scan Duration: {:.2} seconds", duration);
+            output.push_str(&format!("   Scan Duration: {:.2} seconds\n", duration));
         }
-        println!("   High Risk Issues: {}", self.summary.high_risk_count);
-        println!("   Medium Risk Issues: {}", self.summary.medium_risk_count);
-        println!(
-            "   Low Risk (informational): {}",
+        output.push_str(&format!(
+            "   High Risk Issues: {}\n",
+            self.summary.high_risk_count
+        ));
+        output.push_str(&format!(
+            "   Medium Risk Issues: {}\n",
+            self.summary.medium_risk_count
+        ));
+        output.push_str(&format!(
+            "   Low Risk (informational): {}\n",
             self.summary.low_risk_count
-        );
-        println!("   Total Critical Issues: {}", self.summary.total_issues);
-        println!();
+        ));
+        output.push_str(&format!(
+            "   Total Critical Issues: {}\n",
+            self.summary.total_issues
+        ));
+        output.push_str("\n");
 
         if self.summary.high_risk_count > 0 {
-            println!("⚠️  IMPORTANT:");
-            println!("   - High risk issues likely indicate actual compromise");
-            println!("   - Immediate investigation and remediation required");
-            println!("   - Consider running additional security scans");
+            output.push_str("⚠️  IMPORTANT:\n");
+            output.push_str("   - High risk issues likely indicate actual compromise\n");
+            output.push_str("   - Immediate investigation and remediation required\n");
+            output.push_str("   - Consider running additional security scans\n");
         } else if self.summary.medium_risk_count > 0 {
-            println!("⚠️  IMPORTANT:");
-            println!("   - Medium risk issues require manual investigation");
-            println!("   - Verify if detected patterns are legitimate");
+            output.push_str("⚠️  IMPORTANT:\n");
+            output.push_str("   - Medium risk issues require manual investigation\n");
+            output.push_str("   - Verify if detected patterns are legitimate\n");
         }
 
-        println!("==============================================");
+        output.push_str("==============================================\n");
+        output
     }
 
     /// Set the number of files scanned

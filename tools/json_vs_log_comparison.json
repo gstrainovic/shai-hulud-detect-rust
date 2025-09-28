@@ -1,0 +1,110 @@
+{
+  "report": {
+    "workflow_files": {
+      "bash_count": 3,
+      "rust_count": 9,
+      "diffs": []
+    },
+    "malicious_hashes": {
+      "bash_count": 0,
+      "rust_count": 0,
+      "diffs": []
+    },
+    "compromised_packages": {
+      "bash_count": 0,
+      "rust_count": 26,
+      "diffs": []
+    },
+    "postinstall_hooks": {
+      "bash_count": 3,
+      "rust_count": 1,
+      "diffs": []
+    },
+    "suspicious_content": {
+      "bash_count": 26,
+      "rust_count": 20,
+      "diffs": []
+    },
+    "crypto_patterns": {
+      "bash_count": 5,
+      "rust_count": 17,
+      "diffs": []
+    },
+    "trufflehog_activity": {
+      "bash_count": 3,
+      "rust_count": 9,
+      "diffs": []
+    },
+    "git_branches": {
+      "bash_count": 0,
+      "rust_count": 0,
+      "diffs": []
+    },
+    "shai_hulud_repos": {
+      "bash_count": 0,
+      "rust_count": 0,
+      "diffs": []
+    },
+    "package_integrity": {
+      "bash_count": 2,
+      "rust_count": 2,
+      "diffs": []
+    },
+    "typosquatting": {
+      "bash_count": 0,
+      "rust_count": 5,
+      "diffs": []
+    },
+    "network_exfiltration": {
+      "bash_count": 0,
+      "rust_count": 11,
+      "diffs": []
+    }
+  },
+  "summary": {
+    "bash_only": {
+      "workflow_files": [],
+      "malicious_hashes": [],
+      "compromised_packages": [],
+      "postinstall_hooks": [],
+      "suspicious_content": [],
+      "crypto_patterns": [],
+      "trufflehog_activity": [],
+      "git_branches": [],
+      "shai_hulud_repos": [],
+      "package_integrity": [],
+      "typosquatting": [],
+      "network_exfiltration": []
+    },
+    "rust_only": {
+      "workflow_files": [],
+      "malicious_hashes": [],
+      "compromised_packages": [],
+      "postinstall_hooks": [],
+      "suspicious_content": [],
+      "crypto_patterns": [],
+      "trufflehog_activity": [],
+      "git_branches": [],
+      "shai_hulud_repos": [],
+      "package_integrity": [],
+      "typosquatting": [],
+      "network_exfiltration": []
+    },
+    "differences": {
+      "workflow_files": [],
+      "malicious_hashes": [],
+      "compromised_packages": [],
+      "postinstall_hooks": [],
+      "suspicious_content": [],
+      "crypto_patterns": [],
+      "trufflehog_activity": [],
+      "git_branches": [],
+      "shai_hulud_repos": [],
+      "package_integrity": [],
+      "typosquatting": [],
+      "network_exfiltration": []
+    },
+    "total_bash": 42,
+    "total_rust": 100
+  }
+}

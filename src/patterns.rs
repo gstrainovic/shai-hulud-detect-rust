@@ -128,12 +128,12 @@ impl PatternMatcher {
             risk_level: RiskLevel::Low, // Match bash script behavior
         });
 
-        // Ethereum wallet addresses (general pattern)
+        // Ethereum wallet addresses (general pattern) - lower risk for legitimate crypto projects
         patterns.push(Pattern {
             name: "ethereum_addresses".to_string(),
             regex: Regex::new(r"0x[a-fA-F0-9]{40}").unwrap(),
             description: "Ethereum wallet address patterns detected".to_string(),
-            risk_level: RiskLevel::Medium,
+            risk_level: RiskLevel::Low, // Lower risk, as many legitimate projects use crypto
         });
 
         // Typosquatting patterns (for paranoid mode and general detection)

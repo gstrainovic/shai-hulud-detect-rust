@@ -41,6 +41,10 @@ struct Cli {
     #[arg(long, value_name = "FILE")]
     output: Option<PathBuf>,
 
+    /// Output file for console log (default: none, console only)
+    #[arg(long, value_name = "FILE")]
+    log_file: Option<PathBuf>,
+
     /// Run in test mode using test-cases validation
     #[arg(long)]
     test: bool,
@@ -83,6 +87,13 @@ async fn main() -> Result<()> {
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("Path is required for scanning"))?;
 
+    // Determine log file path: use provided or default to logs/rust/{folder_name}/console.log
+    let log_file = cli.log_file.or_else(|| {
+        path.file_name()
+            .and_then(|n| n.to_str())
+            .map(|folder_name| PathBuf::from(format!("logs/rust/{}/console.log", folder_name)))
+    });
+
     // Initialize scanner
     let scanner = Scanner::new(path, cli.paranoid, true).await?; // Always show progress
 
@@ -100,15 +111,37 @@ async fn main() -> Result<()> {
 
     // Output results - JSON is now default
     if !cli.no_json {
-        let output_file = cli
-            .output
-            .unwrap_or_else(|| PathBuf::from("scan_results.json"));
+        let output_file = cli.output.unwrap_or_else(|| {
+            // Default: logs/rust/[folder_name]/scan_results.json
+            let folder_name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown");
+            PathBuf::from(format!("logs/rust/{}/scan_results.json", folder_name))
+        });
+
+        // Create directory if it doesn't exist
+        if let Some(parent) = output_file.parent() {
+            if let Err(e) = std::fs::create_dir_all(parent) {
+                eprintln!("Warning: Failed to create output directory {}: {}", parent.display(), e);
+            }
+        }
+
         results.save_json(&output_file)?;
         println!("📄 Results saved to: {}", output_file.display());
     }
 
     // Always show only summary (details are in JSON)
-    results.print_summary();
+    let log_file = cli.log_file.unwrap_or_else(|| {
+        // Default: logs/rust/[folder_name]/console.log
+        let folder_name = path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("unknown");
+        PathBuf::from(format!("logs/rust/{}/console.log", folder_name))
+    });
+
+    results.print_summary_to_file(Some(&log_file));
 
     // Exit with appropriate code for CI/CD
     std::process::exit(exit_code);
