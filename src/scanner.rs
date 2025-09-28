@@ -662,14 +662,16 @@ impl Scanner {
                     let base_version = version_spec.trim_start_matches(['^', '~']);
                     if let (Ok(base), Ok(compromised)) = (
                         semver::Version::parse(base_version),
-                        semver::Version::parse(compromised_version)
+                        semver::Version::parse(compromised_version),
                     ) {
                         // Check if compromised version could be in range
                         if compromised.major == base.major {
                             if version_spec.starts_with('^') {
                                 // Caret range: compatible within major version
                                 return true;
-                            } else if version_spec.starts_with('~') && compromised.minor == base.minor {
+                            } else if version_spec.starts_with('~')
+                                && compromised.minor == base.minor
+                            {
                                 // Tilde range: compatible within minor version
                                 return true;
                             }
@@ -688,7 +690,7 @@ impl Scanner {
         if package_name.starts_with('@') {
             if let Some(slash_pos) = package_name.find('/') {
                 let namespace = &package_name[..slash_pos]; // namespace without '/'
-                
+
                 // Check if any package in our compromised database uses this namespace
                 for compromised_package in self.compromised_packages.keys() {
                     if let Some(comp_slash) = compromised_package.find('/') {
