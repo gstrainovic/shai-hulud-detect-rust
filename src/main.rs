@@ -87,13 +87,6 @@ async fn main() -> Result<()> {
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("Path is required for scanning"))?;
 
-    // Determine log file path: use provided or default to logs/rust/{folder_name}/console.log
-    let log_file = cli.log_file.or_else(|| {
-        path.file_name()
-            .and_then(|n| n.to_str())
-            .map(|folder_name| PathBuf::from(format!("logs/rust/{}/console.log", folder_name)))
-    });
-
     // Initialize scanner
     let scanner = Scanner::new(path, cli.paranoid, true).await?; // Always show progress
 
@@ -123,7 +116,11 @@ async fn main() -> Result<()> {
         // Create directory if it doesn't exist
         if let Some(parent) = output_file.parent() {
             if let Err(e) = std::fs::create_dir_all(parent) {
-                eprintln!("Warning: Failed to create output directory {}: {}", parent.display(), e);
+                eprintln!(
+                    "Warning: Failed to create output directory {}: {}",
+                    parent.display(),
+                    e
+                );
             }
         }
 
