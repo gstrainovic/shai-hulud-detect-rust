@@ -509,16 +509,31 @@ impl Scanner {
         stripped.to_string()
     }
     /// Simple semver range check - could this range potentially include the target version?
-    fn semver_could_match(&self, range_spec: &str, _target_version: &str) -> bool {
-        // Simplified semver matching for common cases
+    fn semver_could_match(&self, range_spec: &str, target_version: &str) -> bool {
+        // Parse the target version
+        let target = match semver::Version::parse(target_version) {
+            Ok(v) => v,
+            Err(_) => return false,
+        };
+        
         if range_spec.starts_with('^') {
-            // ^4.0.0 could match 4.1.1, 4.1.2 etc.
-            return true;
+            // ^4.0.0 matches >=4.0.0 <5.0.0
+            let base_version = range_spec.trim_start_matches('^');
+            if let Ok(base) = semver::Version::parse(base_version) {
+                return target.major == base.major && target >= base;
+            }
         }
+        
         if range_spec.starts_with('~') {
-            // ~9.0.35 could match 9.0.36, 9.0.37 etc.
-            return true;
+            // ~9.0.35 matches >=9.0.35 <9.1.0 (tilde allows patch-level changes)
+            let base_version = range_spec.trim_start_matches('~');
+            if let Ok(base) = semver::Version::parse(base_version) {
+                return target.major == base.major && 
+                       target.minor == base.minor && 
+                       target >= base;
+            }
         }
+        
         false
     }
     /// Check if a package is a cryptocurrency library
@@ -935,12 +950,12 @@ impl Scanner {
                 if !found_compromised.is_empty() {
                     results.add_file_result(FileResult {
                         file: file.to_string_lossy().to_string(),
-                        risk_level: RiskLevel::High,
+                        risk_level: RiskLevel::Medium, // Bash-compatible classification
                         comment: format!(
                             "pnpm lockfile contains compromised packages: {}",
                             found_compromised.join(", ")
                         ),
-                        patterns_detected: vec!["compromised_package_in_lockfile".to_string()],
+                        patterns_detected: vec!["suspicious_package_lockfile".to_string()],
                         details: Some(found_compromised),
                     });
                 }

@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-28T12:50:55.331969400Z",
-  "end_time": "2025-09-28T12:50:55.796307700Z",
-  "duration_seconds": 0.464,
-  "timestamp": "2025-09-28T12:50:55.331969400Z",
+  "start_time": "2025-09-28T18:16:05.590567600Z",
+  "end_time": "2025-09-28T18:16:06.066934300Z",
+  "duration_seconds": 0.476,
+  "timestamp": "2025-09-28T18:16:05.590567600Z",
   "files_scanned": 0,
   "results": [
     {
@@ -729,10 +729,10 @@
     },
     {
       "file": "../shai-hulud-detect/test-cases/infected-lockfile-pnpm\\pnpm-lock.yaml",
-      "risk_level": "High",
+      "risk_level": "Medium",
       "comment": "pnpm lockfile contains compromised packages: @ctrl/tinycolor@4.1.2",
       "patterns_detected": [
-        "compromised_package_in_lockfile"
+        "suspicious_package_lockfile"
       ],
       "details": [
         "@ctrl/tinycolor@4.1.2"
@@ -1100,8 +1100,8 @@
     }
   ],
   "summary": {
-    "high_risk_count": 22,
-    "medium_risk_count": 56,
+    "high_risk_count": 21,
+    "medium_risk_count": 57,
     "low_risk_count": 7,
     "total_issues": 85
   }
