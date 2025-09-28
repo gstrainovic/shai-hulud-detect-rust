@@ -145,6 +145,9 @@ impl Scanner {
         self.check_specialized_network_patterns(&files, &mut results)
             .await?;
 
+        // Step 11: Check for lockfile integrity issues
+        self.check_lockfile_integrity(&files, &mut results).await?;
+
         // Finalize results with end timestamp
         results.finalize();
 
@@ -1342,6 +1345,81 @@ impl Scanner {
                     "Remove this file immediately and check repository history".to_string(),
                 ]),
             });
+        }
+
+        Ok(())
+    }
+
+    /// Check for lockfile integrity issues by comparing against compromised packages
+    async fn check_lockfile_integrity(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+        if self.show_progress {
+            println!("🔍 Checking package lock files for integrity issues...");
+        }
+
+        let lockfiles: Vec<_> = files
+            .iter()
+            .filter(|f| {
+                if let Some(filename) = f.file_name().and_then(|n| n.to_str()) {
+                    matches!(filename, "package-lock.json" | "yarn.lock" | "pnpm-lock.yaml")
+                } else {
+                    false
+                }
+            })
+            .collect();
+
+        for lockfile in lockfiles {
+            if let Ok(content) = fs::read_to_string(lockfile) {
+                let mut found_compromised = Vec::new();
+
+                // Check against compromised packages from our database
+                for (package_name, versions) in &self.compromised_packages {
+                    for version in versions {
+                        // For JSON lockfiles (package-lock.json)
+                        if lockfile.file_name().and_then(|n| n.to_str()) == Some("package-lock.json") {
+                            if let Ok(lockfile_json) = serde_json::from_str::<serde_json::Value>(&content) {
+                                if let Some(dependencies) = lockfile_json.get("dependencies").and_then(|d| d.as_object()) {
+                                    if let Some(dep_info) = dependencies.get(package_name) {
+                                        if let Some(found_version) = dep_info.get("version").and_then(|v| v.as_str()) {
+                                            if found_version == version {
+                                                found_compromised.push(format!("{}@{}", package_name, version));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // For YAML lockfiles (pnpm-lock.yaml)
+                        else if lockfile.file_name().and_then(|n| n.to_str()) == Some("pnpm-lock.yaml") {
+                            // Simple text search for pnpm-lock.yaml since it's YAML format
+                            if content.contains(&format!("/{}: ", package_name)) && content.contains(version) {
+                                found_compromised.push(format!("{}@{}", package_name, version));
+                            }
+                        }
+                        // For yarn.lock (text-based format)
+                        else if lockfile.file_name().and_then(|n| n.to_str()) == Some("yarn.lock") {
+                            if content.contains(&format!("{}@", package_name)) && content.contains(version) {
+                                found_compromised.push(format!("{}@{}", package_name, version));
+                            }
+                        }
+                    }
+                }
+
+                // Report integrity issues if any compromised packages found
+                if !found_compromised.is_empty() {
+                    results.add_file_result(FileResult {
+                        file: lockfile.to_string_lossy().to_string(),
+                        risk_level: RiskLevel::Medium,
+                        comment: format!("Package lockfile integrity issues: Compromised packages detected: {}", found_compromised.join(", ")),
+                        patterns_detected: vec!["lockfile_integrity_issue".to_string()],
+                        details: Some(vec![
+                            "Lockfile contains packages that match known compromised versions".to_string(),
+                            "These packages may have been tampered with during the attack".to_string(),
+                            "Recommend regenerating lockfiles and verifying package versions".to_string(),
+                            format!("Compromised packages found: {}", found_compromised.join(", ")),
+                        ]),
+                    });
+                }
+            }
         }
 
         Ok(())

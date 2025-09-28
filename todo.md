@@ -6,14 +6,6 @@
 
 ### 🔄 IN BEARBEITUNG
 
-[x] cargo test soll die tests vom ordner shai-hulud-detect\test-cases\ ausführen und mit test_verification_detailed.json, so war es mal, prüfe die git history.
-
-**✅ GELÖST:** JSON-Format-Fehler in test_verification_detailed.json behoben
-- **Problem:** Commit 80c3b7e führte fehlerhafte Objektstruktur in expected_risks ein
-- **Lösung:** expected_risks von Array von Objekten → Array von Strings korrigiert
-- **Ergebnis:** Alle Tests bestehen wieder (4 passed, 0 failed)
-
-
 #### 1. Log-Vergleich Test-Cases Rust vs Bash
 - [x] **Status:** ✅ ABGESCHLOSSEN - Kritische Lücken identifiziert
 - [x] **Aufgabe:** Rust test-cases log mit `logs\bash\bash-testcase.log` vergleichen
