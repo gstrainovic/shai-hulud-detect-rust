@@ -960,7 +960,7 @@ impl Scanner {
                         patterns_detected: vec!["compromised_package_in_lockfile".to_string()],
                         details: Some(found_compromised.clone()),
                     });
-                    
+
                     // Additional MEDIUM RISK issue for package integrity (Bash-compatible)
                     results.add_file_result(FileResult {
                         file: file.to_string_lossy().to_string(),
