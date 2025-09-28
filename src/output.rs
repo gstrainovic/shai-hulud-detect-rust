@@ -215,7 +215,11 @@ impl ScanResults {
             ));
             for result in high_risk {
                 output.push_str(&format!("   • {}\n", result.file));
-                output.push_str(&format!("     └─ {}\n", result.comment));
+                let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+                output.push_str(&format!("     └─ {}\n", comment_lines[0]));
+                for line in &comment_lines[1..] {
+                    output.push_str(&format!("         {}\n", line));
+                }
             }
             output.push_str("\n");
         }
@@ -227,7 +231,11 @@ impl ScanResults {
             ));
             for result in medium_risk {
                 output.push_str(&format!("   • {}\n", result.file));
-                output.push_str(&format!("     └─ {}\n", result.comment));
+                let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+                output.push_str(&format!("     └─ {}\n", comment_lines[0]));
+                for line in &comment_lines[1..] {
+                    output.push_str(&format!("         {}\n", line));
+                }
             }
             output.push_str("\n");
         }
@@ -239,7 +247,11 @@ impl ScanResults {
             ));
             for result in low_risk {
                 output.push_str(&format!("   • {}\n", result.file));
-                output.push_str(&format!("     └─ {}\n", result.comment));
+                let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+                output.push_str(&format!("     └─ {}\n", comment_lines[0]));
+                for line in &comment_lines[1..] {
+                    output.push_str(&format!("         {}\n", line));
+                }
             }
             output.push_str("\n");
         }
@@ -273,10 +285,12 @@ impl ScanResults {
             output.push_str("   - High risk issues likely indicate actual compromise\n");
             output.push_str("   - Immediate investigation and remediation required\n");
             output.push_str("   - Consider running additional security scans\n");
+            output.push_str("   - Review your npm audit logs and package history\n");
         } else if self.summary.medium_risk_count > 0 {
             output.push_str("⚠️  IMPORTANT:\n");
             output.push_str("   - Medium risk issues require manual investigation\n");
             output.push_str("   - Verify if detected patterns are legitimate\n");
+            output.push_str("   - Review your npm audit logs and package history\n");
         }
 
         output.push_str("==============================================\n");

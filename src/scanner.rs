@@ -346,7 +346,7 @@ impl Scanner {
                                 file: self.canonicalize_path(&file),
                                 risk_level: RiskLevel::Medium,
                                 comment: format!(
-                                    "Suspicious package version: {}@{}",
+                                    "Suspicious package version: {}@{}\nNOTE: Manual review required to determine if these are malicious.",
                                     package_name, version_spec_str
                                 ),
                                 patterns_detected: vec!["suspicious_package_version".to_string()],
@@ -367,7 +367,7 @@ impl Scanner {
                                 results.add_file_result(FileResult {
                                     file: self.canonicalize_path(&file),
                                     risk_level: RiskLevel::Medium,
-                                    comment: format!("Suspicious package version: {}@{}", package_name, matching_version),
+                                    comment: format!("Suspicious package version: {}@{}\nNOTE: Manual review required to determine if these are malicious.", package_name, matching_version),
                                     patterns_detected: vec!["suspicious_package_semver".to_string()],
                                     details: Some(vec![
                                         format!("Package: {}@{}", package_name, matching_version),
@@ -434,7 +434,7 @@ impl Scanner {
             } else {
                 match final_risk {
                     RiskLevel::Medium => {
-                        "Contains crypto libraries or suspicious patterns".to_string()
+                        "Contains crypto libraries or suspicious patterns\nNOTE: These may be legitimate crypto tools or framework code.".to_string()
                     }
                     RiskLevel::Low => "Contains packages from affected namespaces".to_string(),
                     _ => "Package analysis detected issues".to_string(),
@@ -885,7 +885,7 @@ impl Scanner {
                         file: self.canonicalize_path(&file),
                         risk_level: max_risk.clone(),
                         comment: format!(
-                            "Suspicious patterns detected: {}",
+                            "Suspicious patterns detected: {}\nNOTE: Manual review required to determine if these are malicious.",
                             matches
                                 .iter()
                                 .map(|m| m.description.as_str())
@@ -1040,7 +1040,7 @@ impl Scanner {
                     results.add_file_result(FileResult {
                         file: repo_path,
                         risk_level: RiskLevel::Medium,
-                        comment: format!("Suspicious git branch detected: {}", branch),
+                        comment: format!("Suspicious git branch detected: {}\nNOTE: '{}' branches may indicate compromise.", branch, branch),
                         patterns_detected: vec!["suspicious_git_branch".to_string()],
                         details: Some(vec![format!(
                             "Branch name '{}' contains suspicious pattern '{}'",
@@ -1209,7 +1209,7 @@ impl Scanner {
                                     results.add_file_result(FileResult {
                                         file: self.canonicalize_path(&file),
                                         risk_level: RiskLevel::High,
-                                        comment: format!("Suspicious postinstall hook detected: {}", postinstall),
+                                        comment: format!("Suspicious postinstall hook detected: {}\nNOTE: Postinstall hooks can execute arbitrary code during package installation.", postinstall),
                                         patterns_detected: vec!["suspicious_postinstall_hook".to_string()],
                                         details: Some(vec![
                                             format!("Postinstall command: {}", postinstall),
@@ -1330,7 +1330,7 @@ impl Scanner {
                     results.add_file_result(FileResult {
                         file: self.canonicalize_path(&file),
                         risk_level: RiskLevel::High,
-                        comment: "XMLHttpRequest prototype modification detected".to_string(),
+                        comment: "XMLHttpRequest prototype modification detected\nNOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.".to_string(),
                         patterns_detected: vec!["xmlhttprequest_hijacking".to_string()],
                         details: Some(vec![
                             "XMLHttpRequest prototype modification is a common crypto theft technique".to_string(),
@@ -1346,7 +1346,7 @@ impl Scanner {
                         results.add_file_result(FileResult {
                             file: self.canonicalize_path(&file),
                             risk_level: RiskLevel::High,
-                            comment: "Known attacker wallet address detected - HIGH RISK"
+                            comment: "Known attacker wallet address detected - HIGH RISK\nNOTE: These patterns strongly indicate crypto theft malware from the September 8 attack."
                                 .to_string(),
                             patterns_detected: vec!["known_attacker_wallet".to_string()],
                             details: Some(vec![
@@ -1399,7 +1399,7 @@ impl Scanner {
                         file: self.canonicalize_path(&file),
                         risk_level: RiskLevel::Medium,
                         comment: format!(
-                            "Potential cryptocurrency patterns: {}",
+                            "Potential cryptocurrency patterns: {}\nNOTE: These may be legitimate crypto tools or framework code.",
                             crypto_findings.join(", ")
                         ),
                         patterns_detected: vec!["potential_crypto_patterns".to_string()],
@@ -1567,7 +1567,7 @@ impl Scanner {
                         file: self.canonicalize_path(&lockfile),
                         risk_level: RiskLevel::Medium,
                         comment: format!(
-                            "Package lockfile integrity issues: Compromised packages detected: {}",
+                            "Package lockfile integrity issues: Compromised packages detected: {}\nNOTE: These issues may indicate tampering with package dependencies.",
                             found_compromised.join(", ")
                         ),
                         patterns_detected: vec!["package_integrity_issue".to_string()],
@@ -1828,7 +1828,7 @@ impl Scanner {
                 results.add_file_result(FileResult {
                     file: repo_dir.to_string_lossy().to_string(),
                     risk_level,
-                    comment: format!("Shai-Hulud repository/migration patterns detected: {}", findings.join(", ")),
+                    comment: format!("Shai-Hulud repository/migration patterns detected: {}\nNOTE: 'Shai-Hulud' repositories are created by the malware for exfiltration.", findings.join(", ")),
                     patterns_detected: vec!["shai_hulud_migration_patterns".to_string()],
                     details: Some([
                         findings,

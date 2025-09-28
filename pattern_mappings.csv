@@ -1,15 +1,15 @@
 pattern_name,risk_level,description,category,notes
-webhook_site_reference,Medium,webhook.site reference,Exfiltration,Indicates potential data exfiltration via webhook.site service
-malicious_webhook_endpoint,Medium,malicious webhook endpoint,Exfiltration,Specific malicious webhook endpoint bb8ca5f6-4175-45d2-b042-fc9ebb8170b7
-xmlhttprequest_modification,High,XMLHttpRequest prototype modification detected,Crypto Theft,Indicates potential crypto wallet hijacking via XMLHttpRequest manipulation
-attacker_wallet,High,Known attacker wallet address detected - HIGH RISK,Crypto Theft,Specific attacker wallet address 0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976
-npmjs_help,Medium,Phishing domain npmjs.help detected,Phishing,Known phishing domain used in September 2025 attacks
-trufflehog_references,Medium,Contains trufflehog references in source code,Credential Harvesting,References to TruffleHog secret scanning tool
-credential_scanning,Medium,Contains credential scanning patterns,Credential Harvesting,Patterns for scanning AWS_ACCESS_KEY GITHUB_TOKEN NPM_TOKEN
-env_var_access,Medium,Potentially suspicious environment variable access,Credential Harvesting,Access to process.env variables that could contain secrets
-ethereum_addresses,Medium,Ethereum wallet address patterns detected,Crypto Detection,General Ethereum address patterns (legitimate or malicious)
-base64_decoding,Medium,Base64 decoding detected,Obfuscation,Base64 decoding patterns that could hide malicious content
-suspicious_websocket,High,WebSocket connection to suspicious domain,Network Exfiltration,WebSocket connections to suspicious domains
-hardcoded_private_ip,Medium,Hardcoded private IP address detected,Network Exfiltration,Hardcoded private IP addresses that could indicate C2 communication
-evil_domains,High,Suspicious domain pattern detected,Network Exfiltration,Domains containing suspicious keywords like evil malware c2
-javascript_obfuscation,Medium,JavaScript obfuscation patterns detected,Obfuscation,Obfuscated JavaScript code patterns like _0x variables
+webhook_site_reference,Medium,webhook.site reference,Exfiltration,Indicates potential data exfiltration via webhook.site service. NOTE: Manual review required to determine if these are malicious.
+malicious_webhook_endpoint,Medium,malicious webhook endpoint,Exfiltration,Specific malicious webhook endpoint bb8ca5f6-4175-45d2-b042-fc9ebb8170b7. NOTE: Manual review required to determine if these are malicious.
+xmlhttprequest_modification,High,XMLHttpRequest prototype modification detected,Crypto Theft,Indicates potential crypto wallet hijacking via XMLHttpRequest manipulation. NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.
+attacker_wallet,High,Known attacker wallet address detected - HIGH RISK,Crypto Theft,Specific attacker wallet address 0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976. NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.
+npmjs_help,Medium,Phishing domain npmjs.help detected,Phishing,Known phishing domain used in September 2025 attacks.
+trufflehog_references,Medium,Contains trufflehog references in source code,Credential Harvesting,References to TruffleHog secret scanning tool. NOTE: These patterns indicate likely malicious credential harvesting.
+credential_scanning,Medium,Contains credential scanning patterns,Credential Harvesting,Patterns for scanning AWS_ACCESS_KEY GITHUB_TOKEN NPM_TOKEN. NOTE: These patterns indicate likely malicious credential harvesting.
+env_var_access,Medium,Potentially suspicious environment variable access,Credential Harvesting,Access to process.env variables that could contain secrets. NOTE: Manual review recommended to determine if they are malicious.
+ethereum_addresses,Medium,Ethereum wallet address patterns detected,Crypto Detection,General Ethereum address patterns (legitimate or malicious). NOTE: These may be legitimate crypto tools or framework code.
+base64_decoding,Medium,Base64 decoding detected,Obfuscation,Base64 decoding patterns that could hide malicious content.
+suspicious_websocket,High,WebSocket connection to suspicious domain,Network Exfiltration,WebSocket connections to suspicious domains. NOTE: These patterns may indicate data exfiltration or communication with C2 servers.
+hardcoded_private_ip,Medium,Hardcoded private IP address detected,Network Exfiltration,Hardcoded private IP addresses that could indicate C2 communication. NOTE: These patterns may indicate data exfiltration or communication with C2 servers.
+evil_domains,High,Suspicious domain pattern detected,Network Exfiltration,Domains containing suspicious keywords like evil malware c2. NOTE: These patterns may indicate data exfiltration or communication with C2 servers.
+javascript_obfuscation,Medium,JavaScript obfuscation patterns detected,Obfuscation,Obfuscated JavaScript code patterns like _0x variables.

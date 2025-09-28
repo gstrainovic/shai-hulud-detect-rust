@@ -91,14 +91,16 @@
     },
     "suspicious_content": {
       "bash_count": 1,
-      "rust_count": 20,
+      "rust_count": 21,
       "diffs": [
         {
           "path": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
           "bash": [
             "javascript obfuscation detected"
           ],
-          "rust": []
+          "rust": [
+            "javascript obfuscation detected"
+          ]
         },
         {
           "path": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js",
@@ -470,7 +472,14 @@
       "malicious_hashes": [],
       "compromised_packages": [],
       "postinstall_hooks": [],
-      "suspicious_content": [],
+      "suspicious_content": [
+        {
+          "path": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+          "details": [
+            "javascript obfuscation detected"
+          ]
+        }
+      ],
       "crypto_patterns": [],
       "trufflehog_activity": [],
       "git_branches": [],
@@ -484,14 +493,7 @@
       "malicious_hashes": [],
       "compromised_packages": [],
       "postinstall_hooks": [],
-      "suspicious_content": [
-        {
-          "path": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
-          "details": [
-            "javascript obfuscation detected"
-          ]
-        }
-      ],
+      "suspicious_content": [],
       "crypto_patterns": [],
       "trufflehog_activity": [],
       "git_branches": [],
@@ -870,6 +872,6 @@
       "network_exfiltration": []
     },
     "total_bash": 17,
-    "total_rust": 88
+    "total_rust": 89
   }
 }

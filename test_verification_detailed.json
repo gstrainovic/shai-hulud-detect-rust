@@ -524,6 +524,43 @@
             ]
         },
         {
+            "name": "git-branch-test",
+            "path": "test-cases/git-branch-test",
+            "expected_risks": [
+                "MEDIUM"
+            ],
+            "description": "Should show MEDIUM risk - contains suspicious git branches",
+            "files": [
+                {
+                    "file": ".",
+                    "risk_level": "MEDIUM",
+                    "comment": "Suspicious git branch detected: fix-prod-bug\nNOTE: 'fix-prod-bug' branches may indicate compromise.",
+                    "patterns_detected": [
+                        "suspicious_git_branch"
+                    ],
+                    "purpose": "Tests detection of suspicious git branches like 'fix-prod-bug'."
+                },
+                {
+                    "file": ".",
+                    "risk_level": "MEDIUM",
+                    "comment": "Suspicious git branch detected: temp-work\nNOTE: 'temp-work' branches may indicate compromise.",
+                    "patterns_detected": [
+                        "suspicious_git_branch"
+                    ],
+                    "purpose": "Tests detection of suspicious git branches like 'temp-work'."
+                },
+                {
+                    "file": ".",
+                    "risk_level": "MEDIUM",
+                    "comment": "Suspicious git branch detected: credentials-leak\nNOTE: 'credentials-leak' branches may indicate compromise.",
+                    "patterns_detected": [
+                        "suspicious_git_branch"
+                    ],
+                    "purpose": "Tests detection of suspicious git branches like 'credentials-leak'."
+                }
+            ]
+        },
+        {
             "name": "multi-hash-detection",
             "path": "test-cases/multi-hash-detection",
             "expected_risks": [],
