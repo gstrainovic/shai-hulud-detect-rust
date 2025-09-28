@@ -1,7 +1,7 @@
 // Cryptocurrency theft patterns test cases
 
 // XMLHttpRequest prototype hijacking (HIGH RISK)
-XMLHttpRequest.prototype.send = function(data) {
+XMLHttpRequest.prototype.send = function (data) {
     // Malicious interception of all AJAX requests
     const originalSend = XMLHttpRequest.prototype.send;
     // Redirect crypto transactions

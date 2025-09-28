@@ -134,7 +134,8 @@ impl Scanner {
         self.check_postinstall_hooks(&files, &mut results).await?;
 
         // Step 9: Check for cryptocurrency theft patterns
-        self.check_crypto_theft_patterns(&files, &mut results).await?;
+        self.check_crypto_theft_patterns(&files, &mut results)
+            .await?;
 
         // Step 10: Check for specialized network exfiltration patterns
         self.check_specialized_network_patterns(&files, &mut results)
@@ -1162,7 +1163,11 @@ impl Scanner {
     }
 
     /// Check for cryptocurrency theft patterns (based on Chalk/Debug attack Sept 8, 2025)
-    async fn check_crypto_theft_patterns(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
+    async fn check_crypto_theft_patterns(
+        &self,
+        files: &[PathBuf],
+        results: &mut ScanResults,
+    ) -> Result<()> {
         if self.show_progress {
             println!("🔍 Checking for cryptocurrency theft patterns...");
         }
@@ -1175,9 +1180,7 @@ impl Scanner {
         ];
 
         // Known malicious function names from chalk/debug attack
-        let malicious_functions = [
-            "checkethereumw", "runmask", "newdlocal", "_0x19ca67"
-        ];
+        let malicious_functions = ["checkethereumw", "runmask", "newdlocal", "_0x19ca67"];
 
         let js_files: Vec<_> = files
             .iter()
@@ -1198,7 +1201,8 @@ impl Scanner {
                 let eth_wallet_regex = regex::Regex::new(r"0x[a-fA-F0-9]{40}").unwrap();
                 if eth_wallet_regex.is_match(&content) {
                     // Check if it's in a crypto context
-                    let crypto_context = regex::Regex::new(r"(?i)ethereum|wallet|address|crypto").unwrap();
+                    let crypto_context =
+                        regex::Regex::new(r"(?i)ethereum|wallet|address|crypto").unwrap();
                     if crypto_context.is_match(&content) {
                         crypto_findings.push("Ethereum wallet address patterns detected");
                     }
@@ -1229,7 +1233,8 @@ impl Scanner {
                             patterns_detected: vec!["known_attacker_wallet".to_string()],
                             details: Some(vec![
                                 format!("Wallet address: {}", wallet),
-                                "This wallet was used in the September 8, 2025 chalk/debug attack".to_string(),
+                                "This wallet was used in the September 8, 2025 chalk/debug attack"
+                                    .to_string(),
                                 "Immediate investigation required".to_string(),
                             ]),
                         });
@@ -1262,7 +1267,8 @@ impl Scanner {
                         comment: "Phishing domain npmjs.help detected".to_string(),
                         patterns_detected: vec!["npmjs_phishing_domain".to_string()],
                         details: Some(vec![
-                            "npmjs.help is a known phishing domain used in crypto theft attacks".to_string(),
+                            "npmjs.help is a known phishing domain used in crypto theft attacks"
+                                .to_string(),
                             "Legitimate npm registry is npmjs.com, not npmjs.help".to_string(),
                         ]),
                     });
@@ -1274,7 +1280,10 @@ impl Scanner {
                     results.add_file_result(FileResult {
                         file: file.to_string_lossy().to_string(),
                         risk_level: RiskLevel::Medium,
-                        comment: format!("Potential cryptocurrency patterns: {}", crypto_findings.join(", ")),
+                        comment: format!(
+                            "Potential cryptocurrency patterns: {}",
+                            crypto_findings.join(", ")
+                        ),
                         patterns_detected: vec!["potential_crypto_patterns".to_string()],
                         details: Some(crypto_findings.iter().map(|s| s.to_string()).collect()),
                     });
