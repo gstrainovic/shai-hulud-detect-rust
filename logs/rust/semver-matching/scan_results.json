@@ -1,0 +1,44 @@
+{
+  "scan_path": "../shai-hulud-detect/test-cases/semver-matching/",
+  "start_time": "2025-09-29T00:17:54.589954600Z",
+  "end_time": "2025-09-29T00:17:54.613853700Z",
+  "duration_seconds": 0.023,
+  "timestamp": "2025-09-29T00:17:54.589954600Z",
+  "files_scanned": 0,
+  "results": [
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @ctrl/tinycolor@^4.0.0\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @ctrl/tinycolor@^4.0.0",
+        "Semver range ^4.0.0 could match 2 compromised versions",
+        "Potentially matching versions: 4.1.1, 4.1.2",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: @operato/board@~9.0.35\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "suspicious_package_semver"
+      ],
+      "details": [
+        "Package: @operato/board@~9.0.35",
+        "Semver range ~9.0.35 could match 17 compromised versions",
+        "Potentially matching versions: 9.0.36, 9.0.37, 9.0.38, 9.0.39, 9.0.40, 9.0.41, 9.0.42, 9.0.43, 9.0.44, 9.0.45, 9.0.46, 9.0.35, 9.0.47, 9.0.48, 9.0.49, 9.0.50, 9.0.51",
+        "Manual review required to determine if malicious"
+      ]
+    }
+  ],
+  "summary": {
+    "high_risk_count": 0,
+    "medium_risk_count": 2,
+    "low_risk_count": 0,
+    "total_issues": 2
+  }
+}

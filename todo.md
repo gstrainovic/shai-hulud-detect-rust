@@ -15,9 +15,9 @@
 - [x] 'Cryptocurrency regex patterns'
 - [x] Detaillierte Trufflehog-Klassifizierung
 
-### 4. ⏳ Package-spezifische Details verbessern
-- [ ] Verbessere Package-Darstellung
-- [ ] Format: "Package: name@version Found in: path"
+### 4. ✅ COMPLETED: Package-spezifische Details verbessern
+- [x] Verbessere Package-Darstellung
+- [x] Format: "Package: name@version Found in: path"
 
 ### 5. ⏳ Semver-Range Handling implementieren
 - [ ] Implementiere Semver-Range Erkennung für @operato/board@~9.0.35

@@ -359,19 +359,20 @@ impl Scanner {
                             });
                         }
                         // Check for semver risk ranges (MEDIUM risk - potential matches)
-                        // Create separate issue for each potentially matching version (Bash-compatible)
+                        // Show semver range instead of individual versions (Bash-compatible)
                         else if let Some(matching_versions) =
                             self.get_matching_compromised_versions(package_name, version_spec_str)
                         {
-                            for matching_version in matching_versions {
+                            if !matching_versions.is_empty() {
                                 results.add_file_result(FileResult {
                                     file: self.canonicalize_path(&file),
                                     risk_level: RiskLevel::Medium,
-                                    comment: format!("Suspicious package version: {}@{}\nNOTE: Manual review required to determine if these are malicious.", package_name, matching_version),
+                                    comment: format!("Suspicious package version: {}@{}\nNOTE: Manual review required to determine if these are malicious.", package_name, version_spec_str),
                                     patterns_detected: vec!["suspicious_package_semver".to_string()],
                                     details: Some(vec![
-                                        format!("Package: {}@{}", package_name, matching_version),
-                                        format!("Semver range {} could match compromised version", version_spec_str),
+                                        format!("Package: {}@{}", package_name, version_spec_str),
+                                        format!("Semver range {} could match {} compromised versions", version_spec_str, matching_versions.len()),
+                                        format!("Potentially matching versions: {}", matching_versions.join(", ")),
                                         "Manual review required to determine if malicious".to_string(),
                                     ]),
                                 });
