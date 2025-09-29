@@ -2,9 +2,9 @@
 
 ## Ziel: Bash-Feature-Parität erreichen
 
-### 1. ✅ Strukturierte Ausgabe-Kategorien implementieren
-- [ ] Implementiere die kategorisierte Ausgabe wie in Bash mit klaren Trennungen
-- [ ] Kategorien: Malicious workflow files, Suspicious package versions, Cryptocurrency theft patterns, etc.
+### 1. ✅ COMPLETED: Strukturierte Ausgabe-Kategorien implementieren
+- [x] Implementiere die kategorisierte Ausgabe wie in Bash mit klaren Trennungen
+- [x] Kategorien: Malicious workflow files, Suspicious package versions, Cryptocurrency theft patterns, etc.
 
 ### 2. ⏳ ASCII-Box Kontextdarstellung hinzufügen  
 - [ ] Füge die strukturierte Darstellung mit ASCII-Boxen hinzu

@@ -272,23 +272,10 @@ impl ScanResults {
                         output.push_str(&format!("   - {}\n", result.file));
                         
                         // Show context with ASCII box for high-risk items
-                        if result.risk_level == RiskLevel::High && category_key.contains("workflow") {
-                            output.push_str("   ┌─ File: ");
-                            output.push_str(&result.file);
-                            output.push_str("\n");
-                            output.push_str("   │  Context: HIGH RISK: ");
-                            let comment_lines: Vec<&str> = result.comment.split('\n').collect();
-                            output.push_str(comment_lines[0]);
-                            output.push_str("\n");
-                            output.push_str("   └─\n");
+                        if result.risk_level == RiskLevel::High {
+                            self.format_high_risk_context(output, result);
                         } else {
-                            let comment_lines: Vec<&str> = result.comment.split('\n').collect();
-                            output.push_str(&format!("     └─ {}\n", comment_lines[0]));
-                            for line in &comment_lines[1..] {
-                                if !line.trim().is_empty() {
-                                    output.push_str(&format!("NOTE: {}\n", line));
-                                }
-                            }
+                            self.format_standard_context(output, result);
                         }
                     }
                     output.push_str("\n");
