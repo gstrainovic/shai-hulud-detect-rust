@@ -429,11 +429,17 @@ impl ScanResults {
             self.format_standard_context(output, result);
         }
         
-        // Add notes
+        // Add notes - remove duplicate "NOTE:" prefix
         let comment_lines: Vec<&str> = result.comment.split('\n').collect();
         for line in &comment_lines[1..] {
             if !line.trim().is_empty() {
-                output.push_str(&format!("   {}\n", line));
+                // Remove "NOTE:" prefix if already present to avoid duplication
+                let clean_line = if line.starts_with("NOTE:") {
+                    line.to_string()
+                } else {
+                    format!("NOTE: {}", line)
+                };
+                output.push_str(&format!("   {}\n", clean_line));
             }
         }
     }

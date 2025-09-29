@@ -23,9 +23,9 @@
 - [x] Implementiere Semver-Range Erkennung für @operato/board@~9.0.35
 - [x] Statt einzelner Versionen
 
-### 6. ⏳ Worm-Activity Detection hinzufügen
-- [ ] Füge spezifische Erkennung hinzu
-- [ ] "Recently modified lockfile contains @ctrl packages (potential worm activity)"
+### 6. ✅ COMPLETED: Worm-Activity Detection hinzufügen
+- [x] Füge spezifische Erkennung hinzu
+- [x] "Recently modified lockfile contains @ctrl packages (potential worm activity)"
 
 ### 7. ⏳ Output-Formatierung optimieren
 - [ ] Optimiere die Gesamtstruktur der Ausgabe
