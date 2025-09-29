@@ -55,24 +55,28 @@ Die Rust-Implementation entspricht jetzt vollständig der Bash-Version!
 - 🔧 Korrigierte Ausgabe-Reihenfolge: zuerst alle HIGH RISK, dann MEDIUM RISK, dann LOW RISK
 - ✅ Vollständige Bash-Parität mit korrekter Priorisierung erreicht!
 
-### 9. ⏳ IN PROGRESS: Fehlende Bash-Tests identifiziert
+### 9. ✅ COMPLETED: Fehlende Bash-Tests identifiziert
 **ANALYSEERGEBNIS - Identifizierte fehlende Tests:**
 
-❌ **`check_shai_hulud_repos()` - TEILWEISE ERFASST**
+✅ **`check_shai_hulud_repos()` - HINZUGEFÜGT**
+- Hinzugefügter Test-Case: **shai-hulud-repo-detection**
 - Sucht nach Repos mit "shai-hulud" im Namen
 - Prüft auf migration patterns ("-migration" repos)  
 - Scannt Git remote URLs nach shai-hulud Referenzen
 
-❌ **`check_typosquatting()` - PARANOID MODE - ERWEITERT ERFORDERLICH**
-- Aktuell nur in typosquatting-project erfasst
-- Bash-Version hat umfangreichere Cyrillic/Unicode Detection
+✅ **`check_typosquatting()` - PARANOID MODE - ERWEITERT**
+- Hinzugefügter Test-Case: **extended-typosquatting-test**
+- Umfangreichere Cyrillic/Unicode Detection
 - Prüft gegen 25+ populäre Paketnamen (react, vue, express, etc.)
+- Character omission und substitution patterns
 
-❌ **`check_network_exfiltration()` - PARANOID MODE - ERWEITERT ERFORDERLICH**  
-- Aktuell nur in network-exfiltration-project teilweise erfasst
-- Bash-Version scannt 15+ suspicious domains (pastebin, hastebin, etc.)
-- Detektiert hardcoded private IPs, C2 patterns
-- Separate suspicious_ip_patterns und suspicious_domains Arrays
+✅ **`check_network_exfiltration()` - PARANOID MODE - ERWEITERT**
+- Hinzugefügter Test-Case: **extended-network-exfiltration**  
+- Scannt 15+ suspicious domains (pastebin, hastebin, discord webhooks, etc.)
+- Detektiert hardcoded private IPs (10.0., 192.168., 172.16-31.)
+- C2 IP:Port patterns für Command & Control detection
+
+🎯 **Vollständige Test-Coverage für alle Bash shai-hulud-detector.sh Funktionen erreicht!**
 
 ## Status Legend
 - ✅ Completed

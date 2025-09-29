@@ -648,7 +648,7 @@
                     "patterns_detected": [
                         "extended_suspicious_domains",
                         "pastebin_family_domains",
-                        "discord_webhook_exfiltration", 
+                        "discord_webhook_exfiltration",
                         "telegram_exfiltration",
                         "ngrok_tunnel_usage",
                         "private_ip_hardcoded_extended",
