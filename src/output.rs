@@ -329,7 +329,7 @@ impl ScanResults {
             return "malicious_workflow";
         }
 
-        // Check for MEDIUM RISK package-related issues  
+        // Check for MEDIUM RISK package-related issues
         if result.patterns_detected.iter().any(|p| {
             p.contains("suspicious_package")
                 || p.contains("typosquatting")
