@@ -2,6 +2,11 @@
 name = "shai-hulud-scanner"
 version = "0.1.0"
 edition = "2021"
+
+# Enable examples
+[[example]]
+name = "test_verification_runner"
+path = "examples/test_verification_runner.rs"
 authors = ["gstrainovic"]
 description = "A Rust implementation of the Shai-Hulud NPM supply chain attack detector"
 license = "MIT"

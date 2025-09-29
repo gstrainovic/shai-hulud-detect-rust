@@ -257,6 +257,10 @@ impl ScanResults {
                 "🚨 HIGH RISK: Malicious workflow files detected:",
             ),
             (
+                "compromised_packages_high",
+                "🚨 HIGH RISK: Compromised packages detected:",
+            ),
+            (
                 "crypto_theft",
                 "🚨 HIGH RISK: Cryptocurrency theft patterns detected:",
             ),
@@ -303,7 +307,7 @@ impl ScanResults {
 
                     for result in results {
                         // Special formatting for package-related issues
-                        if category_key == "suspicious_packages" {
+                        if category_key == "suspicious_packages" || category_key == "compromised_packages_high" {
                             self.format_package_result(output, result);
                         } else {
                             output.push_str(&format!("   - {}\n", result.file));
@@ -329,7 +333,14 @@ impl ScanResults {
             return "malicious_workflow";
         }
 
-        // Check for package-related issues
+        // Check for HIGH RISK compromised packages first
+        if result.patterns_detected.iter().any(|p| {
+            p.contains("suspicious_package")
+        }) && result.risk_level == RiskLevel::High {
+            return "compromised_packages_high"; // New HIGH RISK category for compromised packages
+        }
+
+        // Check for MEDIUM RISK package-related issues  
         if result.patterns_detected.iter().any(|p| {
             p.contains("suspicious_package")
                 || p.contains("typosquatting")

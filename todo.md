@@ -46,7 +46,7 @@ Die Rust-Implementation entspricht jetzt vollständig der Bash-Version!
 
 ### 8. ✅ COMPLETED: weitere:
 - [x] es fehlten patterns, welcher der test nicht merkte, erweitere die C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json. 
-- [x] prüfe nach weiteren tests welche in C:\Users\gstra\Code\shai-hulud-detect\shai-hulud-detector.sh drin ist aber nicht in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json
+- [x] prüfe nach weiteren tests welche in C:\Users\gstra\Code\shai-hulud-detect\shai-hulud-detector.sh drin ist aber nicht in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.jsoncargo 
 - [x] reihenfolge ist nicht zuerst alle highs bei rust wie bei bash?
 
 **Task 8 Erfolge:**
@@ -57,6 +57,19 @@ Die Rust-Implementation entspricht jetzt vollständig der Bash-Version!
 
 ### 9. ✅ COMPLETED: Fehlende Bash-Tests identifiziert
 **ANALYSEERGEBNIS - Identifizierte fehlende Tests:**
+
+ie kompromittierten Pakete (@ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49) werden korrekt erkannt, aber sie sind unter ⚠️ MEDIUM RISK: Suspicious package versions detected eingestuft, nicht unter HIGH RISK!
+
+Die test_verification_detailed.json erwartet aber, dass package.json als HIGH RISK klassifiziert wird.
+
+Das Problem liegt in der Risk-Level-Klassifizierung. Kompromittierte Pakete sollten HIGH RISK sein, nicht MEDIUM RISK.
+
+Lass mich das in der scanner.rs korrigieren:
+
+[ ] Wie ist das den im bash log?
+
+Falls Abweichung Begründet sollten wir eine englische .md machen mit rust-bash-diffs.md und dort eintragen, so dass ggf. Issues erstellt werden kann.
+Schaue dir auch die github issues an oder comments im bash code, vielleicht gibt es einen plausiblen grund warum bash das nicht high einstuft trotz eintrag in der compromised-packages.txt
 
 ✅ **`check_shai_hulud_repos()` - HINZUGEFÜGT**
 - Hinzugefügter Test-Case: **shai-hulud-repo-detection**

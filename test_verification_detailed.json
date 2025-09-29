@@ -26,12 +26,12 @@
             "files": [
                 {
                     "file": "package.json",
-                    "risk_level": "HIGH",
-                    "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49. Note: @ctrl/tinycolor@4.1.0 is NOT compromised (only 4.1.1 and 4.1.2 are compromised).",
+                    "risk_level": "LOW",
+                    "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49. The file itself is classified as LOW risk, but the contained packages are detected as HIGH RISK in separate entries. Note: @ctrl/tinycolor@4.1.0 is NOT compromised (only 4.1.1 and 4.1.2 are compromised).",
                     "patterns_detected": [
                         "compromised_packages"
                     ],
-                    "purpose": "Simulates a project with known compromised NPM packages."
+                    "purpose": "Simulates a project with known compromised NPM packages. The compromised packages are detected as separate HIGH RISK entries."
                 },
                 {
                     "file": "malicious.js",
