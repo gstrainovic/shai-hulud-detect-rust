@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/chalk-debug-attack/",
-  "start_time": "2025-09-29T00:22:29.352830600Z",
-  "end_time": "2025-09-29T00:22:29.450243500Z",
-  "duration_seconds": 0.097,
-  "timestamp": "2025-09-29T00:22:29.352830600Z",
+  "start_time": "2025-09-29T00:32:37.741534Z",
+  "end_time": "2025-09-29T00:32:37.824406500Z",
+  "duration_seconds": 0.082,
+  "timestamp": "2025-09-29T00:32:37.741534Z",
   "files_scanned": 0,
   "results": [
     {

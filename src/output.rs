@@ -249,12 +249,23 @@ impl ScanResults {
                 .push(result);
         }
 
-        // Format each category in the order they appear in Bash
+        // Format each category with HIGH RISK first, then MEDIUM RISK (like Bash)
         let category_order = vec![
+            // HIGH RISK categories first
             (
                 "malicious_workflow",
                 "🚨 HIGH RISK: Malicious workflow files detected:",
             ),
+            (
+                "crypto_theft",
+                "🚨 HIGH RISK: Cryptocurrency theft patterns detected:",
+            ),
+            (
+                "trufflehog_high",
+                "🚨 HIGH RISK: Trufflehog/secret scanning activity detected:",
+            ),
+            ("other_high", "🚨 HIGH RISK: Other issues detected:"),
+            // MEDIUM RISK categories after all HIGH RISK
             (
                 "suspicious_packages",
                 "⚠️  MEDIUM RISK: Suspicious package versions detected:",
@@ -264,16 +275,8 @@ impl ScanResults {
                 "⚠️  MEDIUM RISK: Suspicious content patterns:",
             ),
             (
-                "crypto_theft",
-                "🚨 HIGH RISK: Cryptocurrency theft patterns detected:",
-            ),
-            (
                 "crypto_manipulation",
                 "⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:",
-            ),
-            (
-                "trufflehog_high",
-                "🚨 HIGH RISK: Trufflehog/secret scanning activity detected:",
             ),
             (
                 "trufflehog_medium",
@@ -287,8 +290,8 @@ impl ScanResults {
                 "postinstall_hooks",
                 "⚠️  MEDIUM RISK: Suspicious postinstall hooks detected:",
             ),
-            ("other_high", "🚨 HIGH RISK: Other issues detected:"),
             ("other_medium", "⚠️  MEDIUM RISK: Other issues detected:"),
+            // LOW RISK categories last
             ("other_low", "ℹ️  LOW RISK: Other informational warnings:"),
         ];
 

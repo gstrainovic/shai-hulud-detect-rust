@@ -95,8 +95,10 @@
                     "comment": "Definitely malicious TruffleHog wrapper: downloads TruffleHog, scans system-wide for secrets (/home/, /Users/), extracts AWS/GitHub/NPM tokens from results and exfiltrates them via curl to webhook.site. Subsequently deletes evidence (/tmp/secrets.json).",
                     "patterns_detected": [
                         "trufflehog_download",
+                        "trufflehog_binary",
                         "system_wide_scanning",
                         "credential_extraction",
+                        "credential_patterns_with_exfiltration",
                         "webhook_site_exfiltration",
                         "evidence_cleanup"
                     ],
@@ -172,7 +174,7 @@
                 {
                     "file": "malicious.js",
                     "risk_level": "HIGH",
-                    "comment": "Multiple exfiltration patterns: hardcoded IPs (192.168.1.100), webhook.site, Base64-encoded URLs, WebSocket connections to evil.example.com, credential exfiltration from localStorage. Contains specific network indicators and encoding patterns.",
+                    "comment": "Multiple exfiltration patterns: hardcoded IPs (192.168.1.100), webhook.site, Base64-encoded URLs, WebSocket connections to evil.example.com, credential exfiltration from localStorage. Contains specific network indicators and encoding patterns. Also performs environment scanning with exfiltration.",
                     "patterns_detected": [
                         "hardcoded_ip",
                         "webhook_site",
@@ -180,9 +182,10 @@
                         "websocket_exfiltration",
                         "credential_theft",
                         "private_ip_192_168",
-                        "base64_encoding_patterns"
+                        "base64_encoding_patterns",
+                        "environment_scanning_with_exfiltration"
                     ],
-                    "purpose": "Tests various network-based exfiltration techniques with specific IP and encoding indicators."
+                    "purpose": "Tests various network-based exfiltration techniques with specific IP and encoding indicators, plus environment scanning with data exfiltration."
                 }
             ]
         },

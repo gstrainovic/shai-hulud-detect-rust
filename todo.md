@@ -44,9 +44,10 @@
 
 Die Rust-Implementation entspricht jetzt vollständig der Bash-Version!
 
-### 8 weitere:
+### 8. weitere:
 [ ] es fehlten patterns, welcher der test nicht merkte, erweitere die C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json. 
-[ ] prüfe nach weiteren tests welche in C:\Users\gstra\Code\shai-hulud-detect\shai-hulud-detector.sh drin ist aber nicht in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json
+[ ] prüfe nach weiteren tests welche in C:\Users\gstra\Code\shai-hulud-detect\shai-hulud-detector.sh drin ist (suche nach test) nicht ausführen aber nicht in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json
+[ ] reigenholge ist nicht zuerst alle highs bei rust wie bei bash?
 
 ## Status Legend
 - ✅ Completed
