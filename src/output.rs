@@ -269,13 +269,18 @@ impl ScanResults {
                     output.push_str("\n");
                     
                     for result in results {
-                        output.push_str(&format!("   - {}\n", result.file));
-                        
-                        // Show context with ASCII box for high-risk items
-                        if result.risk_level == RiskLevel::High {
-                            self.format_high_risk_context(output, result);
+                        // Special formatting for package-related issues
+                        if category_key == "suspicious_packages" {
+                            self.format_package_result(output, result);
                         } else {
-                            self.format_standard_context(output, result);
+                            output.push_str(&format!("   - {}\n", result.file));
+                            
+                            // Show context with ASCII box for high-risk items
+                            if result.risk_level == RiskLevel::High {
+                                self.format_high_risk_context(output, result);
+                            } else {
+                                self.format_standard_context(output, result);
+                            }
                         }
                     }
                     output.push_str("\n");
@@ -408,5 +413,53 @@ impl ScanResults {
                 output.push_str(&format!("NOTE: {}\n", line));
             }
         }
+    }
+
+    /// Format package-specific results like Bash implementation
+    fn format_package_result(&self, output: &mut String, result: &FileResult) {
+        // Extract package name and version from comment
+        let comment = &result.comment;
+        
+        if let Some(package_info) = self.extract_package_info(comment) {
+            output.push_str(&format!("   - Package: {}\n", package_info));
+            output.push_str(&format!("     Found in: {}\n", result.file));
+        } else {
+            // Fallback to standard formatting if package info can't be extracted
+            output.push_str(&format!("   - {}\n", result.file));
+            self.format_standard_context(output, result);
+        }
+        
+        // Add notes
+        let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+        for line in &comment_lines[1..] {
+            if !line.trim().is_empty() {
+                output.push_str(&format!("   {}\n", line));
+            }
+        }
+    }
+
+    /// Extract package name and version from comment
+    fn extract_package_info(&self, comment: &str) -> Option<String> {
+        // Look for patterns like "Suspicious package version: name@version"
+        if let Some(pos) = comment.find("Suspicious package version: ") {
+            let after_colon = &comment[pos + "Suspicious package version: ".len()..];
+            if let Some(newline_pos) = after_colon.find('\n') {
+                return Some(after_colon[..newline_pos].to_string());
+            } else {
+                return Some(after_colon.to_string());
+            }
+        }
+        
+        // Look for patterns in package.json context
+        if comment.contains("package.json") {
+            // Try to extract package@version pattern
+            if let Ok(re) = regex::Regex::new(r"([a-zA-Z0-9@/_-]+@[\d\.\-\w~^]+)") {
+                if let Some(captures) = re.find(comment) {
+                    return Some(captures.as_str().to_string());
+                }
+            }
+        }
+        
+        None
     }
 }

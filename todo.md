@@ -10,10 +10,10 @@
 - [x] Füge die strukturierte Darstellung mit ASCII-Boxen hinzu
 - [x] Format: ┌─ File: /path │ Context: HIGH RISK: [description] └─
 
-### 3. ⏳ Spezifische Pattern-Erkennung erweitern
-- [ ] Füge fehlende Pattern hinzu: 'Known crypto theft function names'
-- [ ] 'Cryptocurrency regex patterns'
-- [ ] Detaillierte Trufflehog-Klassifizierung
+### 3. ✅ COMPLETED: Spezifische Pattern-Erkennung erweitern
+- [x] Füge fehlende Pattern hinzu: 'Known crypto theft function names'
+- [x] 'Cryptocurrency regex patterns'
+- [x] Detaillierte Trufflehog-Klassifizierung
 
 ### 4. ⏳ Package-spezifische Details verbessern
 - [ ] Verbessere Package-Darstellung
