@@ -237,26 +237,56 @@ impl ScanResults {
     /// Format results categorized similar to Bash implementation
     fn format_categorized_results(&self, output: &mut String) {
         use std::collections::HashMap;
-        
+
         // Define categories similar to Bash implementation
         let mut categories: HashMap<&str, Vec<&FileResult>> = HashMap::new();
-        
+
         for result in &self.results {
             let category = self.categorize_result(result);
-            categories.entry(category).or_insert_with(Vec::new).push(result);
+            categories
+                .entry(category)
+                .or_insert_with(Vec::new)
+                .push(result);
         }
 
         // Format each category in the order they appear in Bash
         let category_order = vec![
-            ("malicious_workflow", "🚨 HIGH RISK: Malicious workflow files detected:"),
-            ("suspicious_packages", "⚠️  MEDIUM RISK: Suspicious package versions detected:"),
-            ("suspicious_content", "⚠️  MEDIUM RISK: Suspicious content patterns:"),
-            ("crypto_theft", "🚨 HIGH RISK: Cryptocurrency theft patterns detected:"),
-            ("crypto_manipulation", "⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:"),
-            ("trufflehog_high", "🚨 HIGH RISK: Trufflehog/secret scanning activity detected:"),
-            ("trufflehog_medium", "⚠️  MEDIUM RISK: Potentially suspicious secret scanning patterns:"),
-            ("package_integrity", "⚠️  MEDIUM RISK: Package integrity issues detected:"),
-            ("postinstall_hooks", "⚠️  MEDIUM RISK: Suspicious postinstall hooks detected:"),
+            (
+                "malicious_workflow",
+                "🚨 HIGH RISK: Malicious workflow files detected:",
+            ),
+            (
+                "suspicious_packages",
+                "⚠️  MEDIUM RISK: Suspicious package versions detected:",
+            ),
+            (
+                "suspicious_content",
+                "⚠️  MEDIUM RISK: Suspicious content patterns:",
+            ),
+            (
+                "crypto_theft",
+                "🚨 HIGH RISK: Cryptocurrency theft patterns detected:",
+            ),
+            (
+                "crypto_manipulation",
+                "⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:",
+            ),
+            (
+                "trufflehog_high",
+                "🚨 HIGH RISK: Trufflehog/secret scanning activity detected:",
+            ),
+            (
+                "trufflehog_medium",
+                "⚠️  MEDIUM RISK: Potentially suspicious secret scanning patterns:",
+            ),
+            (
+                "package_integrity",
+                "⚠️  MEDIUM RISK: Package integrity issues detected:",
+            ),
+            (
+                "postinstall_hooks",
+                "⚠️  MEDIUM RISK: Suspicious postinstall hooks detected:",
+            ),
             ("other_high", "🚨 HIGH RISK: Other issues detected:"),
             ("other_medium", "⚠️  MEDIUM RISK: Other issues detected:"),
             ("other_low", "ℹ️  LOW RISK: Other informational warnings:"),
@@ -267,14 +297,14 @@ impl ScanResults {
                 if !results.is_empty() {
                     output.push_str(category_title);
                     output.push_str("\n");
-                    
+
                     for result in results {
                         // Special formatting for package-related issues
                         if category_key == "suspicious_packages" {
                             self.format_package_result(output, result);
                         } else {
                             output.push_str(&format!("   - {}\n", result.file));
-                            
+
                             // Show context with ASCII box for high-risk items
                             if result.risk_level == RiskLevel::High {
                                 self.format_high_risk_context(output, result);
@@ -297,59 +327,68 @@ impl ScanResults {
         }
 
         // Check for package-related issues
-        if result.patterns_detected.iter().any(|p| 
-            p.contains("suspicious_package") || 
-            p.contains("typosquatting") ||
-            p.contains("debug_package_risk") ||
-            p.contains("crypto_libraries")
-        ) {
+        if result.patterns_detected.iter().any(|p| {
+            p.contains("suspicious_package")
+                || p.contains("typosquatting")
+                || p.contains("debug_package_risk")
+                || p.contains("crypto_libraries")
+        }) {
             return "suspicious_packages";
         }
 
         // Check for cryptocurrency theft patterns
-        if result.patterns_detected.iter().any(|p|
-            p.contains("xhr_prototype_modification") ||
-            p.contains("known_attacker_wallet") ||
-            result.comment.contains("XMLHttpRequest prototype modification") ||
-            result.comment.contains("Known attacker wallet address")
-        ) && result.risk_level == RiskLevel::High {
+        if result.patterns_detected.iter().any(|p| {
+            p.contains("xhr_prototype_modification")
+                || p.contains("known_attacker_wallet")
+                || result
+                    .comment
+                    .contains("XMLHttpRequest prototype modification")
+                || result.comment.contains("Known attacker wallet address")
+        }) && result.risk_level == RiskLevel::High
+        {
             return "crypto_theft";
         }
 
         // Check for crypto manipulation patterns
-        if result.patterns_detected.iter().any(|p|
-            p.contains("ethereum_addresses") ||
-            p.contains("phishing_domain") ||
-            result.comment.contains("Ethereum wallet address") ||
-            result.comment.contains("JavaScript obfuscation")
-        ) && result.risk_level == RiskLevel::Medium {
+        if result.patterns_detected.iter().any(|p| {
+            p.contains("ethereum_addresses")
+                || p.contains("phishing_domain")
+                || result.comment.contains("Ethereum wallet address")
+                || result.comment.contains("JavaScript obfuscation")
+        }) && result.risk_level == RiskLevel::Medium
+        {
             return "crypto_manipulation";
         }
 
         // Check for high-risk Trufflehog activity
-        if (result.patterns_detected.iter().any(|p|
-            p.contains("trufflehog") ||
-            p.contains("credential_scanning")
-        ) && result.comment.contains("HIGH RISK")) || 
-        result.comment.contains("Trufflehog binary found") {
+        if (result
+            .patterns_detected
+            .iter()
+            .any(|p| p.contains("trufflehog") || p.contains("credential_scanning"))
+            && result.comment.contains("HIGH RISK"))
+            || result.comment.contains("Trufflehog binary found")
+        {
             return "trufflehog_high";
         }
 
         // Check for medium-risk Trufflehog patterns
-        if result.patterns_detected.iter().any(|p|
-            p.contains("trufflehog") ||
-            p.contains("credential_scanning") ||
-            p.contains("environment_variable")
-        ) && result.risk_level == RiskLevel::Medium {
+        if result.patterns_detected.iter().any(|p| {
+            p.contains("trufflehog")
+                || p.contains("credential_scanning")
+                || p.contains("environment_variable")
+        }) && result.risk_level == RiskLevel::Medium
+        {
             return "trufflehog_medium";
         }
 
         // Check for package integrity issues
-        if result.patterns_detected.iter().any(|p|
-            p.contains("lockfile_integrity") ||
-            p.contains("compromised_packages") ||
-            result.comment.contains("lockfile contains compromised packages")
-        ) {
+        if result.patterns_detected.iter().any(|p| {
+            p.contains("lockfile_integrity")
+                || p.contains("compromised_packages")
+                || result
+                    .comment
+                    .contains("lockfile contains compromised packages")
+        }) {
             return "package_integrity";
         }
 
@@ -359,13 +398,13 @@ impl ScanResults {
         }
 
         // Check for suspicious content patterns
-        if result.patterns_detected.iter().any(|p|
-            p.contains("webhook_site") ||
-            p.contains("malicious_webhook") ||
-            p.contains("network_exfiltration") ||
-            p.contains("pastebin") ||
-            p.contains("websocket")
-        ) {
+        if result.patterns_detected.iter().any(|p| {
+            p.contains("webhook_site")
+                || p.contains("malicious_webhook")
+                || p.contains("network_exfiltration")
+                || p.contains("pastebin")
+                || p.contains("websocket")
+        }) {
             return "suspicious_content";
         }
 
@@ -394,7 +433,7 @@ impl ScanResults {
         output.push_str(comment_lines[0]);
         output.push_str("\n");
         output.push_str("   └─\n");
-        
+
         // Add notes after the box
         for line in &comment_lines[1..] {
             if !line.trim().is_empty() {
@@ -407,7 +446,7 @@ impl ScanResults {
     fn format_standard_context(&self, output: &mut String, result: &FileResult) {
         let comment_lines: Vec<&str> = result.comment.split('\n').collect();
         output.push_str(&format!("     └─ {}\n", comment_lines[0]));
-        
+
         for line in &comment_lines[1..] {
             if !line.trim().is_empty() {
                 output.push_str(&format!("NOTE: {}\n", line));
@@ -419,7 +458,7 @@ impl ScanResults {
     fn format_package_result(&self, output: &mut String, result: &FileResult) {
         // Extract package name and version from comment
         let comment = &result.comment;
-        
+
         if let Some(package_info) = self.extract_package_info(comment) {
             output.push_str(&format!("   - Package: {}\n", package_info));
             output.push_str(&format!("     Found in: {}\n", result.file));
@@ -428,7 +467,7 @@ impl ScanResults {
             output.push_str(&format!("   - {}\n", result.file));
             self.format_standard_context(output, result);
         }
-        
+
         // Add notes - remove duplicate "NOTE:" prefix
         let comment_lines: Vec<&str> = result.comment.split('\n').collect();
         for line in &comment_lines[1..] {
@@ -455,7 +494,7 @@ impl ScanResults {
                 return Some(after_colon.to_string());
             }
         }
-        
+
         // Look for patterns in package.json context
         if comment.contains("package.json") {
             // Try to extract package@version pattern
@@ -465,7 +504,7 @@ impl ScanResults {
                 }
             }
         }
-        
+
         None
     }
 }

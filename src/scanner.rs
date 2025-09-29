@@ -947,9 +947,10 @@ impl Scanner {
                     });
 
                     // Additional MEDIUM RISK issue for worm activity (Bash-compatible)
-                    // Check if @ctrl packages are involved for specific worm activity message  
-                    let has_ctrl_packages = found_compromised.iter().any(|pkg| pkg.contains("@ctrl"));
-                    
+                    // Check if @ctrl packages are involved for specific worm activity message
+                    let has_ctrl_packages =
+                        found_compromised.iter().any(|pkg| pkg.contains("@ctrl"));
+
                     let comment = if has_ctrl_packages {
                         "Recently modified lockfile contains @ctrl packages (potential worm activity)".to_string()
                     } else {
@@ -1294,8 +1295,14 @@ impl Scanner {
 
         // Known malicious function names from chalk/debug attack + crypto theft functions
         let malicious_functions = [
-            "checkethereumw", "runmask", "newdlocal", "_0x19ca67",
-            "transferFrom", "approve", "setApprovalForAll", "transfer" // Common crypto theft functions
+            "checkethereumw",
+            "runmask",
+            "newdlocal",
+            "_0x19ca67",
+            "transferFrom",
+            "approve",
+            "setApprovalForAll",
+            "transfer", // Common crypto theft functions
         ];
 
         let js_files: Vec<_> = files
@@ -1376,14 +1383,19 @@ impl Scanner {
                 // Check for known malicious function names (HIGH RISK for original attack functions, MEDIUM for crypto functions)
                 for func in &malicious_functions {
                     if content.contains(func) {
-                        let is_original_attack = ["checkethereumw", "runmask", "newdlocal", "_0x19ca67"].contains(&func);
-                        let risk_level = if is_original_attack { RiskLevel::High } else { RiskLevel::Medium };
+                        let is_original_attack =
+                            ["checkethereumw", "runmask", "newdlocal", "_0x19ca67"].contains(&func);
+                        let risk_level = if is_original_attack {
+                            RiskLevel::High
+                        } else {
+                            RiskLevel::Medium
+                        };
                         let comment = if is_original_attack {
                             format!("Known crypto theft function detected: {}", func)
                         } else {
                             "Known crypto theft function names detected".to_string()
                         };
-                        
+
                         results.add_file_result(FileResult {
                             file: self.canonicalize_path(&file),
                             risk_level,
@@ -1435,7 +1447,10 @@ impl Scanner {
                 }
 
                 // Check for cryptocurrency regex patterns (LOW RISK - informational)
-                let crypto_regex = regex::Regex::new(r"(?i)(web3|ethers|crypto|wallet|blockchain|ethereum|bitcoin)").unwrap();
+                let crypto_regex = regex::Regex::new(
+                    r"(?i)(web3|ethers|crypto|wallet|blockchain|ethereum|bitcoin)",
+                )
+                .unwrap();
                 if crypto_regex.is_match(&content) && !crypto_findings.is_empty() {
                     // Only report if there are also other crypto patterns to avoid false positives
                     results.add_file_result(FileResult {
@@ -1695,7 +1710,9 @@ impl Scanner {
                     details.push("Contains trufflehog references in source code".to_string());
 
                     // Check for trufflehog binary patterns (higher risk)
-                    if content.contains("trufflehog") && (content.contains("bin") || content.contains("executable")) {
+                    if content.contains("trufflehog")
+                        && (content.contains("bin") || content.contains("executable"))
+                    {
                         patterns_found.push("trufflehog_binary".to_string());
                         risk_level = RiskLevel::High;
                         details.push("Trufflehog binary found".to_string());
@@ -1708,7 +1725,9 @@ impl Scanner {
                     }
 
                     // Environment scanning with exfiltration pattern
-                    if content.contains("process.env") && (content.contains("webhook") || content.contains("curl")) {
+                    if content.contains("process.env")
+                        && (content.contains("webhook") || content.contains("curl"))
+                    {
                         risk_level = RiskLevel::High;
                         details.push("Environment scanning with exfiltration".to_string());
                     }
