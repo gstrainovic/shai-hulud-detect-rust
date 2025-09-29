@@ -19,9 +19,9 @@
 - [x] Verbessere Package-Darstellung
 - [x] Format: "Package: name@version Found in: path"
 
-### 5. ⏳ Semver-Range Handling implementieren
-- [ ] Implementiere Semver-Range Erkennung für @operato/board@~9.0.35
-- [ ] Statt einzelner Versionen
+### 5. ✅ COMPLETED: Semver-Range Handling implementieren
+- [x] Implementiere Semver-Range Erkennung für @operato/board@~9.0.35
+- [x] Statt einzelner Versionen
 
 ### 6. ⏳ Worm-Activity Detection hinzufügen
 - [ ] Füge spezifische Erkennung hinzu
@@ -30,6 +30,10 @@
 ### 7. ⏳ Output-Formatierung optimieren
 - [ ] Optimiere die Gesamtstruktur der Ausgabe
 - [ ] Bessere Lesbarkeit und Kategorisierung wie in der Bash-Version
+
+### 8 weitere:
+[ ] es fehlten patterns, welcher der test nicht merkte, erweitere die C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json. 
+[ ] prüfe nach weiteren tests welche in C:\Users\gstra\Code\shai-hulud-detect\shai-hulud-detector.sh drin ist aber nicht in C:\Users\gstra\Code\shai-hulud-detect-rust\test_verification_detailed.json
 
 ## Status Legend
 - ✅ Completed

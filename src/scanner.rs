@@ -946,14 +946,23 @@ impl Scanner {
                         details: Some(found_compromised.clone()),
                     });
 
-                    // Additional MEDIUM RISK issue for package integrity (Bash-compatible)
+                    // Additional MEDIUM RISK issue for worm activity (Bash-compatible)
+                    // Check if @ctrl packages are involved for specific worm activity message  
+                    let has_ctrl_packages = found_compromised.iter().any(|pkg| pkg.contains("@ctrl"));
+                    
+                    let comment = if has_ctrl_packages {
+                        "Recently modified lockfile contains @ctrl packages (potential worm activity)".to_string()
+                    } else {
+                        "Package integrity issues: Recently modified lockfile contains compromised packages".to_string()
+                    };
+
                     results.add_file_result(FileResult {
                         file: self.canonicalize_path(&file),
                         risk_level: RiskLevel::Medium,
-                        comment: "Package integrity issues: Recently modified lockfile contains compromised packages".to_string(),
-                        patterns_detected: vec!["package_integrity_issue".to_string()],
+                        comment,
+                        patterns_detected: vec!["worm_activity_detection".to_string()],
                         details: Some(vec![
-                            "PNPM lockfile contains @ctrl packages (potential worm activity)".to_string(),
+                            "Lockfile contains compromised packages that may indicate worm-like behavior".to_string(),
                             "Verify package versions and regenerate lockfiles if necessary".to_string(),
                         ]),
                     });
@@ -1604,7 +1613,7 @@ impl Scanner {
                             "Package lockfile integrity issues: Compromised packages detected: {}\nNOTE: These issues may indicate tampering with package dependencies.",
                             found_compromised.join(", ")
                         ),
-                        patterns_detected: vec!["package_integrity_issue".to_string()],
+                        patterns_detected: vec!["lockfile_integrity".to_string()],
                         details: Some(vec![
                             "Lockfile contains packages that match known compromised versions"
                                 .to_string(),

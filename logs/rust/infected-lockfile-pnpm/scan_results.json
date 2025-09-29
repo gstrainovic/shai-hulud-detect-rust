@@ -1,0 +1,39 @@
+{
+  "scan_path": "../shai-hulud-detect/test-cases/infected-lockfile-pnpm/",
+  "start_time": "2025-09-29T00:21:05.359605500Z",
+  "end_time": "2025-09-29T00:21:05.380100100Z",
+  "duration_seconds": 0.02,
+  "timestamp": "2025-09-29T00:21:05.359605500Z",
+  "files_scanned": 0,
+  "results": [
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml",
+      "risk_level": "High",
+      "comment": "pnpm lockfile contains compromised packages: @ctrl/tinycolor@4.1.2",
+      "patterns_detected": [
+        "compromised_package_in_lockfile"
+      ],
+      "details": [
+        "@ctrl/tinycolor@4.1.2"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml",
+      "risk_level": "Medium",
+      "comment": "Recently modified lockfile contains @ctrl packages (potential worm activity)",
+      "patterns_detected": [
+        "worm_activity_detection"
+      ],
+      "details": [
+        "Lockfile contains compromised packages that may indicate worm-like behavior",
+        "Verify package versions and regenerate lockfiles if necessary"
+      ]
+    }
+  ],
+  "summary": {
+    "high_risk_count": 1,
+    "medium_risk_count": 1,
+    "low_risk_count": 0,
+    "total_issues": 2
+  }
+}
