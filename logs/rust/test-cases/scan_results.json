@@ -1,9 +1,9 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/",
-  "start_time": "2025-09-29T00:05:09.012208900Z",
-  "end_time": "2025-09-29T00:05:09.644199300Z",
-  "duration_seconds": 0.631,
-  "timestamp": "2025-09-29T00:05:09.012208900Z",
+  "start_time": "2025-09-29T00:08:32.521552200Z",
+  "end_time": "2025-09-29T00:08:33.154544Z",
+  "duration_seconds": 0.632,
+  "timestamp": "2025-09-29T00:08:32.521552200Z",
   "files_scanned": 0,
   "results": [
     {

@@ -378,4 +378,35 @@ impl ScanResults {
     pub fn set_files_scanned(&mut self, count: usize) {
         self.files_scanned = count;
     }
+
+    /// Format high-risk context with ASCII box similar to Bash implementation
+    fn format_high_risk_context(&self, output: &mut String, result: &FileResult) {
+        output.push_str("   ┌─ File: ");
+        output.push_str(&result.file);
+        output.push_str("\n");
+        output.push_str("   │  Context: HIGH RISK: ");
+        let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+        output.push_str(comment_lines[0]);
+        output.push_str("\n");
+        output.push_str("   └─\n");
+        
+        // Add notes after the box
+        for line in &comment_lines[1..] {
+            if !line.trim().is_empty() {
+                output.push_str(&format!("NOTE: {}\n", line));
+            }
+        }
+    }
+
+    /// Format standard context for medium and low risk items
+    fn format_standard_context(&self, output: &mut String, result: &FileResult) {
+        let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+        output.push_str(&format!("     └─ {}\n", comment_lines[0]));
+        
+        for line in &comment_lines[1..] {
+            if !line.trim().is_empty() {
+                output.push_str(&format!("NOTE: {}\n", line));
+            }
+        }
+    }
 }
