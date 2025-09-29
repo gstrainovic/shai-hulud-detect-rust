@@ -190,71 +190,8 @@ impl ScanResults {
             return output;
         }
 
-        // Group results by risk level
-        let high_risk: Vec<_> = self
-            .results
-            .iter()
-            .filter(|r| r.risk_level == RiskLevel::High)
-            .collect();
-        let medium_risk: Vec<_> = self
-            .results
-            .iter()
-            .filter(|r| r.risk_level == RiskLevel::Medium)
-            .collect();
-        let low_risk: Vec<_> = self
-            .results
-            .iter()
-            .filter(|r| r.risk_level == RiskLevel::Low)
-            .collect();
-
-        // Show detailed findings with context (like Bash scanner)
-        if !high_risk.is_empty() {
-            output.push_str(&format!(
-                "🚨 HIGH RISK: {} issues detected\n",
-                high_risk.len()
-            ));
-            for result in high_risk {
-                output.push_str(&format!("   • {}\n", result.file));
-                let comment_lines: Vec<&str> = result.comment.split('\n').collect();
-                output.push_str(&format!("     └─ {}\n", comment_lines[0]));
-                for line in &comment_lines[1..] {
-                    output.push_str(&format!("         {}\n", line));
-                }
-            }
-            output.push_str("\n");
-        }
-
-        if !medium_risk.is_empty() {
-            output.push_str(&format!(
-                "⚠️  MEDIUM RISK: {} issues detected\n",
-                medium_risk.len()
-            ));
-            for result in medium_risk {
-                output.push_str(&format!("   • {}\n", result.file));
-                let comment_lines: Vec<&str> = result.comment.split('\n').collect();
-                output.push_str(&format!("     └─ {}\n", comment_lines[0]));
-                for line in &comment_lines[1..] {
-                    output.push_str(&format!("         {}\n", line));
-                }
-            }
-            output.push_str("\n");
-        }
-
-        if !low_risk.is_empty() {
-            output.push_str(&format!(
-                "ℹ️  LOW RISK: {} informational warnings\n",
-                low_risk.len()
-            ));
-            for result in low_risk {
-                output.push_str(&format!("   • {}\n", result.file));
-                let comment_lines: Vec<&str> = result.comment.split('\n').collect();
-                output.push_str(&format!("     └─ {}\n", comment_lines[0]));
-                for line in &comment_lines[1..] {
-                    output.push_str(&format!("         {}\n", line));
-                }
-            }
-            output.push_str("\n");
-        }
+        // Categorize results similar to Bash implementation
+        self.format_categorized_results(&mut output);
 
         output.push_str("\n");
         output.push_str("==============================================\n");
@@ -295,6 +232,158 @@ impl ScanResults {
 
         output.push_str("==============================================\n");
         output
+    }
+
+    /// Format results categorized similar to Bash implementation
+    fn format_categorized_results(&self, output: &mut String) {
+        use std::collections::HashMap;
+        
+        // Define categories similar to Bash implementation
+        let mut categories: HashMap<&str, Vec<&FileResult>> = HashMap::new();
+        
+        for result in &self.results {
+            let category = self.categorize_result(result);
+            categories.entry(category).or_insert_with(Vec::new).push(result);
+        }
+
+        // Format each category in the order they appear in Bash
+        let category_order = vec![
+            ("malicious_workflow", "🚨 HIGH RISK: Malicious workflow files detected:"),
+            ("suspicious_packages", "⚠️  MEDIUM RISK: Suspicious package versions detected:"),
+            ("suspicious_content", "⚠️  MEDIUM RISK: Suspicious content patterns:"),
+            ("crypto_theft", "🚨 HIGH RISK: Cryptocurrency theft patterns detected:"),
+            ("crypto_manipulation", "⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:"),
+            ("trufflehog_high", "🚨 HIGH RISK: Trufflehog/secret scanning activity detected:"),
+            ("trufflehog_medium", "⚠️  MEDIUM RISK: Potentially suspicious secret scanning patterns:"),
+            ("package_integrity", "⚠️  MEDIUM RISK: Package integrity issues detected:"),
+            ("postinstall_hooks", "⚠️  MEDIUM RISK: Suspicious postinstall hooks detected:"),
+            ("other_high", "🚨 HIGH RISK: Other issues detected:"),
+            ("other_medium", "⚠️  MEDIUM RISK: Other issues detected:"),
+            ("other_low", "ℹ️  LOW RISK: Other informational warnings:"),
+        ];
+
+        for (category_key, category_title) in category_order {
+            if let Some(results) = categories.get(category_key) {
+                if !results.is_empty() {
+                    output.push_str(category_title);
+                    output.push_str("\n");
+                    
+                    for result in results {
+                        output.push_str(&format!("   - {}\n", result.file));
+                        
+                        // Show context with ASCII box for high-risk items
+                        if result.risk_level == RiskLevel::High && category_key.contains("workflow") {
+                            output.push_str("   ┌─ File: ");
+                            output.push_str(&result.file);
+                            output.push_str("\n");
+                            output.push_str("   │  Context: HIGH RISK: ");
+                            let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+                            output.push_str(comment_lines[0]);
+                            output.push_str("\n");
+                            output.push_str("   └─\n");
+                        } else {
+                            let comment_lines: Vec<&str> = result.comment.split('\n').collect();
+                            output.push_str(&format!("     └─ {}\n", comment_lines[0]));
+                            for line in &comment_lines[1..] {
+                                if !line.trim().is_empty() {
+                                    output.push_str(&format!("NOTE: {}\n", line));
+                                }
+                            }
+                        }
+                    }
+                    output.push_str("\n");
+                }
+            }
+        }
+    }
+
+    /// Categorize a result based on patterns detected
+    fn categorize_result(&self, result: &FileResult) -> &'static str {
+        // Check for workflow files
+        if result.file.contains(".github/workflows/") && result.risk_level == RiskLevel::High {
+            return "malicious_workflow";
+        }
+
+        // Check for package-related issues
+        if result.patterns_detected.iter().any(|p| 
+            p.contains("suspicious_package") || 
+            p.contains("typosquatting") ||
+            p.contains("debug_package_risk") ||
+            p.contains("crypto_libraries")
+        ) {
+            return "suspicious_packages";
+        }
+
+        // Check for cryptocurrency theft patterns
+        if result.patterns_detected.iter().any(|p|
+            p.contains("xhr_prototype_modification") ||
+            p.contains("known_attacker_wallet") ||
+            result.comment.contains("XMLHttpRequest prototype modification") ||
+            result.comment.contains("Known attacker wallet address")
+        ) && result.risk_level == RiskLevel::High {
+            return "crypto_theft";
+        }
+
+        // Check for crypto manipulation patterns
+        if result.patterns_detected.iter().any(|p|
+            p.contains("ethereum_addresses") ||
+            p.contains("phishing_domain") ||
+            result.comment.contains("Ethereum wallet address") ||
+            result.comment.contains("JavaScript obfuscation")
+        ) && result.risk_level == RiskLevel::Medium {
+            return "crypto_manipulation";
+        }
+
+        // Check for high-risk Trufflehog activity
+        if (result.patterns_detected.iter().any(|p|
+            p.contains("trufflehog") ||
+            p.contains("credential_scanning")
+        ) && result.comment.contains("HIGH RISK")) || 
+        result.comment.contains("Trufflehog binary found") {
+            return "trufflehog_high";
+        }
+
+        // Check for medium-risk Trufflehog patterns
+        if result.patterns_detected.iter().any(|p|
+            p.contains("trufflehog") ||
+            p.contains("credential_scanning") ||
+            p.contains("environment_variable")
+        ) && result.risk_level == RiskLevel::Medium {
+            return "trufflehog_medium";
+        }
+
+        // Check for package integrity issues
+        if result.patterns_detected.iter().any(|p|
+            p.contains("lockfile_integrity") ||
+            p.contains("compromised_packages") ||
+            result.comment.contains("lockfile contains compromised packages")
+        ) {
+            return "package_integrity";
+        }
+
+        // Check for postinstall hooks
+        if result.comment.contains("postinstall hook") {
+            return "postinstall_hooks";
+        }
+
+        // Check for suspicious content patterns
+        if result.patterns_detected.iter().any(|p|
+            p.contains("webhook_site") ||
+            p.contains("malicious_webhook") ||
+            p.contains("network_exfiltration") ||
+            p.contains("pastebin") ||
+            p.contains("websocket")
+        ) {
+            return "suspicious_content";
+        }
+
+        // Default categorization by risk level
+        match result.risk_level {
+            RiskLevel::High => "other_high",
+            RiskLevel::Medium => "other_medium",
+            RiskLevel::Low => "other_low",
+            _ => "other_low",
+        }
     }
 
     /// Set the number of files scanned
