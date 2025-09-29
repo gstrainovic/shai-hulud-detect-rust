@@ -58,6 +58,7 @@ Die Rust-Implementation entspricht jetzt vollständig der Bash-Version!
 ### 9. ✅ COMPLETED: Fehlende Bash-Tests identifiziert
 **ANALYSEERGEBNIS - Identifizierte fehlende Tests:**
 
+Chatverlauf:
 ie kompromittierten Pakete (@ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49) werden korrekt erkannt, aber sie sind unter ⚠️ MEDIUM RISK: Suspicious package versions detected eingestuft, nicht unter HIGH RISK!
 
 Die test_verification_detailed.json erwartet aber, dass package.json als HIGH RISK klassifiziert wird.
@@ -67,9 +68,10 @@ Das Problem liegt in der Risk-Level-Klassifizierung. Kompromittierte Pakete soll
 Lass mich das in der scanner.rs korrigieren:
 
 [ ] Wie ist das den im bash log?
-
-Falls Abweichung Begründet sollten wir eine englische .md machen mit rust-bash-diffs.md und dort eintragen, so dass ggf. Issues erstellt werden kann.
+[ ] Falls Abweichung Begründet sollten wir eine englische .md machen mit rust-bash-diffs.md und dort eintragen, so dass ggf. Issues erstellt werden kann.
 Schaue dir auch die github issues an oder comments im bash code, vielleicht gibt es einen plausiblen grund warum bash das nicht high einstuft trotz eintrag in der compromised-packages.txt
+
+[ ] jede änderung die heute durchgeführt wurde an test_verification muss analysiert werden, wieso im bash anderst? anderst als in test-cases/ und in rust-bash-diffs.md dokumentieren. 
 
 ✅ **`check_shai_hulud_repos()` - HINZUGEFÜGT**
 - Hinzugefügter Test-Case: **shai-hulud-repo-detection**

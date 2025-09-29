@@ -1,14 +1,14 @@
 {
   "scan_path": "../shai-hulud-detect/test-cases/infected-project/",
-  "start_time": "2025-09-29T00:48:45.423981300Z",
-  "end_time": "2025-09-29T00:48:45.611728Z",
-  "duration_seconds": 0.187,
-  "timestamp": "2025-09-29T00:48:45.423981300Z",
+  "start_time": "2025-09-29T00:58:26.585556100Z",
+  "end_time": "2025-09-29T00:58:26.760690200Z",
+  "duration_seconds": 0.175,
+  "timestamp": "2025-09-29T00:58:26.585556100Z",
   "files_scanned": 0,
   "results": [
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json",
-      "risk_level": "High",
+      "risk_level": "Medium",
       "comment": "Suspicious package version: @ctrl/deluge@1.2.0\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_version"
@@ -21,7 +21,7 @@
     },
     {
       "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project/package.json",
-      "risk_level": "High",
+      "risk_level": "Medium",
       "comment": "Suspicious package version: @nativescript-community/ui-material-core@7.2.49\nNOTE: Manual review required to determine if these are malicious.",
       "patterns_detected": [
         "suspicious_package_version"
@@ -278,8 +278,8 @@
     }
   ],
   "summary": {
-    "high_risk_count": 16,
-    "medium_risk_count": 2,
+    "high_risk_count": 14,
+    "medium_risk_count": 4,
     "low_risk_count": 1,
     "total_issues": 19
   }

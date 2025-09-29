@@ -339,12 +339,12 @@ impl Scanner {
             if let Some(deps) = package_json.get(dep_type).and_then(|d| d.as_object()) {
                 for (package_name, version_spec) in deps {
                     if let Some(version_spec_str) = version_spec.as_str() {
-                        // Check for compromised packages (HIGH risk for known compromised versions)
+                        // Check for compromised packages (MEDIUM risk for Bash-compatibility)
                         // Create separate issue for each compromised package (Bash-compatible)
                         if self.is_compromised_package(package_name, version_spec_str) {
                             results.add_file_result(FileResult {
                                 file: self.canonicalize_path(&file),
-                                risk_level: RiskLevel::High, // HIGH RISK for confirmed compromised packages
+                                risk_level: RiskLevel::Medium, // MEDIUM RISK like Bash version
                                 comment: format!(
                                     "Suspicious package version: {}@{}\nNOTE: Manual review required to determine if these are malicious.",
                                     package_name, version_spec_str

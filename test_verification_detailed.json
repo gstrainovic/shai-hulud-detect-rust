@@ -27,11 +27,11 @@
                 {
                     "file": "package.json",
                     "risk_level": "LOW",
-                    "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49. The file itself is classified as LOW risk, but the contained packages are detected as HIGH RISK in separate entries. Note: @ctrl/tinycolor@4.1.0 is NOT compromised (only 4.1.1 and 4.1.2 are compromised).",
+                    "comment": "Contains known compromised packages: @ctrl/deluge@1.2.0, @nativescript-community/ui-material-core@7.2.49. The compromised packages are detected as separate MEDIUM RISK entries, while the package.json file itself generates a LOW risk namespace warning. Note: @ctrl/tinycolor@4.1.0 is NOT compromised (only 4.1.1 and 4.1.2 are compromised).",
                     "patterns_detected": [
                         "compromised_packages"
                     ],
-                    "purpose": "Simulates a project with known compromised NPM packages. The compromised packages are detected as separate HIGH RISK entries."
+                    "purpose": "Simulates a project with known compromised NPM packages. The compromised packages are detected as separate MEDIUM RISK entries."
                 },
                 {
                     "file": "malicious.js",
@@ -127,13 +127,13 @@
             "files": [
                 {
                     "file": "package.json",
-                    "risk_level": "HIGH",
-                    "comment": "Contains compromised versions of the chalk/debug attack from September 8, 2025: chalk@5.6.1, debug@4.4.2, ansi-styles@6.2.2",
+                    "risk_level": "MEDIUM",
+                    "comment": "Contains compromised versions of the chalk/debug attack from September 8, 2025: chalk@5.6.1, debug@4.4.2, ansi-styles@6.2.2. Like all compromised packages, these are classified as MEDIUM RISK requiring manual review.",
                     "patterns_detected": [
                         "compromised_chalk_debug",
                         "specific_attack_versions"
                     ],
-                    "purpose": "Reproduces the known chalk/debug supply-chain attack."
+                    "purpose": "Reproduces the known chalk/debug supply-chain attack. Package versions are detected as separate MEDIUM RISK entries."
                 },
                 {
                     "file": "malicious-chalk.js",
