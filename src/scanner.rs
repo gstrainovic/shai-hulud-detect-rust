@@ -1282,8 +1282,11 @@ impl Scanner {
             "TB9emsCq6fQw6wRk4HBxxNnU6Hwt1DnV67",
         ];
 
-        // Known malicious function names from chalk/debug attack
-        let malicious_functions = ["checkethereumw", "runmask", "newdlocal", "_0x19ca67"];
+        // Known malicious function names from chalk/debug attack + crypto theft functions
+        let malicious_functions = [
+            "checkethereumw", "runmask", "newdlocal", "_0x19ca67",
+            "transferFrom", "approve", "setApprovalForAll", "transfer" // Common crypto theft functions
+        ];
 
         let js_files: Vec<_> = files
             .iter()
@@ -1360,20 +1363,34 @@ impl Scanner {
                     }
                 }
 
-                // Check for known malicious function names (HIGH RISK)
+                // Check for known malicious function names (HIGH RISK for original attack functions, MEDIUM for crypto functions)
                 for func in &malicious_functions {
                     if content.contains(func) {
+                        let is_original_attack = ["checkethereumw", "runmask", "newdlocal", "_0x19ca67"].contains(&func);
+                        let risk_level = if is_original_attack { RiskLevel::High } else { RiskLevel::Medium };
+                        let comment = if is_original_attack {
+                            format!("Known crypto theft function detected: {}", func)
+                        } else {
+                            "Known crypto theft function names detected".to_string()
+                        };
+                        
                         results.add_file_result(FileResult {
                             file: self.canonicalize_path(&file),
-                            risk_level: RiskLevel::High,
-                            comment: format!("Known crypto theft function detected: {}", func),
-                            patterns_detected: vec!["malicious_crypto_function".to_string()],
+                            risk_level,
+                            comment,
+                            patterns_detected: vec!["crypto_theft_functions".to_string()],
                             details: Some(vec![
                                 format!("Function name: {}", func),
-                                "This function name was used in the September 8, 2025 chalk/debug attack".to_string(),
+                                if is_original_attack {
+                                    "This function name was used in the September 8, 2025 chalk/debug attack".to_string()
+                                } else {
+                                    "This function is commonly used in cryptocurrency theft".to_string()
+                                },
                             ]),
                         });
-                        continue; // HIGH RISK
+                        if is_original_attack {
+                            continue; // HIGH RISK, no need to check other patterns
+                        }
                     }
                 }
 
@@ -1402,8 +1419,24 @@ impl Scanner {
                             "Potential cryptocurrency patterns: {}\nNOTE: These may be legitimate crypto tools or framework code.",
                             crypto_findings.join(", ")
                         ),
-                        patterns_detected: vec!["potential_crypto_patterns".to_string()],
+                        patterns_detected: vec!["ethereum_addresses".to_string()],
                         details: Some(crypto_findings.iter().map(|s| s.to_string()).collect()),
+                    });
+                }
+
+                // Check for cryptocurrency regex patterns (LOW RISK - informational)
+                let crypto_regex = regex::Regex::new(r"(?i)(web3|ethers|crypto|wallet|blockchain|ethereum|bitcoin)").unwrap();
+                if crypto_regex.is_match(&content) && !crypto_findings.is_empty() {
+                    // Only report if there are also other crypto patterns to avoid false positives
+                    results.add_file_result(FileResult {
+                        file: self.canonicalize_path(&file),
+                        risk_level: RiskLevel::Low,
+                        comment: "Cryptocurrency regex patterns detected\nNOTE: These may be legitimate crypto tools or framework code.".to_string(),
+                        patterns_detected: vec!["crypto_regex_patterns".to_string()],
+                        details: Some(vec![
+                            "File contains cryptocurrency-related terms".to_string(),
+                            "This may indicate legitimate crypto development or malicious activity".to_string(),
+                        ]),
                     });
                 }
             }
@@ -1645,17 +1678,29 @@ impl Scanner {
                 let mut risk_level = RiskLevel::Ok;
                 let mut details = Vec::new();
 
-                // Check for trufflehog references
+                // Check for trufflehog references with detailed classification
                 if content.to_lowercase().contains("trufflehog") {
                     patterns_found.push("trufflehog_references".to_string());
                     risk_level = RiskLevel::Medium;
                     details.push("Contains trufflehog references in source code".to_string());
 
+                    // Check for trufflehog binary patterns (higher risk)
+                    if content.contains("trufflehog") && (content.contains("bin") || content.contains("executable")) {
+                        patterns_found.push("trufflehog_binary".to_string());
+                        risk_level = RiskLevel::High;
+                        details.push("Trufflehog binary found".to_string());
+                    }
+
                     // Higher risk if combined with subprocess/execution patterns
                     if content.contains("subprocess") && content.contains("curl") {
                         risk_level = RiskLevel::High;
-                        details
-                            .push("Suspicious trufflehog execution pattern detected".to_string());
+                        details.push("Credential patterns with potential exfiltration".to_string());
+                    }
+
+                    // Environment scanning with exfiltration pattern
+                    if content.contains("process.env") && (content.contains("webhook") || content.contains("curl")) {
+                        risk_level = RiskLevel::High;
+                        details.push("Environment scanning with exfiltration".to_string());
                     }
                 }
 

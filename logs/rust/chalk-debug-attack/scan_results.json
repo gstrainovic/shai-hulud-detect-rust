@@ -1,0 +1,163 @@
+{
+  "scan_path": "../shai-hulud-detect/test-cases/chalk-debug-attack/",
+  "start_time": "2025-09-29T00:12:54.061619700Z",
+  "end_time": "2025-09-29T00:12:54.150859500Z",
+  "duration_seconds": 0.089,
+  "timestamp": "2025-09-29T00:12:54.061619700Z",
+  "files_scanned": 0,
+  "results": [
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: ansi-styles@6.2.2\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "Package: ansi-styles@6.2.2",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: chalk@5.6.1\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "Package: chalk@5.6.1",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version: debug@4.4.2\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "Package: debug@4.4.2",
+        "This package version matches known compromised versions",
+        "Manual review required to determine if malicious"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: XMLHttpRequest prototype modification detected, Known attacker wallet address detected - HIGH RISK, Cryptocurrency regex patterns detected, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "xmlhttprequest_modification",
+        "attacker_wallet",
+        "crypto_regex_patterns",
+        "npmjs_help",
+        "ethereum_addresses"
+      ],
+      "details": [
+        "xmlhttprequest_modification: XMLHttpRequest prototype modification detected",
+        "attacker_wallet: Known attacker wallet address detected - HIGH RISK",
+        "crypto_regex_patterns: Cryptocurrency regex patterns detected",
+        "npmjs_help: Phishing domain npmjs.help detected",
+        "ethereum_addresses: Ethereum wallet address patterns detected"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "High",
+      "comment": "Suspicious patterns detected: Known attacker wallet address detected - HIGH RISK, Cryptocurrency regex patterns detected, Phishing domain npmjs.help detected, Ethereum wallet address patterns detected\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "attacker_wallet",
+        "crypto_regex_patterns",
+        "npmjs_help",
+        "ethereum_addresses"
+      ],
+      "details": [
+        "attacker_wallet: Known attacker wallet address detected - HIGH RISK",
+        "crypto_regex_patterns: Cryptocurrency regex patterns detected",
+        "npmjs_help: Phishing domain npmjs.help detected",
+        "ethereum_addresses: Ethereum wallet address patterns detected"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "Low",
+      "comment": "Suspicious patterns detected: Cryptocurrency regex patterns detected\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "crypto_regex_patterns"
+      ],
+      "details": [
+        "crypto_regex_patterns: Cryptocurrency regex patterns detected"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version in package.json: debug@4.4.2",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "package.json contains debug@4.4.2, which was compromised in the September 8, 2025 attack",
+        "This may indicate workflow compromise or malicious package injection"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
+      "risk_level": "High",
+      "comment": "XMLHttpRequest prototype modification detected\nNOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.",
+      "patterns_detected": [
+        "xmlhttprequest_hijacking"
+      ],
+      "details": [
+        "XMLHttpRequest prototype modification is a common crypto theft technique",
+        "This pattern was used in the September 8, 2025 chalk/debug attack"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "Medium",
+      "comment": "JavaScript obfuscation detected",
+      "patterns_detected": [
+        "javascript_obfuscation"
+      ],
+      "details": [
+        "JavaScript obfuscation detected",
+        "This may indicate attempts to hide malicious code"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "High",
+      "comment": "Known attacker wallet address detected - HIGH RISK\nNOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.",
+      "patterns_detected": [
+        "known_attacker_wallet"
+      ],
+      "details": [
+        "Wallet address: 0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976",
+        "This wallet was used in the September 8, 2025 chalk/debug attack",
+        "Immediate investigation required"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "High",
+      "comment": "Phishing domain npmjs.help detected",
+      "patterns_detected": [
+        "npmjs_phishing_domain"
+      ],
+      "details": [
+        "npmjs.help is a known phishing domain used in crypto theft attacks",
+        "Legitimate npm registry is npmjs.com, not npmjs.help"
+      ]
+    }
+  ],
+  "summary": {
+    "high_risk_count": 5,
+    "medium_risk_count": 5,
+    "low_risk_count": 1,
+    "total_issues": 11
+  }
+}

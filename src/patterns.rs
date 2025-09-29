@@ -96,6 +96,22 @@ impl PatternMatcher {
             risk_level: RiskLevel::High,
         });
 
+        // Known crypto theft function names
+        patterns.push(Pattern {
+            name: "crypto_theft_functions".to_string(),
+            regex: Regex::new(r"(transferFrom|approve|setApprovalForAll|transfer)\s*\(").unwrap(),
+            description: "Known crypto theft function names detected".to_string(),
+            risk_level: RiskLevel::Medium,
+        });
+
+        // Cryptocurrency regex patterns (comprehensive)
+        patterns.push(Pattern {
+            name: "crypto_regex_patterns".to_string(),
+            regex: Regex::new(r"(web3|ethers|crypto|wallet|blockchain|ethereum|bitcoin)").unwrap(),
+            description: "Cryptocurrency regex patterns detected".to_string(),
+            risk_level: RiskLevel::Low, // Low risk as legitimate projects use these terms
+        });
+
         // Phishing domain npmjs.help
         patterns.push(Pattern {
             name: "npmjs_help".to_string(),
@@ -104,12 +120,20 @@ impl PatternMatcher {
             risk_level: RiskLevel::Medium,
         });
 
-        // TruffleHog binary references
+        // TruffleHog binary references (enhanced detection)
         patterns.push(Pattern {
-            name: "trufflehog_references".to_string(),
-            regex: Regex::new(r"trufflehog|TruffleHog").unwrap(),
+            name: "trufflehog_binary".to_string(),
+            regex: Regex::new(r"\b(trufflehog|TruffleHog)\b").unwrap(),
             description: "Contains trufflehog references in source code".to_string(),
             risk_level: RiskLevel::Medium,
+        });
+
+        // Credential harvesting patterns (higher risk)
+        patterns.push(Pattern {
+            name: "credential_harvesting".to_string(),
+            regex: Regex::new(r"(credential.*harvest|secret.*scan|key.*extract)").unwrap(),
+            description: "Credential harvesting patterns detected".to_string(),
+            risk_level: RiskLevel::High,
         });
 
         // Environment variable scanning patterns - LOW risk for documentation
