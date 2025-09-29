@@ -588,6 +588,76 @@
                     "purpose": "Second test file for multi-hash scenarios."
                 }
             ]
+        },
+        {
+            "name": "shai-hulud-repo-detection",
+            "path": "test-cases/shai-hulud-repo-detection",
+            "expected_risks": [
+                "MEDIUM"
+            ],
+            "description": "Should show MEDIUM risk - repository patterns that indicate Shai-Hulud related activity",
+            "files": [
+                {
+                    "file": ".git/config",
+                    "risk_level": "MEDIUM",
+                    "comment": "Git repository with shai-hulud remote URL patterns indicating potential repository migration or related activity.",
+                    "patterns_detected": [
+                        "shai_hulud_repo_name",
+                        "migration_pattern_repo",
+                        "git_remote_shai_hulud"
+                    ],
+                    "purpose": "Tests detection of repositories with Shai-Hulud naming patterns and migration indicators."
+                }
+            ]
+        },
+        {
+            "name": "extended-typosquatting-test",
+            "path": "test-cases/extended-typosquatting-test",
+            "expected_risks": [
+                "MEDIUM"
+            ],
+            "description": "Should show MEDIUM risk - comprehensive typosquatting detection including 25+ popular packages with Cyrillic/Unicode substitutions",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Comprehensive typosquatting test with popular packages: 'rеact' (Cyrillic е), 'vuе' (Cyrillic е), 'ехpress' (Cyrillic х), 'аngular' (Cyrillic а), 'lоdash' (Cyrillic о), 'aхios' (Cyrillic х), and character omission variants like 'webpck', 'bable', 'eslnt'.",
+                    "patterns_detected": [
+                        "extended_typosquatting",
+                        "cyrillic_homoglyphs",
+                        "unicode_substitution_advanced",
+                        "popular_package_typosquat",
+                        "character_omission_typosquat"
+                    ],
+                    "purpose": "Tests comprehensive detection of typosquatting against 25+ popular packages with advanced Unicode and Cyrillic character substitutions."
+                }
+            ]
+        },
+        {
+            "name": "extended-network-exfiltration",
+            "path": "test-cases/extended-network-exfiltration",
+            "expected_risks": [
+                "HIGH"
+            ],
+            "description": "Should show HIGH risk - comprehensive network exfiltration patterns including 15+ suspicious domains and private IP detection",
+            "files": [
+                {
+                    "file": "advanced-exfiltration.js",
+                    "risk_level": "HIGH",
+                    "comment": "Comprehensive network exfiltration with multiple suspicious domains: pastebin.com, hastebin.com, ix.io, discord.com/api/webhooks, telegram.org, ngrok.io, requestbin.com. Also contains hardcoded private IPs (10.0.1.100, 192.168.2.50, 172.20.0.10) and C2 patterns with IP:Port combinations.",
+                    "patterns_detected": [
+                        "extended_suspicious_domains",
+                        "pastebin_family_domains",
+                        "discord_webhook_exfiltration", 
+                        "telegram_exfiltration",
+                        "ngrok_tunnel_usage",
+                        "private_ip_hardcoded_extended",
+                        "c2_ip_port_patterns",
+                        "tunnel_service_abuse"
+                    ],
+                    "purpose": "Tests comprehensive detection of 15+ suspicious domains, private IP patterns, and advanced C2 communication channels used for data exfiltration."
+                }
+            ]
         }
     ]
 }
