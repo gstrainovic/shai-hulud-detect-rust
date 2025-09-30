@@ -1,0 +1,20 @@
+# Test Case Configuration
+
+# Expected risks for this test case (HIGH, MEDIUM, LOW)
+expected_risks:
+  - HIGH
+
+# Description of what this test case tests
+description: "Should show HIGH risk - contains cryptocurrency theft patterns and wallet hijacking"
+
+# Files in this test case with their expected analysis
+files:
+  - file: "malicious.js"
+    risk_level: "HIGH"
+    comment: "Contains XMLHttpRequest prototype modification, known attacker wallet addresses, and crypto theft patterns from the September 8 attack."
+    patterns_detected:
+      - "xmlhttprequest_modification"
+      - "crypto_wallet_hijacking"
+      - "attacker_wallet_addresses"
+      - "npmjs_help_phishing"
+    purpose: "Tests detection of cryptocurrency theft malware with wallet manipulation and exfiltration."

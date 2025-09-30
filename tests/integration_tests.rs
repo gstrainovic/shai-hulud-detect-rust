@@ -15,7 +15,7 @@ async fn test_e2e_verification() {
         return;
     }
 
-    let runner = E2ETestRunner::new("test_verification_detailed.json", "../shai-hulud-detect")
+    let runner = E2ETestRunner::new("tests/test_verification_detailed.json", "../shai-hulud-detect")
         .await
         .expect("Failed to create E2E test runner");
 

@@ -10,4 +10,4 @@ This test case simulates a repository with Shai-Hulud-related naming patterns an
 ## Expected Detection
 - Repository name contains migration pattern
 - Git remotes contain 'shai-hulud' and 'Shai-Hulud' references
-- Should be classified as MEDIUM RISK
+- Should be classified as HIGH RISK
