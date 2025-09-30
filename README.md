@@ -17,12 +17,14 @@ A fast, reliable Rust implementation of the Shai-Hulud NPM supply chain attack d
 - 🚀 **Fast Performance**: Written in Rust for optimal scanning speed
 - 🔍 **Comprehensive Detection**: Covers 621+ compromised packages and malicious patterns
 - 📊 **JSON Output by Default**: Structured results saved automatically to `scan_results.json`
-- � **Clean Console Output**: Progress indicators + summary only, details available in JSON
+- 🎯 **Clean Console Output**: Progress indicators + summary only, details available in JSON
 - ⏱️ **Timing Information**: Tracks scan duration and timestamps for monitoring
 - 🛡️ **Paranoid Mode**: Additional security checks for thorough analysis
 - 🔧 **CI/CD Ready**: Proper exit codes and clean output for automated workflows
 - 📁 **Hash Verification**: Detects known malicious files by SHA-256 hash
 - 🎯 **Pattern Matching**: Advanced regex patterns for suspicious content
+- 🧹 **RAII File Management**: Automatic temporary file cleanup (more robust than bash traps)
+- 📚 **Comprehensive Documentation**: Structured rust-doc comments for all functions
 
 ## Quick Start
 

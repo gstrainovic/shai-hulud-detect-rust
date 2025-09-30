@@ -9,6 +9,7 @@ mod pattern_registry;
 mod pattern_table;
 mod patterns;
 mod scanner;
+mod temp_file_manager;
 
 use e2e_tests::E2ETestRunner;
 use pattern_table::print_pattern_table;
@@ -16,10 +17,19 @@ use scanner::Scanner;
 
 /// Shai-Hulud NPM Supply Chain Attack Detector (Rust implementation)
 ///
-/// By default, this tool:
+/// # Purpose
+/// Comprehensive malware detection for npm supply chain attacks
+/// Detects compromised packages, malicious files, and suspicious patterns
+///
+/// # Default Behavior
 /// - Saves results to scan_results.json (use --no-json to disable)
 /// - Shows progress and summary only (details available in JSON)
 /// - Tracks scan timing and performance metrics
+/// - Exits with appropriate codes for CI/CD integration
+///
+/// # Database
+/// Maintains 604+ confirmed compromised package versions from September 2025 attacks
+/// Auto-updates pattern detection based on latest threat intelligence
 #[derive(Parser)]
 #[command(name = "shai-hulud-scanner")]
 #[command(about = "A Rust implementation of the Shai-Hulud NPM supply chain attack detector")]

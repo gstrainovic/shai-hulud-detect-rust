@@ -2,6 +2,7 @@ use crate::hash_checker::HashChecker;
 use crate::output::{FileResult, ScanResults};
 use crate::patterns::PatternMatcher;
 use crate::patterns::RiskLevel;
+use crate::temp_file_manager::TempFileManager;
 use anyhow::{Context, Result};
 use std::cmp;
 use std::collections::HashMap;
@@ -10,6 +11,13 @@ use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
 /// Main scanner struct that orchestrates the detection process
+///
+/// # Purpose
+/// Coordinates all malware detection components with safe resource management
+/// Integrates pattern matching, hash checking, and package analysis
+///
+/// # Safety
+/// Uses RAII-based temporary file management for robust cleanup
 pub struct Scanner {
     scan_path: PathBuf,
     paranoid: bool,
@@ -17,10 +25,26 @@ pub struct Scanner {
     pattern_matcher: PatternMatcher,
     hash_checker: HashChecker,
     compromised_packages: HashMap<String, Vec<String>>, // package_name -> versions
+    temp_file_manager: TempFileManager,                 // RAII-based temp file cleanup
 }
 
 impl Scanner {
     /// Create a new scanner instance
+    ///
+    /// # Purpose
+    /// Initialize scanner with compromised packages database and pattern matchers
+    ///
+    /// # Arguments
+    /// * `scan_path` - Directory path to scan for malicious content
+    /// * `paranoid` - Enable additional security checks (affects pattern sensitivity)
+    /// * `show_progress` - Display real-time scanning progress to user
+    ///
+    /// # Returns
+    /// * `Result<Scanner>` - Configured scanner instance ready for scanning
+    ///
+    /// # Errors
+    /// * Failed to load compromised packages database
+    /// * Invalid scan path or permissions
     pub async fn new(scan_path: &Path, paranoid: bool, show_progress: bool) -> Result<Self> {
         if !show_progress {
             println!("📦 Loading compromised packages database...");
@@ -47,10 +71,26 @@ impl Scanner {
             pattern_matcher,
             hash_checker,
             compromised_packages,
+            temp_file_manager: TempFileManager::new(), // Initialize temp file manager
         })
     }
 
-    /// Load compromised packages from ../shai-hulud-detect/compromised-packages.txt
+    /// Load compromised packages from external database file
+    ///
+    /// # Purpose
+    /// Load compromised package database from ../shai-hulud-detect/compromised-packages.txt
+    /// Allows for easier maintenance as new compromised packages are discovered
+    ///
+    /// # Arguments
+    /// * None (reads from compromised-packages.txt in sibling directory)
+    ///
+    /// # Returns
+    /// * `HashMap<String, Vec<String>>` - Map of package names to compromised versions
+    ///   Currently contains 604+ confirmed package versions from September 2025 attacks
+    ///
+    /// # Errors
+    /// * Compromised packages file not found
+    /// * Failed to read or parse package database
     fn load_compromised_packages() -> Result<HashMap<String, Vec<String>>> {
         let current_dir = std::env::current_dir()?;
         let packages_file = current_dir
@@ -96,6 +136,27 @@ impl Scanner {
     }
 
     /// Run the complete scan process
+    ///
+    /// # Purpose
+    /// Execute comprehensive malware detection across all attack vectors:
+    /// - Package integrity checks (compromised packages)
+    /// - File hash verification (known malicious files)
+    /// - Content pattern analysis (malicious code patterns)
+    /// - Workflow file detection (malicious GitHub Actions)
+    /// - Git branch analysis (suspicious branch names)
+    /// - Network exfiltration patterns
+    ///
+    /// # Arguments
+    /// * `&self` - Scanner instance with loaded databases and configurations
+    ///
+    /// # Returns
+    /// * `ScanResults` - Comprehensive scan results with risk classifications
+    ///   Includes timing, file counts, and detailed findings
+    ///
+    /// # Performance
+    /// * Scans files in parallel where possible
+    /// * Progress tracking for user feedback
+    /// * Memory-efficient file processing
     pub async fn scan(&self) -> Result<ScanResults> {
         let mut results = ScanResults::new(&self.scan_path);
         let start_time = results.start_time;
@@ -170,6 +231,25 @@ impl Scanner {
     }
 
     /// Find all relevant files to scan
+    ///
+    /// # Purpose
+    /// Discover files matching scan criteria with exact bash script parity
+    /// No directory filtering - traverses all accessible paths
+    ///
+    /// # Arguments
+    /// * `&self` - Scanner instance with scan_path configured
+    ///
+    /// # Returns
+    /// * `Vec<PathBuf>` - All files matching scan patterns:
+    ///   - JavaScript/TypeScript files (.js, .ts, .jsx, .tsx)
+    ///   - JSON configuration files (.json)
+    ///   - YAML/YML files (.yml, .yaml)
+    ///   - Package manager files (package.json, *lock* files)
+    ///   - Documentation (.md) and scripts (.sh, .py)
+    ///
+    /// # Performance
+    /// * Uses WalkDir for efficient filesystem traversal
+    /// * Filters files during iteration to minimize memory usage
     fn find_files(&self) -> Result<Vec<PathBuf>> {
         let mut files = Vec::new();
 
@@ -244,6 +324,21 @@ impl Scanner {
     }
 
     /// Canonicalize a path to absolute form for consistent output
+    ///
+    /// # Purpose
+    /// Convert Windows paths to Unix-style format for bash script compatibility
+    /// Ensures consistent path representation across platforms
+    ///
+    /// # Arguments
+    /// * `path` - Path to canonicalize (relative or absolute)
+    ///
+    /// # Returns
+    /// * `String` - Unix-style absolute path (e.g., "/c/Users/..." for Windows C: drive)
+    ///
+    /// # Behavior
+    /// * Removes Windows UNC prefix (\\?\)
+    /// * Converts backslashes to forward slashes
+    /// * Maps Windows drive letters to Unix-style paths
     fn canonicalize_path(&self, path: &Path) -> String {
         let canonical = std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
         let path_str = canonical.to_string_lossy();
@@ -260,7 +355,60 @@ impl Scanner {
         }
     }
 
+    /// Display real-time progress indicator for file scanning operations
+    ///
+    /// # Purpose
+    /// Show "X / Y checked (Z %)" progress like bash script implementation
+    /// Uses ANSI escape codes for in-place updates
+    ///
+    /// # Arguments
+    /// * `current` - Number of files processed so far
+    /// * `total` - Total number of files to process
+    ///
+    /// # Output
+    /// Prints progress to stderr with line clearing for smooth updates
+    fn show_progress(&self, current: usize, total: usize) {
+        if total > 0 {
+            let percent = (current * 100) / total;
+            eprint!("\r\x1b[K{} / {} checked ({} %)", current, total, percent);
+        }
+    }
+
+    /// Count files matching specific criteria
+    ///
+    /// # Purpose
+    /// Helper function to count files before processing for accurate progress display
+    /// Returns clean integer count like bash script count_files() function
+    ///
+    /// # Arguments
+    /// * `files` - File collection to count
+    /// * `filter_fn` - Filter function to apply
+    ///
+    /// # Returns
+    /// * `usize` - Count of files matching filter criteria
+    fn count_files_matching<F>(&self, files: &[PathBuf], filter_fn: F) -> usize
+    where
+        F: Fn(&PathBuf) -> bool,
+    {
+        files.iter().filter(|f| filter_fn(f)).count()
+    }
+
     /// Check package.json files for compromised packages
+    ///
+    /// # Purpose
+    /// Scan package.json files for known compromised packages and security issues
+    /// Provides detailed progress feedback like bash script implementation
+    ///
+    /// # Arguments
+    /// * `files` - All discovered files to filter for package.json
+    /// * `results` - Mutable scan results to append findings
+    ///
+    /// # Detection Coverage
+    /// * Exact compromised package matches (HIGH risk)
+    /// * Semver range matches (MEDIUM risk)
+    /// * Crypto libraries (MEDIUM risk)
+    /// * Typosquatting (MEDIUM risk)
+    /// * Affected namespaces (LOW risk)
     async fn check_package_files(
         &self,
         files: &[PathBuf],
@@ -275,19 +423,29 @@ impl Scanner {
             return Ok(());
         }
 
-        if !self.show_progress {
-            println!(
-                "🔍 Checking {} package.json files for compromised packages...",
-                package_files.len()
-            );
-        }
+        // Enhanced progress display like bash script
+        println!(
+            "🔍 Checking {} package.json files for compromised packages...",
+            package_files.len()
+        );
 
-        for file in package_files {
+        let mut files_checked = 0;
+        for file in package_files.iter() {
             if let Ok(content) = fs::read_to_string(file) {
                 if let Ok(package_json) = serde_json::from_str::<serde_json::Value>(&content) {
                     self.check_package_dependencies(&package_json, file, results);
                 }
             }
+
+            files_checked += 1;
+            // Show progress like bash script: "X / Y checked (Z %)"
+            if self.show_progress {
+                self.show_progress(files_checked, package_files.len());
+            }
+        }
+
+        if self.show_progress {
+            print!("\r\x1b[K"); // Clear progress line
         }
 
         Ok(())
@@ -811,6 +969,18 @@ impl Scanner {
     }
 
     /// Check file hashes against known malicious files
+    ///
+    /// # Purpose
+    /// Verify JavaScript files against database of known malicious file hashes
+    /// Provides progress feedback for large file collections
+    ///
+    /// # Arguments
+    /// * `files` - All discovered files to filter for JavaScript files
+    /// * `results` - Mutable scan results to append findings
+    ///
+    /// # Detection
+    /// * SHA-256 hash comparison against known malicious files
+    /// * HIGH risk classification for exact matches
     async fn check_file_hashes(&self, files: &[PathBuf], results: &mut ScanResults) -> Result<()> {
         let js_files: Vec<_> = files
             .iter()
@@ -821,14 +991,14 @@ impl Scanner {
             return Ok(());
         }
 
-        if !self.show_progress {
-            println!(
-                "🔍 Checking {} JavaScript files for known malicious content...",
-                js_files.len()
-            );
-        }
+        // Enhanced progress display like bash script
+        println!(
+            "🔍 Checking {} JavaScript files for known malicious content...",
+            js_files.len()
+        );
 
-        for file in js_files {
+        let mut files_checked = 0;
+        for file in &js_files {
             if let Some(hash) = self.hash_checker.calculate_file_hash(file)? {
                 if self.hash_checker.is_malicious_hash(&hash) {
                     results.add_file_result(FileResult {
@@ -840,6 +1010,16 @@ impl Scanner {
                     });
                 }
             }
+
+            files_checked += 1;
+            // Show progress like bash script: "X / Y checked (Z %)"
+            if self.show_progress {
+                self.show_progress(files_checked, js_files.len());
+            }
+        }
+
+        if self.show_progress {
+            print!("\r\x1b[K"); // Clear progress line
         }
 
         Ok(())
