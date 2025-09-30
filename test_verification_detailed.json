@@ -591,15 +591,15 @@
         },
         {
             "name": "shai-hulud-repo-detection",
-            "path": "test-cases/shai-hulud-repo-detection",
+            "path": "tests/test-cases/shai-hulud-repo-detection",
             "expected_risks": [
-                "MEDIUM"
+                "HIGH"
             ],
-            "description": "Should show MEDIUM risk - repository patterns that indicate Shai-Hulud related activity",
+            "description": "Should show HIGH risk - repository patterns that indicate Shai-Hulud related activity",
             "files": [
                 {
                     "file": ".git/config",
-                    "risk_level": "MEDIUM",
+                    "risk_level": "HIGH",
                     "comment": "Git repository with shai-hulud remote URL patterns indicating potential repository migration or related activity.",
                     "patterns_detected": [
                         "shai_hulud_repo_name",
@@ -612,7 +612,7 @@
         },
         {
             "name": "extended-typosquatting-test",
-            "path": "test-cases/extended-typosquatting-test",
+            "path": "tests/test-cases/extended-typosquatting-test",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -635,7 +635,7 @@
         },
         {
             "name": "extended-network-exfiltration",
-            "path": "test-cases/extended-network-exfiltration",
+            "path": "tests/test-cases/extended-network-exfiltration",
             "expected_risks": [
                 "HIGH"
             ],

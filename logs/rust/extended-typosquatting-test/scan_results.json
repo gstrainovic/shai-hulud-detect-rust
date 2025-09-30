@@ -1,0 +1,42 @@
+{
+  "scan_path": "tests/test-cases/extended-typosquatting-test/",
+  "start_time": "2025-09-29T01:33:20.820128100Z",
+  "end_time": "2025-09-29T01:33:20.837028700Z",
+  "duration_seconds": 0.016,
+  "timestamp": "2025-09-29T01:33:20.820128100Z",
+  "files_scanned": 0,
+  "results": [
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect-rust/tests/test-cases/extended-typosquatting-test/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Known typosquatting of 'express': expres (missing character (s)), Known typosquatting of 'lodash': lodsh (missing character (a)), Known typosquatting of 'react': raect (character transposition (a<->e))",
+      "patterns_detected": [
+        "typosquatting",
+        "typosquatting",
+        "typosquatting"
+      ],
+      "details": [
+        "Known typosquatting of 'express': expres (missing character (s))",
+        "Known typosquatting of 'lodash': lodsh (missing character (a))",
+        "Known typosquatting of 'react': raect (character transposition (a<->e))"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/shai-hulud-detect-rust/tests/test-cases/extended-typosquatting-test/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious patterns detected: Potential typosquatting package detected\nNOTE: Manual review required to determine if these are malicious.",
+      "patterns_detected": [
+        "typosquatting_detection"
+      ],
+      "details": [
+        "typosquatting_detection: Potential typosquatting package detected"
+      ]
+    }
+  ],
+  "summary": {
+    "high_risk_count": 0,
+    "medium_risk_count": 2,
+    "low_risk_count": 0,
+    "total_issues": 2
+  }
+}
