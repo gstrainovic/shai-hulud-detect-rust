@@ -141,9 +141,21 @@ echo -e "   ${YELLOW}NOTE: Manual review required to determine if these are mali
 - `check_typosquatting()` (PARANOID MODE) - More comprehensive than existing typosquatting-project
 - `check_network_exfiltration()` (PARANOID MODE) - More comprehensive than existing network-exfiltration-project
 
-**Resolution Needed**: Either:
-- Create physical test case directories to match the test_verification entries, OR
-- Remove these entries from test_verification_detailed.json until physical test cases exist
+**Resolution Applied**: ✅ **PROBLEM SOLVED**
+- Created physical test case directories in `tests/test-cases/` (Rust-specific)
+- Updated test_verification_detailed.json paths to point to `tests/test-cases/`
+- All three test cases now execute successfully and detect expected patterns
+
+**Strategy Rationale**: 
+- Bash repo focuses on production use cases
+- Rust repo includes comprehensive test coverage including edge cases
+- `tests/test-cases/` directory allows Rust-specific testing without modifying Bash repo
+- Enables complete coverage of all Bash functions with working test cases
+
+**Test Results:**
+- `shai-hulud-repo-detection`: ✅ Working - Detects HIGH RISK Shai-Hulud repository patterns
+- `extended-typosquatting-test`: ✅ Working - Detects MEDIUM RISK typosquatting (raect, lodsh, expres)  
+- `extended-network-exfiltration`: ✅ Working - Detects HIGH/MEDIUM RISK network exfiltration patterns
 
 ### Change 4: Enhanced Pattern Detection
 **Status**: ✅ **ALIGNED**
