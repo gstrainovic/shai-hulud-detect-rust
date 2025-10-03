@@ -7,9 +7,6 @@ edition = "2021"
 [[example]]
 name = "test_verification_runner"
 path = "examples/test_verification_runner.rs"
-authors = ["gstrainovic"]
-description = "A Rust implementation of the Shai-Hulud NPM supply chain attack detector"
-license = "MIT"
 
 [[bin]]
 name = "shai-hulud-scanner"

@@ -5,14 +5,11 @@ use std::path::PathBuf;
 mod e2e_tests;
 mod hash_checker;
 mod output;
-mod pattern_registry;
-mod pattern_table;
 mod patterns;
 mod scanner;
 mod temp_file_manager;
 
 use e2e_tests::E2ETestRunner;
-use pattern_table::print_pattern_table;
 use scanner::Scanner;
 
 /// Shai-Hulud NPM Supply Chain Attack Detector (Rust implementation)
@@ -59,10 +56,6 @@ struct Cli {
     #[arg(long)]
     test: bool,
 
-    /// Show pattern mappings table
-    #[arg(long)]
-    show_patterns: bool,
-
     /// Run end-to-end tests against test_verification_detailed.json
     #[arg(long)]
     run_e2e_tests: bool,
@@ -73,16 +66,12 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // Show pattern mappings table if requested
-    if cli.show_patterns {
-        print_pattern_table()?;
-        return Ok(());
-    }
+    // Removed: --show-patterns flag and print_pattern_table() function
 
     // Run E2E tests if requested
     if cli.run_e2e_tests {
         println!("🧪 Running End-to-End tests against test_verification_detailed.json");
-        let runner =
-            E2ETestRunner::new("test_verification_detailed.json", "../shai-hulud-detect").await?;
+        let runner = E2ETestRunner::new("tests/test_verification_detailed.json", ".").await?;
 
         let results = runner.run_all_tests().await?;
         runner.print_test_summary(&results);

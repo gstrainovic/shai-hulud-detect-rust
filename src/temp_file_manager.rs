@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 /// Temporary File Management Module
 ///
 /// # Purpose
@@ -7,6 +9,7 @@
 /// # Safety
 /// Uses Rust's Drop trait to guarantee cleanup, unlike bash traps which can be bypassed
 use anyhow::Result;
+
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};

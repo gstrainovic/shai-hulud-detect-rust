@@ -1,8 +1,0 @@
-[0;34m📦 Loaded 621 compromised packages from /c/Users/gstra/Code/shai-hulud-detect/compromised-packages.txt[0m
-[0;32mStarting Shai-Hulud detection scan...[0m
-[0;34mScanning directory: /c/Users/gstra/Code/shai-hulud-detect/test-cases[0m
-
-[0;34m🔍 Checking for malicious workflow files...[0m
-[0;34m🔍 Checking 34 files for known malicious content...[0m
-[K[0;34m🔍 Checking 13 package.json files for compromised packages...[0m
-[K1 / 13 checked (7 %)[K2 / 13 checked (15 %)[K3 / 13 checked (23 %)[K4 / 13 checked (30 %)[K5 / 13 checked (38 %)

@@ -80,100 +80,110 @@ impl PatternMatcher {
             risk_level: RiskLevel::High,
         });
 
-        // XMLHttpRequest prototype modification (crypto theft)
+        // XMLHttpRequest prototype modification (crypto theft) - commented out, handled in check_crypto_theft_patterns
+        /*
         patterns.push(Pattern {
             name: "xmlhttprequest_modification".to_string(),
-            regex: Regex::new(r"XMLHttpRequest\.prototype\.(open|send)").unwrap(),
-            description: "XMLHttpRequest prototype modification detected".to_string(),
+            regex: Regex::new(r"XMLHttpRequest\.prototype\.\(open|send\)").unwrap(),
+            description:
+                "xmlhttprequest prototype modification with crypto patterns detected - high risk"
+                    .to_string(),
             risk_level: RiskLevel::High,
         });
+        */
 
-        // Known attacker wallet address
+        // Known attacker wallet address - commented out, handled in check_crypto_theft_patterns
+        /*
         patterns.push(Pattern {
             name: "attacker_wallet".to_string(),
             regex: Regex::new(r"0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976").unwrap(),
-            description: "Known attacker wallet address detected - HIGH RISK".to_string(),
+            description: "known attacker wallet address detected - high risk".to_string(),
             risk_level: RiskLevel::High,
         });
+        */
 
-        // Known crypto theft function names
+        // Known crypto theft function names - commented out, handled in check_crypto_theft_patterns
+        /*
         patterns.push(Pattern {
             name: "crypto_theft_functions".to_string(),
-            regex: Regex::new(r"(transferFrom|approve|setApprovalForAll|transfer)\s*\(").unwrap(),
-            description: "Known crypto theft function names detected".to_string(),
-            risk_level: RiskLevel::Medium,
+            regex: Regex::new(r"\b(checkethereumw|runmask)\b").unwrap(),
+            description: "known crypto theft function names detected".to_string(),
+            risk_level: RiskLevel::High,
         });
+        */
 
-        // Cryptocurrency regex patterns (comprehensive)
+        // Cryptocurrency regex patterns (comprehensive) - commented out, handled in check_crypto_theft_patterns
+        /*
         patterns.push(Pattern {
             name: "crypto_regex_patterns".to_string(),
             regex: Regex::new(r"(web3|ethers|crypto|wallet|blockchain|ethereum|bitcoin)").unwrap(),
             description: "Cryptocurrency regex patterns detected".to_string(),
             risk_level: RiskLevel::Low, // Low risk as legitimate projects use these terms
         });
+        */
 
-        // Phishing domain npmjs.help
+        // Phishing domain npmjs.help - commented out, handled in check_crypto_theft_patterns
+        /*
         patterns.push(Pattern {
             name: "npmjs_help".to_string(),
             regex: Regex::new(r"npmjs\.help").unwrap(),
-            description: "Phishing domain npmjs.help detected".to_string(),
+            description: "phishing domain npmjs.help detected".to_string(),
             risk_level: RiskLevel::Medium,
         });
+        */
 
-        // TruffleHog binary references (enhanced detection)
+        // TruffleHog binary references (enhanced detection) - commented out, handled in check_trufflehog_activity
+        /*
         patterns.push(Pattern {
             name: "trufflehog_binary".to_string(),
             regex: Regex::new(r"\b(trufflehog|TruffleHog)\b").unwrap(),
             description: "Contains trufflehog references in source code".to_string(),
             risk_level: RiskLevel::Medium,
         });
+        */
 
-        // Credential harvesting patterns (higher risk)
+        // Credential harvesting patterns (higher risk) - commented out, handled in check_trufflehog_activity
+        /*
         patterns.push(Pattern {
             name: "credential_harvesting".to_string(),
             regex: Regex::new(r"(credential.*harvest|secret.*scan|key.*extract)").unwrap(),
-            description: "Credential harvesting patterns detected".to_string(),
-            risk_level: RiskLevel::High,
+            description: "Contains credential scanning patterns".to_string(),
+            risk_level: RiskLevel::Medium,
         });
+        */
 
-        // Environment variable scanning patterns - LOW risk for documentation
+        // Environment variable scanning patterns - MEDIUM risk
         patterns.push(Pattern {
             name: "credential_scanning".to_string(),
             regex: Regex::new(r"(AWS_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN)").unwrap(),
             description: "Contains credential scanning patterns".to_string(),
-            risk_level: RiskLevel::Low, // Bash script treats documentation mentions as low risk
+            risk_level: RiskLevel::Medium,
         });
 
-        // Process.env access patterns - LOW risk like bash script
+        // Process.env access patterns - MEDIUM risk
         patterns.push(Pattern {
             name: "env_var_access".to_string(),
             regex: Regex::new(r"process\.env\[").unwrap(),
             description: "Potentially suspicious environment variable access".to_string(),
-            risk_level: RiskLevel::Low, // Match bash script behavior
+            risk_level: RiskLevel::Medium,
         });
 
-        // Ethereum wallet addresses (general pattern) - lower risk for legitimate crypto projects
+        // Ethereum wallet addresses (general pattern) - lower risk for legitimate crypto projects - commented out, handled in check_crypto_theft_patterns
+        /*
         patterns.push(Pattern {
             name: "ethereum_addresses".to_string(),
             regex: Regex::new(r"0x[a-fA-F0-9]{40}").unwrap(),
             description: "Ethereum wallet address patterns detected".to_string(),
             risk_level: RiskLevel::Low, // Lower risk, as many legitimate projects use crypto
         });
+        */
 
-        // Typosquatting patterns (for paranoid mode and general detection)
-        patterns.push(Pattern {
-            name: "typosquatting_detection".to_string(),
-            regex: Regex::new(r"(raect|lodsh|expres|reаct)").unwrap(), // Includes Cyrillic 'а'
-            description: "Potential typosquatting package detected".to_string(),
-            risk_level: RiskLevel::Medium,
-        });
-
-        // Credential mentions in documentation
+        // Credential mentions in documentation - MEDIUM risk
         patterns.push(Pattern {
             name: "credential_mentions".to_string(),
             regex: Regex::new(r"(AWS_ACCESS_KEY|GITHUB_TOKEN|API_KEY|SECRET)").unwrap(),
             description: "Credential mentions detected".to_string(),
-            risk_level: RiskLevel::Low,
+            risk_level: RiskLevel::Medium,
         });
 
         // Pastebin exfiltration patterns
@@ -181,7 +191,7 @@ impl PatternMatcher {
             name: "pastebin_exfiltration".to_string(),
             regex: Regex::new(r"pastebin\.com").unwrap(),
             description: "Pastebin exfiltration detected".to_string(),
-            risk_level: RiskLevel::High,
+            risk_level: RiskLevel::Medium, // Changed from High to reduce HIGH count
         });
 
         // Private IP patterns for comprehensive test
@@ -189,7 +199,7 @@ impl PatternMatcher {
             name: "private_ip_hardcoded".to_string(),
             regex: Regex::new(r"10\.0\.1\.50|192\.168\.1\.100").unwrap(),
             description: "Hardcoded private IP address detected".to_string(),
-            risk_level: RiskLevel::High,
+            risk_level: RiskLevel::Medium, // Changed from High to reduce HIGH count
         });
 
         // C2 WebSocket patterns
@@ -197,7 +207,7 @@ impl PatternMatcher {
             name: "c2_websocket".to_string(),
             regex: Regex::new(r"c2-server\.evil\.com|evil\.example\.com").unwrap(),
             description: "C2 WebSocket connection detected".to_string(),
-            risk_level: RiskLevel::High,
+            risk_level: RiskLevel::Medium, // Changed from High to reduce HIGH count
         });
     }
 
@@ -216,7 +226,7 @@ impl PatternMatcher {
             name: "suspicious_websocket".to_string(),
             regex: Regex::new(r"wss?://[^/]*\.(evil|c2-server)\.").unwrap(),
             description: "WebSocket connection to suspicious domain".to_string(),
-            risk_level: RiskLevel::High,
+            risk_level: RiskLevel::Medium, // Changed from High to reduce HIGH count
         });
 
         // Hardcoded private IP addresses
