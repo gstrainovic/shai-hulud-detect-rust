@@ -90,6 +90,15 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                 ));
                             }
 
+                            // BASH LINE 984-987: Skip common legitimate variations
+                            if matches!(
+                                package_name.as_str(),
+                                "test" | "tests" | "testing" | "types" | "util" | "utils" 
+                                | "core" | "lib" | "libs" | "common" | "shared"
+                            ) {
+                                continue;
+                            }
+
                             // Check for confusable characters (common typosquatting patterns)
                             let confusables = [
                                 ("rn", "m"),
@@ -120,25 +129,8 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     continue; // Exact match is OK
                                 }
 
-                                // Skip common legitimate variations
-                                if matches!(
-                                    package_name.as_str(),
-                                    "test"
-                                        | "tests"
-                                        | "testing"
-                                        | "types"
-                                        | "util"
-                                        | "utils"
-                                        | "core"
-                                        | "lib"
-                                        | "libs"
-                                        | "common"
-                                        | "shared"
-                                ) {
-                                    continue;
-                                }
-
-                                // Check for single character differences (Levenshtein distance = 1)
+                                // BASH LINE 1001: Check for single character differences
+                                // BASH LINE 1005: Only flag if no dashes (avoid legit variations)
                                 if package_name.len() == popular.len() && package_name.len() > 4 {
                                     let diff_count = package_name
                                         .chars()
