@@ -29,7 +29,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     println!();
 
     let high_risk = results.high_risk_count();
-    let medium_risk = results.medium_risk_count();
+    let medium_risk = results.medium_risk_count(paranoid_mode);
     let low_risk = results.low_risk_count();
     let total_issues = high_risk + medium_risk;
 
@@ -276,6 +276,60 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         print_status(
             Color::Yellow,
             "   NOTE: Manual review required to determine if these are malicious.",
+        );
+        println!();
+    }
+
+    // BASH LINE 1513-1534: Report typosquatting warnings (only in paranoid mode)
+    if paranoid_mode && !results.typosquatting_warnings.is_empty() {
+        print_status(
+            Color::Yellow,
+            "⚠️  MEDIUM RISK (PARANOID): Potential typosquatting/homoglyph attacks detected:",
+        );
+        for finding in results.typosquatting_warnings.iter().take(5) {
+            println!("   - Warning: {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        if results.typosquatting_warnings.len() > 5 {
+            println!(
+                "   - ... and {} more typosquatting warnings (truncated for brevity)",
+                results.typosquatting_warnings.len() - 5
+            );
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: These packages may be impersonating legitimate packages.",
+        );
+        print_status(
+            Color::Yellow,
+            "   Verify package names carefully and check if they should be legitimate packages.",
+        );
+        println!();
+    }
+
+    // BASH LINE 1535-1556: Report network exfiltration warnings (only in paranoid mode)
+    if paranoid_mode && !results.network_exfiltration_warnings.is_empty() {
+        print_status(
+            Color::Yellow,
+            "⚠️  MEDIUM RISK (PARANOID): Network exfiltration patterns detected:",
+        );
+        for finding in results.network_exfiltration_warnings.iter().take(5) {
+            println!("   - Warning: {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        if results.network_exfiltration_warnings.len() > 5 {
+            println!(
+                "   - ... and {} more network warnings (truncated for brevity)",
+                results.network_exfiltration_warnings.len() - 5
+            );
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: These patterns may indicate data exfiltration or communication with C2 servers.",
+        );
+        print_status(
+            Color::Yellow,
+            "   Review network connections and data flows carefully.",
         );
         println!();
     }

@@ -93,17 +93,30 @@ impl ScanResults {
                 .count()
     }
 
-    pub fn medium_risk_count(&self) -> usize {
+    pub fn medium_risk_count(&self, paranoid_mode: bool) -> usize {
         let arrays = vec![
             &self.suspicious_found,
             &self.suspicious_content,
             &self.git_branches,
             &self.integrity_issues,
-            &self.typosquatting_warnings,
-            &self.network_exfiltration_warnings,
         ];
 
+        // BASH EXACT LINE 1523/1545: Only count first 5 typo/network IN paranoid mode
+        let typo_count = if paranoid_mode {
+            self.typosquatting_warnings.len().min(5)
+        } else {
+            0 // Not counted in normal mode
+        };
+        
+        let network_count = if paranoid_mode {
+            self.network_exfiltration_warnings.len().min(5)
+        } else {
+            0 // Not counted in normal mode
+        };
+
         arrays.iter().map(|arr| arr.len()).sum::<usize>()
+            + typo_count
+            + network_count
             + self
                 .crypto_patterns
                 .iter()

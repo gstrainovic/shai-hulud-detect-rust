@@ -179,16 +179,15 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     }
                                 }
 
-                                // Check for extra character
-                                if package_name.len() == popular.len() + 1 {
-                                    for i in 0..=package_name.len() {
-                                        let test_name = format!(
-                                            "{}{}",
-                                            &package_name[..i],
-                                            &package_name[i.min(package_name.len())..]
-                                                .get(1..)
-                                                .unwrap_or("")
-                                        );
+                                // Check for extra character - UNICODE SAFE
+                                if package_name.chars().count() == popular.chars().count() + 1 {
+                                    let pkg_chars: Vec<char> = package_name.chars().collect();
+                                    for i in 0..=pkg_chars.len() {
+                                        let mut test_chars = pkg_chars.clone();
+                                        if i < test_chars.len() {
+                                            test_chars.remove(i);
+                                        }
+                                        let test_name: String = test_chars.iter().collect();
                                         if test_name == *popular {
                                             findings.push(Finding::new(
                                                 entry.path().to_path_buf(),
