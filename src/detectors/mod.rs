@@ -107,7 +107,7 @@ impl ScanResults {
         } else {
             0 // Not counted in normal mode
         };
-        
+
         let network_count = if paranoid_mode {
             self.network_exfiltration_warnings.len().min(5)
         } else {
