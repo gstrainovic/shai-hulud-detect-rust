@@ -1,0 +1,195 @@
+📦 Loaded 604 compromised packages from C:\Users\gstra\Code\shai-hulud-detect-rs\final-optimized-scanner\target\compromised-packages.txt
+Starting Shai-Hulud detection scan...
+Scanning directory: C:/Users/gstra/Code/shai-hulud-detect/test-cases/
+
+🔍 Checking for malicious workflow files...
+🔍 Checking 44 files for known malicious content...
+🔍 Checking 17 package.json files for compromised packages...
+🔍 Checking for suspicious postinstall hooks...
+🔍 Checking for suspicious content patterns...
+🔍 Checking for cryptocurrency theft patterns...
+🔍 Checking for Trufflehog activity and secret scanning...
+🔍 Checking for suspicious git branches...
+🔍 Checking for Shai-Hulud repositories and migration patterns...
+🔍 Checking package lock files for integrity issues...
+
+==============================================
+      SHAI-HULUD DETECTION REPORT
+==============================================
+
+🚨 HIGH RISK: Malicious workflow files detected:
+   - C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\.github\workflows\shai-hulud-workflow.yml
+
+🚨 HIGH RISK: Compromised package versions detected:
+   - Package: ansi-styles@6.2.2
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack\package.json
+   - Package: chalk@5.6.1
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack\package.json
+   - Package: debug@4.4.2
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/chalk-debug-attack\package.json
+   - Package: @ctrl/deluge@1.2.0
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\package.json
+   - Package: @nativescript-community/ui-material-core@7.2.49
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\package.json
+   - Package: color-convert@3.1.1
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/lockfile-compromised\package.json
+   NOTE: These specific package versions are known to be compromised.
+   You should immediately update or remove these packages.
+
+⚠️  MEDIUM RISK: Suspicious package versions detected:
+   - Package: @ctrl/tinycolor@^4.0.0
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @ctrl/tinycolor@^4.0.0
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   - Package: @operato/board@~9.0.35
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/semver-matching\package.json
+   NOTE: Manual review required to determine if these are malicious.
+
+⚠️  MEDIUM RISK: Suspicious content patterns:
+   - Pattern: webhook.site reference
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\.github\workflows\shai-hulud-workflow.yml
+   - Pattern: malicious webhook endpoint
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\.github\workflows\shai-hulud-workflow.yml
+   - Pattern: webhook.site reference
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\actual-credential-harvester.js
+   - Pattern: malicious webhook endpoint
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\actual-credential-harvester.js
+   - Pattern: webhook.site reference
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\malicious.js
+   - Pattern: malicious webhook endpoint
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\malicious.js
+   - Pattern: webhook.site reference
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\package-with-postinstall.json
+   - Pattern: malicious webhook endpoint
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\package-with-postinstall.json
+   - Pattern: webhook.site reference
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/mixed-project\suspicious.js
+   - Pattern: webhook.site reference
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project\malicious.js
+   - Pattern: malicious webhook endpoint
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project\malicious.js
+   NOTE: Manual review required to determine if these are malicious.
+
+🚨 HIGH RISK: Cryptocurrency theft patterns detected:
+   - XMLHttpRequest prototype modification with crypto patterns detected - HIGH RISK
+   - Known attacker wallet address detected - HIGH RISK
+   - Known attacker wallet address detected - HIGH RISK
+   - XMLHttpRequest prototype modification with crypto patterns detected - HIGH RISK
+   - Known attacker wallet address detected - HIGH RISK
+   - XMLHttpRequest prototype modification with crypto patterns detected - HIGH RISK
+   - Known attacker wallet address detected - HIGH RISK
+   NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.
+   Immediate investigation and remediation required.
+
+⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:
+   - Ethereum wallet address patterns detected
+   - Known crypto theft function names detected
+   - Phishing domain npmjs.help detected
+   - Cryptocurrency regex patterns detected
+   - Ethereum wallet address patterns detected
+   - Phishing domain npmjs.help detected
+   - JavaScript obfuscation detected
+   - Ethereum wallet address patterns detected
+   - Ethereum wallet address patterns detected
+   - Phishing domain npmjs.help detected
+   - Ethereum wallet address patterns detected
+   - Ethereum wallet address patterns detected
+   - Known crypto theft function names detected
+   NOTE: These may be legitimate crypto tools or framework code.
+   Manual review recommended to determine if they are malicious.
+
+⚠️  MEDIUM RISK: Package integrity issues detected:
+   - Issue: Compromised package in lockfile: @ctrl/tinycolor@4.1.2
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile\package-lock.json
+   - Issue: Compromised package in lockfile: @ctrl/tinycolor@4.1.2
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile\package-lock.json
+   - Issue: Recently modified lockfile contains @ctrl packages (potential worm activity)
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile\package-lock.json
+   - Issue: Recently modified lockfile contains @ctrl packages (potential worm activity)
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-lockfile-pnpm\pnpm-lock.yaml
+   - Issue: Compromised package in lockfile: color-convert@3.1.1
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/lockfile-compromised\package-lock.json
+   - Issue: Compromised package in lockfile: color-convert@3.1.1
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/lockfile-compromised\package-lock.json
+   NOTE: These issues may indicate tampering with package dependencies.
+
+🚨 HIGH RISK: Trufflehog/secret scanning activity detected:
+   - Trufflehog binary found
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\malicious-trufflehog-wrapper.sh
+   - Trufflehog binary found
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\trufflehog-script.sh
+   - Credential patterns with potential exfiltration
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\malicious-trufflehog-wrapper.sh
+   - Environment scanning with exfiltration
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/network-exfiltration-project\malicious.js
+   NOTE: Trufflehog activity may indicate credential harvesting.
+
+⚠️  MEDIUM RISK: Potentially suspicious secret scanning patterns:
+   - Contains credential scanning patterns
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/false-positive-project\express-server.js
+   - Contains credential scanning patterns
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\actual-credential-harvester.js
+   - Potentially suspicious environment variable access
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\actual-credential-harvester.js
+   - Contains trufflehog references in source code
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\malicious-trufflehog-wrapper.sh
+   - Contains trufflehog references in source code
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\trufflehog-script.sh
+   - Contains credential scanning patterns
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\trufflehog-script.sh
+   - Potentially suspicious environment variable access
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/infected-project\trufflehog-script.sh
+   - Contains trufflehog references in source code
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project\security-scanner.py
+   - Contains credential scanning patterns
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project\security-scanner.py
+   - Potentially suspicious environment variable access
+     Found in: C:/Users/gstra/Code/shai-hulud-detect/test-cases/legitimate-security-project\security-scanner.py
+   NOTE: Manual review required to determine if these are malicious.
+
+==============================================
+🔍 SUMMARY:
+   High Risk Issues: 18
+   Medium Risk Issues: 59
+   Low Risk (informational): 4
+   Total Critical Issues: 77
+
+⚠️  IMPORTANT:
+   - High risk issues likely indicate actual compromise
+   - Medium risk issues require manual investigation
+   - Low risk issues are likely false positives from legitimate code
+   - Consider running additional security scans
+   - Review your npm audit logs and package history
+==============================================

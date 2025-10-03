@@ -1,0 +1,28 @@
+[0;34m📦 Loaded 604 compromised packages from /c/Users/gstra/Code/shai-hulud-detect/compromised-packages.txt[0m
+[0;32mStarting Shai-Hulud detection scan...[0m
+[0;34mScanning directory: /c/Users/gstra/Code/shai-hulud-detect/test-cases/xmlhttp-legitimate[0m
+
+[0;34m🔍 Checking for malicious workflow files...[0m
+[0;34m🔍 Checking 3 files for known malicious content...[0m
+[K[0;34m🔍 Checking 1 package.json files for compromised packages...[0m
+[K1 / 1 checked (100 %)[K[0;34m🔍 Checking for suspicious postinstall hooks...[0m
+[0;34m🔍 Checking for suspicious content patterns...[0m
+[0;34m🔍 Checking for cryptocurrency theft patterns...[0m
+[0;34m🔍 Checking for Trufflehog activity and secret scanning...[0m
+[0;34m🔍 Checking for suspicious git branches...[0m
+[0;34m🔍 Checking for Shai-Hulud repositories and migration patterns...[0m
+[0;34m🔍 Checking package lock files for integrity issues...[0m
+
+[0;34m==============================================[0m
+[0;34m      SHAI-HULUD DETECTION REPORT[0m
+[0;34m==============================================[0m
+
+[0;34m==============================================[0m
+[0;32m✅ No indicators of Shai-Hulud compromise detected.[0m
+[0;32mYour system appears clean from this specific attack.[0m
+
+[0;34mℹ️  LOW RISK FINDINGS (informational only):[0m
+   - Crypto pattern: /c/Users/gstra/Code/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/next/dist/compiled/edge-runtime/index.js:XMLHttpRequest prototype modification detected in framework code - LOW RISK
+   - Crypto pattern: /c/Users/gstra/Code/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/react-native/Libraries/Network/XHRInterceptor.js:XMLHttpRequest prototype modification detected in framework code - LOW RISK
+   [0;34mNOTE: These are likely legitimate framework code or dependencies.[0m
+[0;34m==============================================[0m

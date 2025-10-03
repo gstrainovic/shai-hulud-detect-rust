@@ -1,0 +1,395 @@
+// Report Generation
+// Rust port of: generate_report()
+
+use crate::colors::{print_status, Color};
+use crate::detectors::{RiskLevel, ScanResults};
+
+// Function: generate_report
+// Purpose: Generate comprehensive security report with risk stratification and findings
+// Args: results - scan results, paranoid_mode - whether paranoid mode is enabled
+// Modifies: None (reads all global finding arrays)
+// Returns: Outputs formatted report to stdout with HIGH/MEDIUM/LOW risk sections
+pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
+    println!();
+    print_status(
+        Color::Blue,
+        "==============================================",
+    );
+
+    if paranoid_mode {
+        print_status(Color::Blue, "  SHAI-HULUD + PARANOID SECURITY REPORT");
+    } else {
+        print_status(Color::Blue, "      SHAI-HULUD DETECTION REPORT");
+    }
+
+    print_status(
+        Color::Blue,
+        "==============================================",
+    );
+    println!();
+
+    let high_risk = results.high_risk_count();
+    let medium_risk = results.medium_risk_count();
+    let low_risk = results.low_risk_count();
+    let total_issues = high_risk + medium_risk;
+
+    // Report malicious workflow files
+    if !results.workflow_files.is_empty() {
+        print_status(
+            Color::Red,
+            "🚨 HIGH RISK: Malicious workflow files detected:",
+        );
+        for finding in &results.workflow_files {
+            println!("   - {}", finding.file_path.display());
+        }
+        println!();
+    }
+
+    // Report malicious file hashes
+    if !results.malicious_hashes.is_empty() {
+        print_status(
+            Color::Red,
+            "🚨 HIGH RISK: Files with known malicious hashes:",
+        );
+        for finding in &results.malicious_hashes {
+            println!("   - {}", finding.file_path.display());
+            println!("     {}", finding.message);
+        }
+        println!();
+    }
+
+    // Report compromised packages
+    if !results.compromised_found.is_empty() {
+        print_status(
+            Color::Red,
+            "🚨 HIGH RISK: Compromised package versions detected:",
+        );
+        for finding in &results.compromised_found {
+            println!("   - Package: {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: These specific package versions are known to be compromised.",
+        );
+        print_status(
+            Color::Yellow,
+            "   You should immediately update or remove these packages.",
+        );
+        println!();
+    }
+
+    // Report suspicious packages
+    if !results.suspicious_found.is_empty() {
+        print_status(
+            Color::Yellow,
+            "⚠️  MEDIUM RISK: Suspicious package versions detected:",
+        );
+        for finding in &results.suspicious_found {
+            println!("   - Package: {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: Manual review required to determine if these are malicious.",
+        );
+        println!();
+    }
+
+    // Report suspicious content
+    if !results.suspicious_content.is_empty() {
+        print_status(
+            Color::Yellow,
+            "⚠️  MEDIUM RISK: Suspicious content patterns:",
+        );
+        for finding in &results.suspicious_content {
+            println!("   - Pattern: {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: Manual review required to determine if these are malicious.",
+        );
+        println!();
+    }
+
+    // Report cryptocurrency theft patterns (separated by risk level)
+    let crypto_high: Vec<_> = results
+        .crypto_patterns
+        .iter()
+        .filter(|f| f.risk_level == RiskLevel::High)
+        .collect();
+    let crypto_medium: Vec<_> = results
+        .crypto_patterns
+        .iter()
+        .filter(|f| f.risk_level == RiskLevel::Medium)
+        .collect();
+
+    if !crypto_high.is_empty() {
+        print_status(
+            Color::Red,
+            "🚨 HIGH RISK: Cryptocurrency theft patterns detected:",
+        );
+        for finding in crypto_high {
+            println!("   - {}", finding.message);
+        }
+        print_status(
+            Color::Red,
+            "   NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.",
+        );
+        print_status(
+            Color::Red,
+            "   Immediate investigation and remediation required.",
+        );
+        println!();
+    }
+
+    if !crypto_medium.is_empty() {
+        print_status(
+            Color::Yellow,
+            "⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:",
+        );
+        for finding in crypto_medium {
+            println!("   - {}", finding.message);
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: These may be legitimate crypto tools or framework code.",
+        );
+        print_status(
+            Color::Yellow,
+            "   Manual review recommended to determine if they are malicious.",
+        );
+        println!();
+    }
+
+    // Report git branches
+    if !results.git_branches.is_empty() {
+        print_status(Color::Yellow, "⚠️  MEDIUM RISK: Suspicious git branches:");
+        for finding in &results.git_branches {
+            println!("   - Repository: {}", finding.file_path.display());
+            println!("     {}", finding.message);
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: 'shai-hulud' branches may indicate compromise.",
+        );
+        println!();
+    }
+
+    // Report suspicious postinstall hooks
+    if !results.postinstall_hooks.is_empty() {
+        print_status(
+            Color::Red,
+            "🚨 HIGH RISK: Suspicious postinstall hooks detected:",
+        );
+        for finding in &results.postinstall_hooks {
+            println!("   - Hook: {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: Postinstall hooks can execute arbitrary code during package installation.",
+        );
+        print_status(
+            Color::Yellow,
+            "   Review these hooks carefully for malicious behavior.",
+        );
+        println!();
+    }
+
+    // Report Shai-Hulud repositories
+    if !results.shai_hulud_repos.is_empty() {
+        print_status(
+            Color::Red,
+            "🚨 HIGH RISK: Shai-Hulud repositories detected:",
+        );
+        for finding in &results.shai_hulud_repos {
+            println!("   - Repository: {}", finding.file_path.display());
+            println!("     {}", finding.message);
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: 'Shai-Hulud' repositories are created by the malware for exfiltration.",
+        );
+        print_status(
+            Color::Yellow,
+            "   These should be deleted immediately after investigation.",
+        );
+        println!();
+    }
+
+    // Report package integrity issues
+    if !results.integrity_issues.is_empty() {
+        print_status(
+            Color::Yellow,
+            "⚠️  MEDIUM RISK: Package integrity issues detected:",
+        );
+        for finding in &results.integrity_issues {
+            println!("   - Issue: {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: These issues may indicate tampering with package dependencies.",
+        );
+        println!();
+    }
+
+    // Report Trufflehog activity (separated by risk level)
+    let trufflehog_high: Vec<_> = results
+        .trufflehog_activity
+        .iter()
+        .filter(|f| f.risk_level == RiskLevel::High)
+        .collect();
+    let trufflehog_medium: Vec<_> = results
+        .trufflehog_activity
+        .iter()
+        .filter(|f| f.risk_level == RiskLevel::Medium)
+        .collect();
+
+    if !trufflehog_high.is_empty() {
+        print_status(
+            Color::Red,
+            "🚨 HIGH RISK: Trufflehog/secret scanning activity detected:",
+        );
+        for finding in trufflehog_high {
+            println!("   - {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: Trufflehog activity may indicate credential harvesting.",
+        );
+        println!();
+    }
+
+    if !trufflehog_medium.is_empty() {
+        print_status(
+            Color::Yellow,
+            "⚠️  MEDIUM RISK: Potentially suspicious secret scanning patterns:",
+        );
+        for finding in trufflehog_medium {
+            println!("   - {}", finding.message);
+            println!("     Found in: {}", finding.file_path.display());
+        }
+        print_status(
+            Color::Yellow,
+            "   NOTE: Manual review required to determine if these are malicious.",
+        );
+        println!();
+    }
+
+    // Summary
+    print_status(
+        Color::Blue,
+        "==============================================",
+    );
+
+    if total_issues == 0 {
+        print_status(
+            Color::Green,
+            "✅ No indicators of Shai-Hulud compromise detected.",
+        );
+        print_status(
+            Color::Green,
+            "Your system appears clean from this specific attack.",
+        );
+
+        // Show low risk findings if any (informational only)
+        if low_risk > 0 {
+            println!();
+            print_status(Color::Blue, "ℹ️  LOW RISK FINDINGS (informational only):");
+            for finding in &results.namespace_warnings {
+                println!("   - {}", finding.message);
+            }
+            print_status(
+                Color::Blue,
+                "   NOTE: These are likely legitimate framework code or dependencies.",
+            );
+        }
+    } else {
+        print_status(Color::Red, "🔍 SUMMARY:");
+        print_status(Color::Red, &format!("   High Risk Issues: {}", high_risk));
+        print_status(
+            Color::Yellow,
+            &format!("   Medium Risk Issues: {}", medium_risk),
+        );
+        if low_risk > 0 {
+            print_status(
+                Color::Blue,
+                &format!("   Low Risk (informational): {}", low_risk),
+            );
+        }
+        print_status(
+            Color::Blue,
+            &format!("   Total Critical Issues: {}", total_issues),
+        );
+        println!();
+        print_status(Color::Yellow, "⚠️  IMPORTANT:");
+        print_status(
+            Color::Yellow,
+            "   - High risk issues likely indicate actual compromise",
+        );
+        print_status(
+            Color::Yellow,
+            "   - Medium risk issues require manual investigation",
+        );
+        print_status(
+            Color::Yellow,
+            "   - Low risk issues are likely false positives from legitimate code",
+        );
+        if paranoid_mode {
+            print_status(
+                Color::Yellow,
+                "   - Issues marked (PARANOID) are general security checks, not Shai-Hulud specific",
+            );
+        }
+        print_status(
+            Color::Yellow,
+            "   - Consider running additional security scans",
+        );
+        print_status(
+            Color::Yellow,
+            "   - Review your npm audit logs and package history",
+        );
+
+        // BASH FIX: Always show LOW RISK findings if present (not just when total_issues < 5)
+        if low_risk > 0 {
+            println!();
+            print_status(
+                Color::Blue,
+                "ℹ️  LOW RISK FINDINGS (likely false positives):",
+            );
+
+            // Show namespace warnings
+            for finding in &results.namespace_warnings {
+                println!("   - {}: {}", finding.file_path.display(), finding.message);
+            }
+
+            // Show LOW RISK crypto patterns
+            for finding in &results.crypto_patterns {
+                if finding.risk_level == RiskLevel::Low {
+                    println!("   - {}: {}", finding.file_path.display(), finding.message);
+                }
+            }
+
+            // Show LOW RISK trufflehog patterns
+            for finding in &results.trufflehog_activity {
+                if finding.risk_level == RiskLevel::Low {
+                    println!("   - {}: {}", finding.file_path.display(), finding.message);
+                }
+            }
+
+            print_status(
+                Color::Blue,
+                "   NOTE: These are typically legitimate framework patterns.",
+            );
+        }
+    }
+
+    print_status(
+        Color::Blue,
+        "==============================================",
+    );
+}
