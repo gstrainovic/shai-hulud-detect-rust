@@ -86,6 +86,7 @@ pub fn check_packages<P: AsRef<Path>>(
                 // Check for suspicious namespaces - BASH EXACT: warn for EACH namespace found
                 // Bash script line 453-457: warns once per namespace, no break
                 // If file has @ctrl AND @nativescript, it generates 2 warnings
+                let package_str = serde_json::to_string(&json).unwrap_or_default();
                 for namespace in crate::data::COMPROMISED_NAMESPACES {
                     if package_str.contains(&format!("\"{}/", namespace)) {
                         namespace_warnings.push(Finding::new(
