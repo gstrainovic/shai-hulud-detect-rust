@@ -65,14 +65,9 @@ if grep -qE "https?://.*$domain" "$file" 2>/dev/null; then
 
 Tested on:
 - ✅ Git Bash 2.x (Windows/MINGW64)
-- ✅ Bash 5.x (Linux)
 
 **Before fix**: 0/23 test cases show network warnings  
 **After fix**: 15/23 test cases show network warnings (expected)
-
-## 🔗 Related
-
-This was discovered while creating a 100% compatible Rust port of the scanner. The Rust version uses correct regex and successfully detects network exfiltration patterns.
 
 ## 📝 Additional Context
 

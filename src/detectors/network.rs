@@ -2,8 +2,8 @@
 // Rust port of: check_network_exfiltration()
 
 use crate::detectors::{Finding, RiskLevel};
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
 use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
@@ -14,12 +14,26 @@ lazy_static! {
 
 // Suspicious domains and patterns beyond webhook.site
 const SUSPICIOUS_DOMAINS: &[&str] = &[
-    "pastebin.com", "hastebin.com", "ix.io", "0x0.st", "transfer.sh",
-    "file.io", "anonfiles.com", "mega.nz", "dropbox.com/s/",
-    "discord.com/api/webhooks", "telegram.org", "t.me",
-    "ngrok.io", "localtunnel.me", "serveo.net",
-    "requestbin.com", "webhook.site", "beeceptor.com",
-    "pipedream.com", "zapier.com/hooks",
+    "pastebin.com",
+    "hastebin.com",
+    "ix.io",
+    "0x0.st",
+    "transfer.sh",
+    "file.io",
+    "anonfiles.com",
+    "mega.nz",
+    "dropbox.com/s/",
+    "discord.com/api/webhooks",
+    "telegram.org",
+    "t.me",
+    "ngrok.io",
+    "localtunnel.me",
+    "serveo.net",
+    "requestbin.com",
+    "webhook.site",
+    "beeceptor.com",
+    "pipedream.com",
+    "zapier.com/hooks",
 ];
 
 // Function: check_network_exfiltration
@@ -44,10 +58,13 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
         })
     {
         let path_str = entry.path().to_string_lossy();
-        
+
         // BASH LINE 1102, 1116, 1162, 1219: Skip vendor/library files AND node_modules
-        if path_str.contains("/vendor/") || path_str.contains("\\vendor\\") 
-           || path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") {
+        if path_str.contains("/vendor/")
+            || path_str.contains("\\vendor\\")
+            || path_str.contains("/node_modules/")
+            || path_str.contains("\\node_modules\\")
+        {
             continue;
         }
 
@@ -57,9 +74,13 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 let ip = captures.as_str();
                 // BASH LINE 1108: Skip common safe IPs
                 if ip != "127.0.0.1" && ip != "0.0.0.0" && ip != "255.255.255.255" {
-                    let ips: Vec<_> = IP_PATTERN.find_iter(&content).take(3).map(|m| m.as_str()).collect();
+                    let ips: Vec<_> = IP_PATTERN
+                        .find_iter(&content)
+                        .take(3)
+                        .map(|m| m.as_str())
+                        .collect();
                     let ips_str = ips.join(" ");
-                    
+
                     // BASH LINE 1109-1112: Check if minified
                     if path_str.ends_with(".min.js") {
                         findings.push(Finding::new(
@@ -84,18 +105,20 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 for domain in SUSPICIOUS_DOMAINS {
                     if content.contains(domain) {
                         // BASH LINE 1120-1122: Make sure it's not just a comment
-                        let lines: Vec<&str> = content.lines()
+                        let lines: Vec<&str> = content
+                            .lines()
                             .filter(|line| {
-                                line.contains(domain) && 
-                                !line.trim().starts_with('#') && 
-                                !line.trim().starts_with("//")
+                                line.contains(domain)
+                                    && !line.trim().starts_with('#')
+                                    && !line.trim().starts_with("//")
                             })
-                            .take(1)  // BASH takes only first match
+                            .take(1) // BASH takes only first match
                             .collect();
 
                         if let Some(first_line) = lines.first() {
                             // BASH LINE 1131-1154: Format snippet based on line length
-                            let snippet = if path_str.ends_with(".min.js") || first_line.len() > 150 {
+                            let snippet = if path_str.ends_with(".min.js") || first_line.len() > 150
+                            {
                                 // Extract around domain (BASH LINE 1134)
                                 if let Some(pos) = first_line.find(domain) {
                                     let start = pos.saturating_sub(20);
@@ -125,10 +148,14 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             }
 
             // BASH LINE 1162-1186: Check for base64-encoded URLs (skip vendor/node_modules)
-            if (content.contains("atob(") || (content.contains("base64") && content.contains("decode"))) {
+            if (content.contains("atob(")
+                || (content.contains("base64") && content.contains("decode")))
+            {
                 // BASH LINE 1166: Get line number for snippet
                 let has_atob = content.contains("atob(");
-                let snippet = if path_str.ends_with(".min.js") || content.lines().next().map(|l| l.len()).unwrap_or(0) > 500 {
+                let snippet = if path_str.ends_with(".min.js")
+                    || content.lines().next().map(|l| l.len()).unwrap_or(0) > 500
+                {
                     // BASH LINE 1171-1179: Extract around atob
                     if has_atob {
                         if let Some(line) = content.lines().find(|l| l.contains("atob(")) {
@@ -147,7 +174,10 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     }
                 } else {
                     // BASH LINE 1182-1183
-                    if let Some(line) = content.lines().find(|l| l.contains("atob") || l.contains("base64")) {
+                    if let Some(line) = content
+                        .lines()
+                        .find(|l| l.contains("atob") || l.contains("base64"))
+                    {
                         if line.len() > 80 {
                             format!("{}...", &line[..80])
                         } else {
@@ -157,7 +187,7 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                         "Base64 decoding detected".to_string()
                     }
                 };
-                
+
                 findings.push(Finding::new(
                     entry.path().to_path_buf(),
                     format!("Base64 decoding at line: {}", snippet),
@@ -195,7 +225,10 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             }
 
             // BASH LINE 1212-1214: Check for suspicious HTTP headers
-            if content.contains("X-Exfiltrate") || content.contains("X-Data-Export") || content.contains("X-Credential") {
+            if content.contains("X-Exfiltrate")
+                || content.contains("X-Data-Export")
+                || content.contains("X-Credential")
+            {
                 findings.push(Finding::new(
                     entry.path().to_path_buf(),
                     "Suspicious HTTP headers detected".to_string(),
@@ -207,10 +240,15 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             // BASH LINE 1217-1232: Check for btoa near network operations (skip vendor/node_modules/min.js)
             if content.contains("btoa(") && !path_str.ends_with(".min.js") {
                 // BASH LINE 1220: Check if near network operations
-                let has_network = content.contains("fetch") || content.contains("XMLHttpRequest") || content.contains("axios");
+                let has_network = content.contains("fetch")
+                    || content.contains("XMLHttpRequest")
+                    || content.contains("axios");
                 if has_network {
                     // BASH LINE 1222-1223: Skip if Authorization/Basic/Bearer
-                    if !content.contains("Authorization:") && !content.contains("Basic ") && !content.contains("Bearer ") {
+                    if !content.contains("Authorization:")
+                        && !content.contains("Basic ")
+                        && !content.contains("Bearer ")
+                    {
                         findings.push(Finding::new(
                             entry.path().to_path_buf(),
                             "Suspicious base64 encoding near network operation".to_string(),

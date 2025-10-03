@@ -93,8 +93,17 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                             // BASH LINE 984-987: Skip common legitimate variations
                             if matches!(
                                 package_name.as_str(),
-                                "test" | "tests" | "testing" | "types" | "util" | "utils" 
-                                | "core" | "lib" | "libs" | "common" | "shared"
+                                "test"
+                                    | "tests"
+                                    | "testing"
+                                    | "types"
+                                    | "util"
+                                    | "utils"
+                                    | "core"
+                                    | "lib"
+                                    | "libs"
+                                    | "common"
+                                    | "shared"
                             ) {
                                 continue;
                             }
