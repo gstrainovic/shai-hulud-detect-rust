@@ -85,7 +85,7 @@ Medium Risk Issues: 6  # Includes network domain warning ✅
 
 ## Test Results
 
-**Tested on**: Git Bash 2.x (Windows/MINGW64), Bash 5.x (Linux)
+**Tested on**: Git Bash 2.x (Windows/MINGW64)
 
 **Test cases with suspicious domains**: 4 out of 23 total
 
@@ -176,4 +176,8 @@ After applying the fix:
 
 ---
 
-**Ready for merge**: Fix has been tested and verified on multiple platforms. No breaking changes to existing functionality.
+## Testing Note
+
+This fix has been tested on Windows (Git Bash/MINGW64). Additional testing on Linux/macOS would be appreciated before merge to ensure cross-platform compatibility.
+
+**Ready for review**: Fix resolves the reported issue. No breaking changes to existing functionality.
