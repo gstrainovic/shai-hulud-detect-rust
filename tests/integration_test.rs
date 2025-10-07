@@ -2,49 +2,41 @@ use std::process::Command;
 
 #[test]
 fn test_normal_mode_100_percent_match() {
-    // Test that we maintain 100% match with Bash in normal mode
-    let output = Command::new("cargo")
-        .args(&["run", "--release", "--", "../shai-hulud-detect/test-cases"])
+    // Run the dynamic verification script (compares Rust vs Bash live)
+    let output = Command::new("bash")
+        .args(&["dev-rust-scanner-1/scripts/verification/verify_normal_mode.sh"])
+        .current_dir("../")
         .output()
-        .expect("Failed to run scanner");
+        .expect("Failed to run verification script");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("{}", stdout); // Show output for debugging
 
-    // Verify exact counts
-    assert!(stdout.contains("High Risk Issues: 19"), "HIGH should be 19");
+    // Script exits 0 if match, 1 if mismatch
     assert!(
-        stdout.contains("Medium Risk Issues: 61"),
-        "MEDIUM should be 61"
-    );
-    assert!(
-        stdout.contains("Low Risk (informational): 9"),
-        "LOW should be 9"
+        output.status.success(),
+        "Normal mode verification failed! Rust doesn't match Bash.\n{}",
+        stdout
     );
 }
 
 #[test]
-fn test_infected_project_normal_mode() {
-    let output = Command::new("cargo")
-        .args(&[
-            "run",
-            "--release",
-            "--",
-            "../shai-hulud-detect/test-cases/infected-project",
-        ])
+fn test_paranoid_mode_100_percent_match() {
+    // Run the dynamic verification script (compares Rust vs Bash live)
+    let output = Command::new("bash")
+        .args(&["dev-rust-scanner-1/scripts/verification/verify_paranoid_mode.sh"])
+        .current_dir("../")
         .output()
-        .expect("Failed to run scanner");
+        .expect("Failed to run verification script");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("{}", stdout); // Show output for debugging
 
-    // Normal mode (no --paranoid) should give 8/16/2
-    assert!(stdout.contains("High Risk Issues: 8"), "HIGH should be 8");
+    // Script exits 0 if match, 1 if mismatch
     assert!(
-        stdout.contains("Medium Risk Issues: 16"),
-        "MEDIUM should be 16"
-    );
-    assert!(
-        stdout.contains("Low Risk (informational): 2"),
-        "LOW should be 2"
+        output.status.success(),
+        "Paranoid mode verification failed! Rust doesn't match Bash.\n{}",
+        stdout
     );
 }
 
@@ -66,34 +58,6 @@ fn test_clean_project() {
     assert!(
         stdout.contains("No indicators of Shai-Hulud compromise detected"),
         "Clean project should have no issues"
-    );
-}
-
-#[test]
-fn test_paranoid_mode_enhanced_security() {
-    // Test that paranoid mode finds more issues (network + typosquatting)
-    let output = Command::new("cargo")
-        .args(&[
-            "run",
-            "--release",
-            "--",
-            "../shai-hulud-detect/test-cases/infected-project",
-            "--paranoid",
-        ])
-        .output()
-        .expect("Failed to run scanner");
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-
-    // Paranoid mode should find more MEDIUM (19 vs 16 in normal)
-    assert!(stdout.contains("High Risk Issues: 8"), "HIGH should be 8");
-    assert!(
-        stdout.contains("Medium Risk Issues: 19"),
-        "MEDIUM should be 19 in paranoid"
-    );
-    assert!(
-        stdout.contains("Low Risk (informational): 2"),
-        "LOW should be 2"
     );
 }
 

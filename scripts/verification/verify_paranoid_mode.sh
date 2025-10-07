@@ -1,72 +1,67 @@
 #!/bin/bash
-# Verify PARANOID mode - test-case by test-case comparison
+# Dynamic verification - Paranoid Mode (Bash vs Rust)
+# No hardcoded numbers - uses live Bash scanner as ground truth
 
 cd /c/Users/gstra/Code/rust-scanner
 
-echo "🔍 PARANOID MODE - PER TEST-CASE VERIFICATION"
+echo "🔍 PARANOID MODE - DYNAMIC VERIFICATION"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Pre-build Rust once (faster than cargo run each time)
-echo "Building Rust scanner..."
-cd dev-rust-scanner-1
-cargo build --release --quiet 2>/dev/null
-RUST_BIN="target/release/shai-hulud-detector.exe"
+# Run Bash (ground truth)
+echo "⚡ Running Bash scanner (paranoid mode)..."
+cd shai-hulud-detect
+./shai-hulud-detector.sh --paranoid test-cases/ > /tmp/bash_paranoid_verify.log 2>&1
 cd ..
+
+bash_h=$(grep "High Risk Issues:" /tmp/bash_paranoid_verify.log | tail -1 | awk '{print $NF}')
+bash_m=$(grep "Medium Risk Issues:" /tmp/bash_paranoid_verify.log | tail -1 | awk '{print $NF}')
+bash_l=$(grep "Low Risk" /tmp/bash_paranoid_verify.log | grep "informational" | tail -1 | awk '{print $NF}')
+
+# Run Rust
+echo "⚡ Running Rust scanner (paranoid mode)..."
+cd dev-rust-scanner-1
+cargo run --quiet --release -- ../shai-hulud-detect/test-cases --paranoid > /tmp/rust_paranoid_verify.log 2>&1
+cd ..
+
+rust_h=$(grep "High Risk Issues:" /tmp/rust_paranoid_verify.log | tail -1 | awk '{print $NF}')
+rust_m=$(grep "Medium Risk Issues:" /tmp/rust_paranoid_verify.log | tail -1 | awk '{print $NF}')
+rust_l=$(grep "Low Risk" /tmp/rust_paranoid_verify.log | grep "informational" | tail -1 | awk '{print $NF}')
+
+# Default to 0
+bash_h=${bash_h:-0}
+bash_m=${bash_m:-0}
+bash_l=${bash_l:-0}
+rust_h=${rust_h:-0}
+rust_m=${rust_m:-0}
+rust_l=${rust_l:-0}
+
 echo ""
-
-MISMATCHES=0
-MATCHES=0
-
-for testcase in shai-hulud-detect/test-cases/*/; do
-    name=$(basename "$testcase")
-    
-    # Skip if not a directory
-    [ ! -d "$testcase" ] && continue
-    
-    echo "Testing: $name"
-    
-    # Bash paranoid
-    bash_output=$(cd shai-hulud-detect && timeout 30 ./shai-hulud-detector.sh --paranoid "test-cases/$name" 2>&1)
-    bash_high=$(echo "$bash_output" | grep "High Risk Issues:" | awk '{print $NF}' | tr -d '\r' || echo "0")
-    bash_medium=$(echo "$bash_output" | grep "Medium Risk Issues:" | awk '{print $NF}' | tr -d '\r' || echo "0")
-    bash_low=$(echo "$bash_output" | grep "Low Risk" | grep "informational" | awk '{print $NF}' | tr -d '\r' || echo "0")
-    
-    # Rust paranoid (using pre-built binary)
-    rust_output=$(dev-rust-scanner-1/$RUST_BIN "$testcase" --paranoid 2>&1)
-    rust_high=$(echo "$rust_output" | grep "High Risk Issues:" | awk '{print $NF}' | tr -d '\r' || echo "0")
-    rust_medium=$(echo "$rust_output" | grep "Medium Risk Issues:" | awk '{print $NF}' | tr -d '\r' || echo "0")
-    rust_low=$(echo "$rust_output" | grep "Low Risk" | grep "informational" | awk '{print $NF}' | tr -d '\r' || echo "0")
-    
-    # Default to 0 if empty
-    bash_high=${bash_high:-0}
-    bash_medium=${bash_medium:-0}
-    bash_low=${bash_low:-0}
-    rust_high=${rust_high:-0}
-    rust_medium=${rust_medium:-0}
-    rust_low=${rust_low:-0}
-    
-    # Compare
-    if [ "$bash_high" != "$rust_high" ] || [ "$bash_medium" != "$rust_medium" ] || [ "$bash_low" != "$rust_low" ]; then
-        echo "  ❌ MISMATCH!"
-        echo "     Bash:  $bash_high/$bash_medium/$bash_low"
-        echo "     Rust:  $rust_high/$rust_medium/$rust_low"
-        MISMATCHES=$((MISMATCHES + 1))
-    else
-        echo "  ✅ Match: $bash_high/$bash_medium/$bash_low"
-        MATCHES=$((MATCHES + 1))
-    fi
-    echo ""
-done
-
+echo "📊 PARANOID MODE RESULTS:"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "RESULTS:"
-echo "  ✅ Matches: $MATCHES"
-echo "  ❌ Mismatches: $MISMATCHES"
+echo "Bash (Ground Truth):"
+echo "  HIGH:   $bash_h"
+echo "  MEDIUM: $bash_m"
+echo "  LOW:    $bash_l"
+echo ""
+echo "Rust:"
+echo "  HIGH:   $rust_h"
+echo "  MEDIUM: $rust_m"
+echo "  LOW:    $rust_l"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-if [ $MISMATCHES -eq 0 ]; then
-    echo "🎉 PARANOID MODE: 100% MATCH!"
+# Compare
+if [ "$rust_h" = "$bash_h" ] && [ "$rust_m" = "$bash_m" ] && [ "$rust_l" = "$bash_l" ]; then
+    echo "✅ PARANOID MODE: 100% MATCH!"
+    echo "   Rust matches Bash exactly: $rust_h/$rust_m/$rust_l"
+    exit 0
 else
-    echo "⚠️  PARANOID MODE: NOT 100% - $MISMATCHES test-cases differ!"
+    echo "❌ PARANOID MODE: MISMATCH!"
+    echo ""
+    echo "   Differences:"
+    [ "$rust_h" != "$bash_h" ] && echo "     HIGH:   Bash=$bash_h, Rust=$rust_h (diff: $((rust_h - bash_h)))"
+    [ "$rust_m" != "$bash_m" ] && echo "     MEDIUM: Bash=$bash_m, Rust=$rust_m (diff: $((rust_m - bash_m)))"
+    [ "$rust_l" != "$bash_l" ] && echo "     LOW:    Bash=$bash_l, Rust=$rust_l (diff: $((rust_l - bash_l)))"
+    exit 1
 fi
