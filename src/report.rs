@@ -132,6 +132,30 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         println!();
     }
 
+    // Report lockfile-safe packages (BASH LINE 1440-1453)
+    if !results.lockfile_safe_versions.is_empty() {
+        print_status(
+            Color::Blue,
+            "ℹ️  LOW RISK: Packages with safe lockfile versions:",
+        );
+        for finding in &results.lockfile_safe_versions {
+            println!("   - Package: {}", finding.message);
+            println!(
+                "     Found in: {}",
+                crate::utils::normalize_path(&finding.file_path)
+            );
+        }
+        print_status(
+            Color::Blue,
+            "   NOTE: These package.json ranges could match compromised versions, but lockfiles pin to safe versions.",
+        );
+        print_status(
+            Color::Blue,
+            "   Your current installation is safe. Avoid running 'npm update' without reviewing changes.",
+        );
+        println!();
+    }
+
     // Report suspicious content
     if !results.suspicious_content.is_empty() {
         print_status(
@@ -487,51 +511,6 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
             Color::Yellow,
             "   - Review your npm audit logs and package history",
         );
-
-        // BASH FIX: Always show LOW RISK findings if present (not just when total_issues < 5)
-        if low_risk > 0 {
-            println!();
-            print_status(
-                Color::Blue,
-                "ℹ️  LOW RISK FINDINGS (likely false positives):",
-            );
-
-            // Show namespace warnings
-            for finding in &results.namespace_warnings {
-                println!(
-                    "   - {}: {}",
-                    crate::utils::normalize_path(&finding.file_path),
-                    finding.message
-                );
-            }
-
-            // Show LOW RISK crypto patterns
-            for finding in &results.crypto_patterns {
-                if finding.risk_level == RiskLevel::Low {
-                    println!(
-                        "   - {}: {}",
-                        crate::utils::normalize_path(&finding.file_path),
-                        finding.message
-                    );
-                }
-            }
-
-            // Show LOW RISK trufflehog patterns
-            for finding in &results.trufflehog_activity {
-                if finding.risk_level == RiskLevel::Low {
-                    println!(
-                        "   - {}: {}",
-                        crate::utils::normalize_path(&finding.file_path),
-                        finding.message
-                    );
-                }
-            }
-
-            print_status(
-                Color::Blue,
-                "   NOTE: These are typically legitimate framework patterns.",
-            );
-        }
     }
 
     print_status(

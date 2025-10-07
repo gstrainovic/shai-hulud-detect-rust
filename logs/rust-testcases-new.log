@@ -114,6 +114,18 @@ Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-case
      Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/semver-matching/package.json
    NOTE: Manual review required to determine if these are malicious.
 
+ℹ️  LOW RISK: Packages with safe lockfile versions:
+   - Package: debug@^4.0.1 (locked to 4.0.1 - safe)
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/lockfile-comprehensive-test/package.json
+   - Package: error-ex@^1.2.0 (locked to 1.2.0 - safe)
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/lockfile-comprehensive-test/package.json
+   - Package: debug@^4.0.1 (locked to 4.0.1 - safe)
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/lockfile-safe-versions/package.json
+   - Package: error-ex@^1.2.0 (locked to 1.2.0 - safe)
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/lockfile-safe-versions/package.json
+   NOTE: These package.json ranges could match compromised versions, but lockfiles pin to safe versions.
+   Your current installation is safe. Avoid running 'npm update' without reviewing changes.
+
 ⚠️  MEDIUM RISK: Suspicious content patterns:
    - Pattern: webhook.site reference
      Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml
@@ -237,7 +249,7 @@ Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-case
 🔍 SUMMARY:
    High Risk Issues: 19
    Medium Risk Issues: 61
-   Low Risk (informational): 9
+   Low Risk (informational): 13
    Total Critical Issues: 80
 
 ⚠️  IMPORTANT:
@@ -246,16 +258,4 @@ Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-case
    - Low risk issues are likely false positives from legitimate code
    - Consider running additional security scans
    - Review your npm audit logs and package history
-
-ℹ️  LOW RISK FINDINGS (likely false positives):
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package.json: Contains packages from compromised namespace: @ctrl
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package.json: Contains packages from compromised namespace: @nativescript-community
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/mixed-project/package.json: Contains packages from compromised namespace: @ctrl
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/namespace-warning/package.json: Contains packages from compromised namespace: @ctrl
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/namespace-warning/package.json: Contains packages from compromised namespace: @operato
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/semver-matching/package.json: Contains packages from compromised namespace: @ctrl
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/semver-matching/package.json: Contains packages from compromised namespace: @operato
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/next/dist/compiled/edge-runtime/index.js: XMLHttpRequest prototype modification detected in framework code - LOW RISK
-   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/react-native/Libraries/Network/XHRInterceptor.js: XMLHttpRequest prototype modification detected in framework code - LOW RISK
-   NOTE: These are typically legitimate framework patterns.
 ==============================================

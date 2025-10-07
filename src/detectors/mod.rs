@@ -54,6 +54,7 @@ pub struct ScanResults {
     pub malicious_hashes: Vec<Finding>,
     pub compromised_found: Vec<Finding>,
     pub suspicious_found: Vec<Finding>,
+    pub lockfile_safe_versions: Vec<Finding>, // NEW: Packages safe due to lockfile
     pub suspicious_content: Vec<Finding>,
     pub crypto_patterns: Vec<Finding>,
     pub git_branches: Vec<Finding>,
@@ -130,7 +131,8 @@ impl ScanResults {
     }
 
     pub fn low_risk_count(&self) -> usize {
-        self.namespace_warnings.len()
+        self.lockfile_safe_versions.len()
+            + self.namespace_warnings.len()
             + self
                 .crypto_patterns
                 .iter()

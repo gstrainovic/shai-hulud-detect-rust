@@ -13,12 +13,12 @@ use walkdir::WalkDir;
 // Function: check_packages
 // Purpose: Scan package.json files for compromised packages and suspicious namespaces
 // Args: $1 = scan_dir (directory to scan), compromised_packages - set of known bad packages
-// Modifies: COMPROMISED_FOUND, SUSPICIOUS_FOUND, NAMESPACE_WARNINGS (global arrays)
+// Modifies: COMPROMISED_FOUND, SUSPICIOUS_FOUND, LOCKFILE_SAFE_VERSIONS, NAMESPACE_WARNINGS (global arrays)
 // Returns: Populates arrays with matches using exact and semver pattern matching
 pub fn check_packages<P: AsRef<Path>>(
     scan_dir: P,
     compromised_packages: &HashSet<CompromisedPackage>,
-) -> (Vec<Finding>, Vec<Finding>, Vec<Finding>) {
+) -> (Vec<Finding>, Vec<Finding>, Vec<Finding>, Vec<Finding>) {
     let scan_dir = scan_dir.as_ref();
     let files_count = crate::utils::count_files_by_name(scan_dir, "package.json");
 
@@ -32,6 +32,7 @@ pub fn check_packages<P: AsRef<Path>>(
 
     let mut compromised_found = Vec::new();
     let mut suspicious_found = Vec::new();
+    let mut lockfile_safe_versions = Vec::new();
     let mut namespace_warnings = Vec::new();
 
     let mut processed = 0;
@@ -90,7 +91,15 @@ pub fn check_packages<P: AsRef<Path>>(
                                         } else {
                                             // Lockfile has safe version - informational only
                                             // This goes to LOCKFILE_SAFE_VERSIONS in Bash (LOW risk)
-                                            // We don't track this in Rust currently
+                                            lockfile_safe_versions.push(Finding::new(
+                                                entry.path().to_path_buf(),
+                                                format!(
+                                                    "{}@{} (locked to {} - safe)",
+                                                    package_name, version_str, actual_version
+                                                ),
+                                                RiskLevel::Low,
+                                                "lockfile_safe",
+                                            ));
                                         }
                                     } else {
                                         // No lockfile - suspicious (could install compromised on npm install)
@@ -134,5 +143,5 @@ pub fn check_packages<P: AsRef<Path>>(
 
     crate::utils::clear_progress();
 
-    (compromised_found, suspicious_found, namespace_warnings)
+    (compromised_found, suspicious_found, lockfile_safe_versions, namespace_warnings)
 }

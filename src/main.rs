@@ -79,10 +79,11 @@ fn main() -> Result<()> {
         detectors::hashes::check_file_hashes(&args.scan_dir, &malicious_hashes, args.parallelism);
 
     // 3. check_packages
-    let (comp, susp, ns) =
+    let (comp, susp, lockfile_safe, ns) =
         detectors::packages::check_packages(&args.scan_dir, &compromised_packages);
     results.compromised_found = comp;
     results.suspicious_found = susp;
+    results.lockfile_safe_versions = lockfile_safe;
     results.namespace_warnings = ns;
 
     // 4. check_postinstall_hooks
