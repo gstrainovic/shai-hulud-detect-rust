@@ -29,7 +29,7 @@ pub fn get_lockfile_version(package_name: &str, package_dir: &Path) -> Option<St
                         }
                     }
                 }
-                
+
                 // Check dependencies section (npm v1 flat format)
                 if let Some(deps) = json.get("dependencies").and_then(|v| v.as_object()) {
                     if let Some(pkg) = deps.get(package_name) {
@@ -41,7 +41,7 @@ pub fn get_lockfile_version(package_name: &str, package_dir: &Path) -> Option<St
             }
         }
     }
-    
+
     // TODO: Add yarn.lock and pnpm-lock.yaml support if needed
     None
 }

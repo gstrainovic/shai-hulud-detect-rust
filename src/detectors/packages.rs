@@ -73,7 +73,12 @@ pub fn check_packages<P: AsRef<Path>>(
                                 else if semver::semver_match(&comp_pkg.version, version_str) {
                                     // BASH LINE 447-461: Check lockfile for exact installed version
                                     let package_dir = entry.path().parent().unwrap();
-                                    if let Some(actual_version) = crate::detectors::integrity::get_lockfile_version(package_name, package_dir) {
+                                    if let Some(actual_version) =
+                                        crate::detectors::integrity::get_lockfile_version(
+                                            package_name,
+                                            package_dir,
+                                        )
+                                    {
                                         if actual_version == comp_pkg.version {
                                             // Lockfile has exact compromised version!
                                             compromised_found.push(Finding::new(
