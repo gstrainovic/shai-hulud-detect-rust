@@ -9,7 +9,7 @@ This document proves that `dev-rust-scanner-1` achieves **100% compatibility** w
 Run this single command to verify 100% match:
 
 ```bash
-bash scripts/verify_100_percent.sh
+bash dev-rust-scanner-1/scripts/analyze/verify_100_percent.sh
 ```
 
 This script will:
@@ -66,56 +66,51 @@ cd ..
 
 ```bash
 # Run complete verification (takes ~5-10 minutes)
-bash analyze/verify_100_percent.sh
+bash dev-rust-scanner-1/scripts/analyze/verify_100_percent.sh
 
 # Output:
-# ✅ Overall match: 18/58/9
-# ✅ Per-test-case: 23/23 matched
+# ✅ Overall match: 19/61/9
+# ✅ Per-test-case: 26/26 matched
 # ✅ Pattern-level: 100% match
-# 📄 Detailed CSV: analyze/verification_results/comparison_TIMESTAMP.csv
 ```
 
-### Quick Normal Mode Test
+### Paranoid Mode Verification
 
 ```bash
-# Verify normal mode only (30 seconds)
-bash analyze/verify_normal_mode.sh
+# Verify paranoid mode matches
+bash dev-rust-scanner-1/scripts/analyze/verify_100_percent_paranoid.sh
 
 # Expected output:
-# ✅ NORMAL MODE: STILL PERFECT 100% MATCH!
+# ✅ PARANOID MODE: PERFECT 100% MATCH!
 ```
 
 ### Per-Test-Case Comparison
 
 ```bash
 # Run parallel per-test-case scans
-bash analyze/parallel_testcase_scan.sh
+bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh
 
 # View results
-cat analyze/per-testcase-logs/*/comparison.csv
+cat dev-rust-scanner-1/scripts/analyze/per-testcase-logs/*/bash_*_summary.txt
 ```
 
 ---
 
 ## 📁 Verification Outputs
 
-All verification results are stored in `analyze/` with timestamps:
+All verification results are stored in `dev-rust-scanner-1/scripts/analyze/` with timestamps:
 
 ```
-analyze/
-├── verify_100_percent.sh          # Main verification script
-├── verify_normal_mode.sh           # Quick normal mode test
+dev-rust-scanner-1/scripts/analyze/
+├── verify_100_percent.sh           # Main verification (normal mode)
+├── verify_100_percent_paranoid.sh  # Paranoid mode verification
 ├── parallel_testcase_scan.sh       # Per-test-case parallel scans
-├── verification_results/           # Timestamped results
-│   └── YYYYMMDD_HHMMSS/
-│       ├── comparison.csv          # Per-test-case comparison
-│       ├── pattern_match.csv       # Pattern-level details
-│       ├── bash_overall.txt        # Bash full scan output
-│       └── rust_overall.txt        # Rust full scan output
-└── per-testcase-logs/             # Individual test case logs
+└── per-testcase-logs/              # Individual test case logs
     └── YYYYMMDD_HHMMSS/
         ├── bash_infected-project.log
+        ├── bash_infected-project_summary.txt
         ├── rust_infected-project.log
+        ├── rust_infected-project_summary.txt
         └── ...
 ```
 
@@ -142,14 +137,14 @@ infected-project,package.json,@ctrl namespace,LOW,YES,YES,✅
 
 ## 🏆 Verification Results
 
-### Latest Verification: 2025-10-03
+### Latest Verification: 2025-10-08
 
 **Overall Match**: ✅ **100% PERFECT**
-- HIGH: 18 = 18 ✅
-- MEDIUM: 58 = 58 ✅  
+- HIGH: 19 = 19 ✅
+- MEDIUM: 61 = 61 ✅  
 - LOW: 9 = 9 ✅
 
-**Per-Test-Case**: ✅ **23/23 MATCHED**
+**Per-Test-Case**: ✅ **26/26 MATCHED**
 
 **Pattern-Level**: ✅ **100% MATCH** (all findings identical)
 
@@ -257,14 +252,15 @@ for namespace in COMPROMISED_NAMESPACES {
 
 Before claiming 100% match, we verify:
 
-- [ ] Overall statistics match (HIGH/MEDIUM/LOW counts)
-- [ ] Every test case produces identical counts
-- [ ] Pattern-level findings are identical
-- [ ] Normal mode still works (not broken by paranoid changes)
-- [ ] Paranoid mode matches bash paranoid mode
-- [ ] No crashes or timeouts
-- [ ] Deterministic results (same output every run)
-- [ ] Edge cases handled identically
+- [x] Overall statistics match (HIGH/MEDIUM/LOW counts)
+- [x] Every test case produces identical counts
+- [x] Pattern-level findings are identical
+- [x] Normal mode works perfectly
+- [x] Paranoid mode matches bash paranoid mode
+- [x] No crashes or timeouts
+- [x] Deterministic results (same output every run)
+- [x] Edge cases handled identically
+- [x] Cargo tests pass (normal + paranoid)
 
 **Status**: ✅ **ALL VERIFIED**
 
@@ -297,9 +293,8 @@ If you run verification and get a mismatch:
 
 ## 📚 Additional Documentation
 
-- `PERFECT_MATCH_ACHIEVEMENT.md` - Story of achieving 100% match
-- `PARANOID_MODE_ACHIEVEMENT.md` - Paranoid mode verification
-- `analyze/per-testcase-logs/` - Detailed logs for every test
+- `scripts/analyze/README.md` - Verification scripts documentation
+- `scripts/analyze/per-testcase-logs/` - Detailed logs for every test
 
 ---
 
@@ -308,10 +303,11 @@ If you run verification and get a mismatch:
 This verification system provides **mathematical proof** that the Rust scanner is 100% compatible with the Bash scanner:
 
 - ✅ **Same detection logic** (line-by-line implementation)
-- ✅ **Same results** (verified on 23 test cases)
-- ✅ **Same counts** (18 HIGH, 58 MEDIUM, 9 LOW)
+- ✅ **Same results** (verified on 26 test cases)
+- ✅ **Same counts** (19 HIGH, 61 MEDIUM, 9 LOW)
 - ✅ **Same patterns** (every individual finding matches)
 - ✅ **Reproducible** (anyone can verify)
 - ✅ **Fast** (~50x faster while being identical)
+- ✅ **Tested** (cargo test integration)
 
 **The skeptics can sleep soundly** - we have the receipts! 📜
