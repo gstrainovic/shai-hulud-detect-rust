@@ -4,6 +4,14 @@
 use std::path::Path;
 use walkdir::WalkDir;
 
+// Function: normalize_path
+// Purpose: Convert Windows backslashes to forward slashes for bash-identical output
+// Args: path - path to normalize
+// Returns: Path string with forward slashes
+pub fn normalize_path(path: &Path) -> String {
+    path.display().to_string().replace('\\', "/")
+}
+
 // Function: count_files
 // Purpose: Count files matching find criteria, returns clean integer
 // Args: path - directory to search, extensions - file extensions to match

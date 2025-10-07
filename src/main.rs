@@ -43,10 +43,10 @@ fn main() -> Result<()> {
     let paranoid_msg = if args.paranoid {
         format!(
             "Scanning directory: {} (with paranoid mode enabled)",
-            args.scan_dir.display()
+            utils::normalize_path(&args.scan_dir)
         )
     } else {
-        format!("Scanning directory: {}", args.scan_dir.display())
+        format!("Scanning directory: {}", utils::normalize_path(&args.scan_dir))
     };
     colors::print_status(colors::Color::Blue, &paranoid_msg);
     println!();
@@ -65,7 +65,6 @@ fn main() -> Result<()> {
     // 3. check_packages
     let (comp, susp, ns) =
         detectors::packages::check_packages(&args.scan_dir, &compromised_packages);
-    eprintln!("DEBUG: compromised_found.len() = {}", comp.len());
     results.compromised_found = comp;
     results.suspicious_found = susp;
     results.namespace_warnings = ns;

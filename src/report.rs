@@ -3,6 +3,21 @@
 
 use crate::colors::{print_status, Color};
 use crate::detectors::{RiskLevel, ScanResults};
+use std::path::Path;
+
+// Helper: show_file_preview
+// Purpose: Display file context for HIGH RISK findings only (Bash exact match)
+// Args: file_path - path to file, context - description
+fn show_file_preview(file_path: &Path, context: &str) {
+    // Only show file preview for HIGH RISK items to reduce noise
+    if context.contains("HIGH RISK") {
+        let normalized = crate::utils::normalize_path(file_path);
+        println!("   \x1b[34m┌─ File: {}\x1b[0m", normalized);
+        println!("   \x1b[34m│  Context: {}\x1b[0m", context);
+        println!("   \x1b[34m└─\x1b[0m");
+        println!();
+    }
+}
 
 // Function: generate_report
 // Purpose: Generate comprehensive security report with risk stratification and findings
@@ -40,9 +55,9 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
             "🚨 HIGH RISK: Malicious workflow files detected:",
         );
         for finding in &results.workflow_files {
-            println!("   - {}", finding.file_path.display());
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+            show_file_preview(&finding.file_path, "HIGH RISK: Known malicious workflow filename");
         }
-        println!();
     }
 
     // Report malicious file hashes
@@ -52,7 +67,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
             "🚨 HIGH RISK: Files with known malicious hashes:",
         );
         for finding in &results.malicious_hashes {
-            println!("   - {}", finding.file_path.display());
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
             println!("     {}", finding.message);
         }
         println!();
@@ -66,7 +81,11 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.compromised_found {
             println!("   - Package: {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
+            show_file_preview(
+                &finding.file_path,
+                &format!("HIGH RISK: Contains compromised package version: {}", finding.message),
+            );
         }
         print_status(
             Color::Yellow,
@@ -87,7 +106,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.suspicious_found {
             println!("   - Package: {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         print_status(
             Color::Yellow,
@@ -104,7 +123,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.suspicious_content {
             println!("   - Pattern: {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         print_status(
             Color::Yellow,
@@ -167,7 +186,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !results.git_branches.is_empty() {
         print_status(Color::Yellow, "⚠️  MEDIUM RISK: Suspicious git branches:");
         for finding in &results.git_branches {
-            println!("   - Repository: {}", finding.file_path.display());
+            println!("   - Repository: {}", crate::utils::normalize_path(&finding.file_path));
             println!("     {}", finding.message);
         }
         print_status(
@@ -185,7 +204,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.postinstall_hooks {
             println!("   - Hook: {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         print_status(
             Color::Yellow,
@@ -205,7 +224,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
             "🚨 HIGH RISK: Shai-Hulud repositories detected:",
         );
         for finding in &results.shai_hulud_repos {
-            println!("   - Repository: {}", finding.file_path.display());
+            println!("   - Repository: {}", crate::utils::normalize_path(&finding.file_path));
             println!("     {}", finding.message);
         }
         print_status(
@@ -227,7 +246,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.integrity_issues {
             println!("   - Issue: {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         print_status(
             Color::Yellow,
@@ -255,7 +274,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in trufflehog_high {
             println!("   - {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         print_status(
             Color::Yellow,
@@ -271,7 +290,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in trufflehog_medium {
             println!("   - {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         print_status(
             Color::Yellow,
@@ -288,7 +307,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in results.typosquatting_warnings.iter().take(5) {
             println!("   - Warning: {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         if results.typosquatting_warnings.len() > 5 {
             println!(
@@ -315,7 +334,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in results.network_exfiltration_warnings.iter().take(5) {
             println!("   - Warning: {}", finding.message);
-            println!("     Found in: {}", finding.file_path.display());
+            println!("     Found in: {}", crate::utils::normalize_path(&finding.file_path));
         }
         if results.network_exfiltration_warnings.len() > 5 {
             println!(
@@ -418,20 +437,20 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 
             // Show namespace warnings
             for finding in &results.namespace_warnings {
-                println!("   - {}: {}", finding.file_path.display(), finding.message);
+                println!("   - {}: {}", crate::utils::normalize_path(&finding.file_path), finding.message);
             }
 
             // Show LOW RISK crypto patterns
             for finding in &results.crypto_patterns {
                 if finding.risk_level == RiskLevel::Low {
-                    println!("   - {}: {}", finding.file_path.display(), finding.message);
+                    println!("   - {}: {}", crate::utils::normalize_path(&finding.file_path), finding.message);
                 }
             }
 
             // Show LOW RISK trufflehog patterns
             for finding in &results.trufflehog_activity {
                 if finding.risk_level == RiskLevel::Low {
-                    println!("   - {}: {}", finding.file_path.display(), finding.message);
+                    println!("   - {}: {}", crate::utils::normalize_path(&finding.file_path), finding.message);
                 }
             }
 

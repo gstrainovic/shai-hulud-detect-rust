@@ -99,7 +99,7 @@ pub fn load_compromised_packages<P: AsRef<Path>>(
             &format!(
                 "📦 Loaded {} compromised packages from {}",
                 packages.len(),
-                packages_file.display()
+                crate::utils::normalize_path(packages_file)
             ),
         );
     } else {
