@@ -37,11 +37,17 @@ pub fn check_packages<P: AsRef<Path>>(
 
     let mut processed = 0;
 
-    for entry in WalkDir::new(scan_dir)
+    // Collect and sort package.json files for consistent order
+    let mut package_files: Vec<_> = WalkDir::new(scan_dir)
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file() && e.file_name() == "package.json")
-    {
+        .collect();
+    
+    // Sort by path for deterministic order matching Bash's find
+    package_files.sort_by(|a, b| a.path().cmp(b.path()));
+
+    for entry in package_files {
         if let Ok(content) = fs::read_to_string(entry.path()) {
             if let Ok(json) = serde_json::from_str::<Value>(&content) {
                 // Check dependencies sections
@@ -52,10 +58,12 @@ pub fn check_packages<P: AsRef<Path>>(
                     "optionalDependencies",
                 ] {
                     if let Some(deps) = json.get(section).and_then(|v| v.as_object()) {
+                        // BASH MATCH: Iterate in package.json order, not compromised_packages order
+                        // This maintains discovery order instead of HashSet random order
                         for (package_name, package_version) in deps {
                             let version_str = package_version.as_str().unwrap_or("");
 
-                            // Check against compromised packages
+                            // Check if this package is in the compromised list
                             for comp_pkg in compromised_packages {
                                 if package_name != &comp_pkg.name {
                                     continue;

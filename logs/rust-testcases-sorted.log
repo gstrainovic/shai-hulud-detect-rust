@@ -4,8 +4,8 @@ Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-case
 
 🔍 Checking for malicious workflow files...
 🔍 Checking 49 files for known malicious content...
-[K0 / 49 checked (0 %)[K🔍 Checking 20 package.json files for compromised packages...
-[K1 / 20 checked (5 %)[K2 / 20 checked (10 %)[K3 / 20 checked (15 %)[K4 / 20 checked (20 %)[K5 / 20 checked (25 %)[K6 / 20 checked (30 %)[K7 / 20 checked (35 %)[K8 / 20 checked (40 %)[K9 / 20 checked (45 %)[K10 / 20 checked (50 %)[K11 / 20 checked (55 %)[K12 / 20 checked (60 %)[K13 / 20 checked (65 %)[K14 / 20 checked (70 %)[K15 / 20 checked (75 %)[K16 / 20 checked (80 %)[K17 / 20 checked (85 %)[K18 / 20 checked (90 %)[K19 / 20 checked (95 %)[K20 / 20 checked (100 %)[K🔍 Checking for suspicious postinstall hooks...
+🔍 Checking 20 package.json files for compromised packages...
+🔍 Checking for suspicious postinstall hooks...
 🔍 Checking for suspicious content patterns...
 🔍 Checking for cryptocurrency theft patterns...
 🔍 Checking for Trufflehog activity and secret scanning...
@@ -249,7 +249,7 @@ Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-case
 🔍 SUMMARY:
    High Risk Issues: 19
    Medium Risk Issues: 61
-   Low Risk (informational): 9
+   Low Risk (informational): 13
    Total Critical Issues: 80
 
 ⚠️  IMPORTANT:

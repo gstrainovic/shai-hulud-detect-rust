@@ -131,8 +131,9 @@ impl ScanResults {
     }
 
     pub fn low_risk_count(&self) -> usize {
-        self.lockfile_safe_versions.len()
-            + self.namespace_warnings.len()
+        // NOTE: lockfile_safe_versions are NOT counted in low_risk (they're informational only)
+        // Only namespace warnings and LOW risk crypto/trufflehog patterns
+        self.namespace_warnings.len()
             + self
                 .crypto_patterns
                 .iter()
