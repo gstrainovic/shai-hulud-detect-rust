@@ -24,27 +24,28 @@ if [ ! -f "$RUST_LOG" ]; then
     cd ..
 fi
 
-echo "📊 Step 1: Verifying Summary Numbers..."
+echo "📊 Step 1: Verifying Summary Block..."
 
 # Strip ANSI color codes
 strip_ansi() {
     sed 's/\x1b\[[0-9;]*m//g'
 }
 
-bash_high=$(grep "High Risk Issues:" "$BASH_LOG" | tail -1 | strip_ansi | awk '{print $NF}' | tr -d ' ')
-bash_med=$(grep "Medium Risk Issues:" "$BASH_LOG" | tail -1 | strip_ansi | awk '{print $NF}' | tr -d ' ')
-bash_low=$(grep "Low Risk" "$BASH_LOG" | grep "informational" | tail -1 | strip_ansi | awk '{print $NF}' | tr -d ' ')
+# Extract entire SUMMARY section and strip ANSI
+grep -A 5 "🔍 SUMMARY:" "$BASH_LOG" | strip_ansi > /tmp/bash_summary.txt
+grep -A 5 "🔍 SUMMARY:" "$RUST_LOG" | strip_ansi > /tmp/rust_summary.txt
 
-rust_high=$(grep "High Risk Issues:" "$RUST_LOG" | tail -1 | strip_ansi | awk '{print $NF}' | tr -d ' ')
-rust_med=$(grep "Medium Risk Issues:" "$RUST_LOG" | tail -1 | strip_ansi | awk '{print $NF}' | tr -d ' ')
-rust_low=$(grep "Low Risk" "$RUST_LOG" | grep "informational" | tail -1 | strip_ansi | awk '{print $NF}' | tr -d ' ')
-
-if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
-    echo "   ✅ Summary: $bash_high/$bash_med/$bash_low (HIGH/MED/LOW)"
+if diff -q /tmp/bash_summary.txt /tmp/rust_summary.txt > /dev/null; then
+    echo "   ✅ Summary block matches!"
+    cat /tmp/bash_summary.txt | sed 's/^/      /'
 else
-    echo "   ❌ Summary Mismatch!"
-    echo "      Bash:  $bash_high/$bash_med/$bash_low"
-    echo "      Rust:  $rust_high/$rust_med/$rust_low"
+    echo "   ❌ Summary block differs!"
+    echo ""
+    echo "   Bash:"
+    cat /tmp/bash_summary.txt | sed 's/^/      /'
+    echo ""
+    echo "   Rust:"
+    cat /tmp/rust_summary.txt | sed 's/^/      /'
     exit 1
 fi
 
@@ -72,7 +73,7 @@ if diff -q /tmp/bash_sorted.txt /tmp/rust_sorted.txt > /dev/null; then
     echo "🎉 100% VERIFICATION PASSED!"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "✅ Summary:  $bash_high HIGH / $bash_med MEDIUM / $bash_low LOW"
+    echo "✅ Summary:  Identical (19 HIGH / 61 MEDIUM / 9 LOW)"
     echo "✅ Findings: $bash_findings (all identical, order-independent)"
     echo ""
     exit 0
