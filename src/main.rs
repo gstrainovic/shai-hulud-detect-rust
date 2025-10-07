@@ -22,15 +22,28 @@ use cli::Cli;
 // Modifies: All global arrays via detection functions
 // Returns: Exit code 0 for clean, 1 for high-risk findings, 2 for medium-risk findings
 fn main() -> Result<()> {
-    let args = Cli::parse();
+    let mut args = Cli::parse();
     args.validate()?;
 
     // Load compromised packages from external file
+    // Try multiple locations: same dir as exe, parent dir, or fallback
     let script_dir = std::env::current_exe()?.parent().unwrap().to_path_buf();
 
+    // First try: exe_dir/../../../shai-hulud-detect/compromised-packages.txt (for dev)
+    // Second try: exe_dir/../compromised-packages.txt (for release)
+    // Third try: ./compromised-packages.txt (fallback)
     let packages_file = script_dir
         .parent()
-        .and_then(|p| Some(p.join("compromised-packages.txt")))
+        .and_then(|target| target.parent()) // dev-rust-scanner-1
+        .and_then(|project| project.parent()) // rust-scanner
+        .map(|root| root.join("shai-hulud-detect/compromised-packages.txt"))
+        .filter(|p| p.exists())
+        .or_else(|| {
+            script_dir
+                .parent()
+                .map(|p| p.join("compromised-packages.txt"))
+                .filter(|p| p.exists())
+        })
         .unwrap_or_else(|| std::path::PathBuf::from("compromised-packages.txt"));
 
     let (compromised_packages, malicious_hashes) = data::load_detection_data(&packages_file)?;
@@ -46,7 +59,10 @@ fn main() -> Result<()> {
             utils::normalize_path(&args.scan_dir)
         )
     } else {
-        format!("Scanning directory: {}", utils::normalize_path(&args.scan_dir))
+        format!(
+            "Scanning directory: {}",
+            utils::normalize_path(&args.scan_dir)
+        )
     };
     colors::print_status(colors::Color::Blue, &paranoid_msg);
     println!();

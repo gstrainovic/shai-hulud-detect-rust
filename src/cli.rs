@@ -28,7 +28,7 @@ impl Cli {
     // Purpose: Validate CLI arguments before processing
     // Args: self
     // Returns: Result indicating if arguments are valid
-    pub fn validate(&self) -> Result<()> {
+    pub fn validate(&mut self) -> Result<()> {
         if !self.scan_dir.exists() {
             bail!(
                 "Error: Directory '{}' does not exist.",
@@ -39,6 +39,9 @@ impl Cli {
         if !self.scan_dir.is_dir() {
             bail!("Error: '{}' is not a directory.", self.scan_dir.display());
         }
+
+        // Convert to absolute path for bash-identical output
+        self.scan_dir = self.scan_dir.canonicalize()?;
 
         Ok(())
     }

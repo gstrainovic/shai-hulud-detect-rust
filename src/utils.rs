@@ -7,9 +7,25 @@ use walkdir::WalkDir;
 // Function: normalize_path
 // Purpose: Convert Windows backslashes to forward slashes for bash-identical output
 // Args: path - path to normalize
-// Returns: Path string with forward slashes
+// Returns: Path string with forward slashes and /c/ format for drive letters  
 pub fn normalize_path(path: &Path) -> String {
-    path.display().to_string().replace('\\', "/")
+    let path_str = path.display().to_string();
+    // Remove Windows UNC prefix //?/ or \\?\
+    let cleaned = path_str
+        .strip_prefix(r"\\?\")
+        .or_else(|| path_str.strip_prefix("//?/"))
+        .unwrap_or(&path_str);
+    // Convert backslashes to forward slashes
+    let with_forward_slashes = cleaned.replace('\\', "/");
+    
+    // Convert Windows drive letters: C:/ -> /c/
+    if with_forward_slashes.len() >= 2 && with_forward_slashes.chars().nth(1) == Some(':') {
+        let drive = with_forward_slashes.chars().next().unwrap().to_lowercase();
+        let rest = &with_forward_slashes[2..];
+        format!("/{}{}", drive, rest)
+    } else {
+        with_forward_slashes
+    }
 }
 
 // Function: count_files
