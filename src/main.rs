@@ -65,6 +65,7 @@ fn main() -> Result<()> {
     // 3. check_packages
     let (comp, susp, ns) =
         detectors::packages::check_packages(&args.scan_dir, &compromised_packages);
+    eprintln!("DEBUG: compromised_found.len() = {}", comp.len());
     results.compromised_found = comp;
     results.suspicious_found = susp;
     results.namespace_warnings = ns;

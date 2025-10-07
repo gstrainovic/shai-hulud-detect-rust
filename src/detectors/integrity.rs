@@ -9,6 +9,43 @@ use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
 
+// Function: get_lockfile_version
+// Purpose: Get actual installed version of a package from lockfile
+// Args: package_name, package_dir
+// Returns: Option<String> with version if found
+// Bash: get_lockfile_version() line 693-773
+pub fn get_lockfile_version(package_name: &str, package_dir: &Path) -> Option<String> {
+    // Check package-lock.json first (most common)
+    let lockfile_path = package_dir.join("package-lock.json");
+    if lockfile_path.exists() {
+        if let Ok(content) = fs::read_to_string(&lockfile_path) {
+            if let Ok(json) = serde_json::from_str::<Value>(&content) {
+                // Check packages section (npm v2+)
+                if let Some(packages) = json.get("packages").and_then(|v| v.as_object()) {
+                    let search_key = format!("node_modules/{}", package_name);
+                    if let Some(pkg) = packages.get(&search_key) {
+                        if let Some(version) = pkg.get("version").and_then(|v| v.as_str()) {
+                            return Some(version.to_string());
+                        }
+                    }
+                }
+                
+                // Check dependencies section (npm v1 flat format)
+                if let Some(deps) = json.get("dependencies").and_then(|v| v.as_object()) {
+                    if let Some(pkg) = deps.get(package_name) {
+                        if let Some(version) = pkg.get("version").and_then(|v| v.as_str()) {
+                            return Some(version.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // TODO: Add yarn.lock and pnpm-lock.yaml support if needed
+    None
+}
+
 /// Verify package lock files for compromised packages and version integrity
 /// Rust port of: check_package_integrity()
 pub fn check_package_integrity<P: AsRef<Path>>(

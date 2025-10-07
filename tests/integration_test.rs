@@ -11,10 +11,10 @@ fn test_normal_mode_100_percent_match() {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Verify exact counts
-    assert!(stdout.contains("High Risk Issues: 18"), "HIGH should be 18");
+    assert!(stdout.contains("High Risk Issues: 19"), "HIGH should be 19");
     assert!(
-        stdout.contains("Medium Risk Issues: 66"),
-        "MEDIUM should be 66"
+        stdout.contains("Medium Risk Issues: 61"),
+        "MEDIUM should be 61"
     );
     assert!(
         stdout.contains("Low Risk (informational): 9"),

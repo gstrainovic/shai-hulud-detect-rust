@@ -69,14 +69,33 @@ pub fn check_packages<P: AsRef<Path>>(
                                         "compromised_package",
                                     ));
                                 }
-                                // Semver pattern match
+                                // Semver pattern match - check lockfile for actual version
                                 else if semver::semver_match(&comp_pkg.version, version_str) {
-                                    suspicious_found.push(Finding::new(
-                                        entry.path().to_path_buf(),
-                                        format!("{}@{}", package_name, version_str),
-                                        RiskLevel::Medium,
-                                        "suspicious_package",
-                                    ));
+                                    // BASH LINE 447-461: Check lockfile for exact installed version
+                                    let package_dir = entry.path().parent().unwrap();
+                                    if let Some(actual_version) = crate::detectors::integrity::get_lockfile_version(package_name, package_dir) {
+                                        if actual_version == comp_pkg.version {
+                                            // Lockfile has exact compromised version!
+                                            compromised_found.push(Finding::new(
+                                                entry.path().to_path_buf(),
+                                                format!("{}@{}", package_name, actual_version),
+                                                RiskLevel::High,
+                                                "compromised_package",
+                                            ));
+                                        } else {
+                                            // Lockfile has safe version - informational only
+                                            // This goes to LOCKFILE_SAFE_VERSIONS in Bash (LOW risk)
+                                            // We don't track this in Rust currently
+                                        }
+                                    } else {
+                                        // No lockfile - suspicious (could install compromised on npm install)
+                                        suspicious_found.push(Finding::new(
+                                            entry.path().to_path_buf(),
+                                            format!("{}@{}", package_name, version_str),
+                                            RiskLevel::Medium,
+                                            "suspicious_package",
+                                        ));
+                                    }
                                 }
                             }
                         }
