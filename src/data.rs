@@ -146,6 +146,7 @@ pub fn load_detection_data<P: AsRef<Path>>(
 // Purpose: Check if package name belongs to compromised namespace
 // Args: package_name - name of package to check
 // Returns: true if package is in compromised namespace
+#[allow(dead_code)]
 pub fn is_compromised_namespace(package_name: &str) -> bool {
     COMPROMISED_NAMESPACES
         .iter()

@@ -148,8 +148,8 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             }
 
             // BASH LINE 1162-1186: Check for base64-encoded URLs (skip vendor/node_modules)
-            if (content.contains("atob(")
-                || (content.contains("base64") && content.contains("decode")))
+            if content.contains("atob(")
+                || (content.contains("base64") && content.contains("decode"))
             {
                 // BASH LINE 1166: Get line number for snippet
                 let has_atob = content.contains("atob(");

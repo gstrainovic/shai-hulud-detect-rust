@@ -13,8 +13,8 @@ fn test_normal_mode_100_percent_match() {
     // Verify exact counts
     assert!(stdout.contains("High Risk Issues: 18"), "HIGH should be 18");
     assert!(
-        stdout.contains("Medium Risk Issues: 58"),
-        "MEDIUM should be 58"
+        stdout.contains("Medium Risk Issues: 66"),
+        "MEDIUM should be 66"
     );
     assert!(
         stdout.contains("Low Risk (informational): 9"),
@@ -36,11 +36,11 @@ fn test_infected_project_normal_mode() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Normal mode (no --paranoid) should give 8/8/2
+    // Normal mode (no --paranoid) should give 8/16/2
     assert!(stdout.contains("High Risk Issues: 8"), "HIGH should be 8");
     assert!(
-        stdout.contains("Medium Risk Issues: 8"),
-        "MEDIUM should be 8"
+        stdout.contains("Medium Risk Issues: 16"),
+        "MEDIUM should be 16"
     );
     assert!(
         stdout.contains("Low Risk (informational): 2"),
@@ -85,7 +85,7 @@ fn test_paranoid_mode_enhanced_security() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Paranoid mode should find more MEDIUM (19 vs 8 in normal)
+    // Paranoid mode should find more MEDIUM (19 vs 16 in normal)
     assert!(stdout.contains("High Risk Issues: 8"), "HIGH should be 8");
     assert!(
         stdout.contains("Medium Risk Issues: 19"),

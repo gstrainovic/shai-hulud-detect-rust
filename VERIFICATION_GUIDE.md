@@ -9,7 +9,7 @@ This document proves that `dev-rust-scanner-1` achieves **100% compatibility** w
 Run this single command to verify 100% match:
 
 ```bash
-bash analyze/verify_100_percent.sh
+bash scripts/verify_100_percent.sh
 ```
 
 This script will:

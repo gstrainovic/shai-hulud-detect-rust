@@ -66,6 +66,7 @@ pub fn clear_progress() {
 // Args: file_path - path to file
 // Modifies: None
 // Returns: Context string
+#[allow(dead_code)]
 pub fn get_file_context(file_path: &Path) -> &'static str {
     let path_str = file_path.to_string_lossy();
 
@@ -112,6 +113,7 @@ pub fn get_file_context(file_path: &Path) -> &'static str {
 // Args: file_path - path to file, content_sample - text snippet from file
 // Modifies: None
 // Returns: true for legitimate, false for potentially suspicious
+#[allow(dead_code)]
 pub fn is_legitimate_pattern(_file_path: &Path, content_sample: &str) -> bool {
     // Vue.js development patterns
     if content_sample.contains("process.env.NODE_ENV") && content_sample.contains("production") {
