@@ -43,7 +43,7 @@ pub fn check_packages<P: AsRef<Path>>(
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file() && e.file_name() == "package.json")
         .collect();
-    
+
     // Sort by path for deterministic order matching Bash's find
     package_files.sort_by(|a, b| a.path().cmp(b.path()));
 
@@ -151,5 +151,10 @@ pub fn check_packages<P: AsRef<Path>>(
 
     crate::utils::clear_progress();
 
-    (compromised_found, suspicious_found, lockfile_safe_versions, namespace_warnings)
+    (
+        compromised_found,
+        suspicious_found,
+        lockfile_safe_versions,
+        namespace_warnings,
+    )
 }

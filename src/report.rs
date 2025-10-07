@@ -342,7 +342,10 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                 "     Found in: {}",
                 crate::utils::normalize_path(&finding.file_path)
             );
-            show_file_preview(&finding.file_path, &format!("HIGH RISK: {}", finding.message));
+            show_file_preview(
+                &finding.file_path,
+                &format!("HIGH RISK: {}", finding.message),
+            );
         }
         print_status(
             Color::Red,
