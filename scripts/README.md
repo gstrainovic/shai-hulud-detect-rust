@@ -75,6 +75,27 @@ scripts/
 **When to use**: During active development  
 **Usage**: `bash scripts/verification/quick_paranoid_check.sh`
 
+### parallel_testcase_scan.sh
+**Purpose**: Parallel Bash scanning of ALL test-cases with detailed per-case logging  
+**When to use**: Creating baseline data, comprehensive testing  
+**What it does**:
+- Runs Bash scanner on every test-case in parallel
+- Creates detailed logs in `analyze/per-testcase-logs/TIMESTAMP/`
+- Saves individual summaries for each test-case
+- Used by `verify_100_percent.sh`
+**Usage**: `bash scripts/verification/parallel_testcase_scan.sh`
+
+### verify_100_percent.sh
+**Purpose**: Master verification using parallel scan results  
+**When to use**: Final comprehensive verification with full details  
+**What it does**:
+- Uses results from `parallel_testcase_scan.sh`
+- Shows per-test-case comparison table
+- Identifies any mismatches with details
+- Creates comprehensive verification report
+**Requirements**: Must run `parallel_testcase_scan.sh` first  
+**Usage**: `bash scripts/verification/verify_100_percent.sh`
+
 ---
 
 ## 🔍 ANALYSIS (Understanding Differences)
@@ -205,7 +226,23 @@ scripts/
 
 ---
 
-## 📋 QUICK REFERENCE
+## �️ ARCHIVE
+
+**Location**: `scripts/archive/`
+
+### generate_exact_test_expectations.sh
+**Purpose**: Generate expected values for documented test-cases (Legacy)  
+**When to use**: Creating documentation of expected test outcomes  
+**What it does**:
+- Runs predefined test-cases
+- Captures exact HIGH/MEDIUM/LOW counts
+- Outputs markdown format
+**Status**: Legacy tool - kept for reference  
+**Usage**: `bash scripts/archive/generate_exact_test_expectations.sh`
+
+---
+
+## �📋 QUICK REFERENCE
 
 ### Daily Development
 ```bash
@@ -221,6 +258,10 @@ bash scripts/verification/quick_paranoid_check.sh
 # Full verification (both modes, all cases)
 bash scripts/verification/verify_normal_mode.sh
 bash scripts/verification/verify_paranoid_mode.sh
+
+# OR: Comprehensive parallel verification
+bash scripts/verification/parallel_testcase_scan.sh
+bash scripts/verification/verify_100_percent.sh
 ```
 
 ### Investigating Issues
