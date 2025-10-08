@@ -14,7 +14,9 @@ LATEST_DIR=$(ls -td dev-rust-scanner-1/scripts/analyze/per-testcase-logs/* 2>/de
 if [ ! -d "$LATEST_DIR" ]; then
     echo "❌ No test results found. Run: bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh"
     exit 1
-fiecho "📁 Using results from: $LATEST_DIR"
+fi
+
+echo "📁 Using results from: $LATEST_DIR"
 echo ""
 
 # Create detailed comparison
@@ -25,6 +27,11 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 total_matched=0
 total_tests=0
+
+# Strip ANSI codes
+strip_ansi() {
+    sed 's/\x1b\[[0-9;]*m//g'
+}
 
 for bash_log in "$LATEST_DIR"/bash_*_summary.txt; do
     testname=$(basename "$bash_log" | sed 's/bash_//;s/_summary.txt//')
@@ -40,9 +47,9 @@ for bash_log in "$LATEST_DIR"/bash_*_summary.txt; do
         bash_m="0"
         bash_l="0"
     else
-        bash_h=$(grep "High Risk Issues:" "$bash_log" 2>/dev/null | awk '{print $NF}' || echo "0")
-        bash_m=$(grep "Medium Risk Issues:" "$bash_log" 2>/dev/null | awk '{print $NF}' || echo "0")
-        bash_l=$(grep "Low Risk" "$bash_log" 2>/dev/null | grep "informational" | awk '{print $NF}' || echo "0")
+        bash_h=$(grep "High Risk Issues:" "$bash_log" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ' || echo "0")
+        bash_m=$(grep "Medium Risk Issues:" "$bash_log" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ' || echo "0")
+        bash_l=$(grep "Low Risk" "$bash_log" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ' || echo "0")
     fi
     
     # Extract rust numbers  
@@ -51,9 +58,9 @@ for bash_log in "$LATEST_DIR"/bash_*_summary.txt; do
         rust_m="0"
         rust_l="0"
     else
-        rust_h=$(grep "High Risk Issues:" "$rust_log" 2>/dev/null | awk '{print $NF}' || echo "0")
-        rust_m=$(grep "Medium Risk Issues:" "$rust_log" 2>/dev/null | awk '{print $NF}' || echo "0")
-        rust_l=$(grep "Low Risk" "$rust_log" 2>/dev/null | grep "informational" | awk '{print $NF}' || echo "0")
+        rust_h=$(grep "High Risk Issues:" "$rust_log" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ' || echo "0")
+        rust_m=$(grep "Medium Risk Issues:" "$rust_log" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ' || echo "0")
+        rust_l=$(grep "Low Risk" "$rust_log" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ' || echo "0")
     fi
     
     # Default to 0 if empty
@@ -63,14 +70,6 @@ for bash_log in "$LATEST_DIR"/bash_*_summary.txt; do
     rust_h=${rust_h:-0}
     rust_m=${rust_m:-0}
     rust_l=${rust_l:-0}
-    
-    # Remove whitespace for comparison
-    bash_h=$(echo "$bash_h" | tr -d '[:space:]')
-    bash_m=$(echo "$bash_m" | tr -d '[:space:]')
-    bash_l=$(echo "$bash_l" | tr -d '[:space:]')
-    rust_h=$(echo "$rust_h" | tr -d '[:space:]')
-    rust_m=$(echo "$rust_m" | tr -d '[:space:]')
-    rust_l=$(echo "$rust_l" | tr -d '[:space:]')
     
     # Check match
     if [ "$bash_h" = "$rust_h" ] && [ "$bash_m" = "$rust_m" ] && [ "$bash_l" = "$rust_l" ]; then
