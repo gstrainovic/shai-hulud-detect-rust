@@ -174,13 +174,13 @@ bash scripts/verification/quick_paranoid_check.sh
 
 ### Before Release
 ```bash
-# Full verification (both modes, all cases)
-bash scripts/verification/verify_normal_mode.sh
-bash scripts/verification/verify_paranoid_mode.sh
+# Full verification (normal + paranoid modes, all 26 test cases)
+bash scripts/analyze/verify_100_percent.sh
+bash scripts/analyze/verify_100_percent_paranoid.sh
 
-# OR: Comprehensive parallel verification
-bash scripts/verification/parallel_testcase_scan.sh
-bash scripts/verification/verify_100_percent.sh
+# OR: Run parallel scans first, then verify
+bash scripts/analyze/parallel_testcase_scan.sh
+bash scripts/analyze/verify_100_percent.sh
 ```
 
 ### Investigating Issues
@@ -208,7 +208,7 @@ bash scripts/debug/debug_rust_compromised.sh
 
 1. **During Development**: Use `quick_paranoid_check.sh` for fast feedback
 2. **Before Commit**: Run `final_both_modes_check.sh` 
-3. **Before Release**: Run both `verify_normal_mode.sh` and `verify_paranoid_mode.sh`
+3. **Before Release**: Run `verify_100_percent.sh` and `verify_100_percent_paranoid.sh`
 4. **When Debugging**: Use debug/ and analysis/ scripts as needed
 
 ---

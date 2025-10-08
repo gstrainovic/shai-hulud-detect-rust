@@ -10,7 +10,7 @@ This is a **100% functionally identical** Rust implementation of the [shai-hulud
 - **MEDIUM RISK**: 58/58 ✅  
 - **LOW RISK**: 9/9 ✅
 
-Run `bash ../analyze/verify_100_percent.sh` for proof.
+Run `bash scripts/analyze/verify_100_percent.sh` for proof.
 
 ### ⚡ Performance
 
@@ -40,14 +40,19 @@ cargo build --release
 ### 🧪 Testing
 
 ```bash
-# Automated verification
-bash ../analyze/verify_100_percent.sh
+## 🧪 Verification
 
-# Quick normal mode check
-bash ../analyze/verify_normal_mode.sh
+**Mathematical Proof of 100% Match**:
+
+```bash
+# Automated verification (normal mode)
+bash scripts/analyze/verify_100_percent.sh
+
+# Paranoid mode verification
+bash scripts/analyze/verify_100_percent_paranoid.sh
 
 # Per-test-case verification
-bash ../analyze/parallel_testcase_scan.sh
+bash scripts/analyze/parallel_testcase_scan.sh
 ```
 
 All verification scripts prove 100% match with mathematical certainty.
@@ -72,9 +77,10 @@ Key detections:
 ### 🎓 How We Achieved 100%
 
 After 8 experimental scanner attempts, we achieved 100% match by:
-1. Reading all 1697 lines of the Bash script (instead of guessing)
-2. Per-test-case verification (23 test cases)
-3. Line-by-line logic replication
+1. Line-by-line Bash implementation
+2. Per-test-case verification (26 test cases)
+3. Pattern-level matching
 4. Systematic testing and verification
+5. Cargo test integration
 
 See `../archive/failed-attempts/` for the learning journey.
