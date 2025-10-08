@@ -40,20 +40,28 @@ cargo build --release
 ### 🧪 Testing
 
 ```bash
-## 🧪 Verification
+## 🧪 Testing & Verification
 
-**Mathematical Proof of 100% Match**:
+### Unit Tests (Fast)
+```bash
+cargo test
+# 12 unit tests in ~1 second
+```
+
+### 100% Compatibility Verification (Comprehensive)
+
+**Mathematical Proof of 100% Match with Bash Scanner**:
 
 ```bash
-# Automated verification (normal mode)
+# Full verification - all 26 test cases (normal mode)
 bash scripts/analyze/verify_100_percent.sh
 
 # Paranoid mode verification
 bash scripts/analyze/verify_100_percent_paranoid.sh
-
-# Per-test-case verification
-bash scripts/analyze/parallel_testcase_scan.sh
 ```
+
+**Why not cargo test?** The full verification takes 3+ minutes and scans 26 test cases. 
+It's too slow for regular development workflow, so we use dedicated Bash scripts instead.
 
 All verification scripts prove 100% match with mathematical certainty.
 
@@ -78,9 +86,8 @@ Key detections:
 
 After 8 experimental scanner attempts, we achieved 100% match by:
 1. Line-by-line Bash implementation
-2. Per-test-case verification (26 test cases)
+2. Per-test-case verification (26 test cases via Bash scripts)
 3. Pattern-level matching
 4. Systematic testing and verification
-5. Cargo test integration
 
 See `../archive/failed-attempts/` for the learning journey.

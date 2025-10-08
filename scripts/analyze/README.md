@@ -148,19 +148,13 @@ scripts/analyze/
 
 ## 🧪 Cargo Test Integration
 
-The verification is also integrated into cargo tests:
+**Note**: The full 100% verification is NOT part of `cargo test` because it takes 3+ minutes to scan all 26 test cases.
 
-```bash
-# Run verification via cargo test
-cargo test --test verification_test
+Instead:
+- ✅ `cargo test` runs fast unit tests (~1 second)
+- ✅ Full verification uses dedicated Bash scripts (this directory)
 
-# Expected output:
-# test test_verify_normal_mode_100_percent ... ok
-# test test_verify_paranoid_mode_100_percent ... ok
-# test test_single_testcase_infected_project ... ok
-```
-
-**Note**: Tests run the full verification suite, so they take ~5-10 minutes.
+To verify 100% compatibility, use the scripts above instead of cargo test.
 
 ---
 
