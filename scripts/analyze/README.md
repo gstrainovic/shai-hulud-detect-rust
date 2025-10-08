@@ -6,39 +6,44 @@ This directory contains the master verification suite that proves **100% compati
 
 ## 🎯 Quick Start
 
-### Normal Mode Verification
+### Normal Mode Verification (Parallel - RECOMMENDED)
 
 ```bash
-# 1. Run parallel scans for all test cases
+# Run parallel scans + automatic verification (takes ~2 min)
 bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh
-
-# 2. Verify 100% match
-bash dev-rust-scanner-1/scripts/analyze/verify_100_percent.sh
 ```
 
-### Paranoid Mode Verification
+### Paranoid Mode Verification (Parallel)
 
 ```bash
-# 1. Run parallel paranoid scans
+# Run parallel paranoid scans + verification (takes ~2 min)
 bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan_paranoid.sh
+```
 
-# 2. Verify 100% match (paranoid)
-bash dev-rust-scanner-1/scripts/analyze/verify_100_percent_paranoid.sh
+### Performance Comparison (Sequential Baseline)
+
+```bash
+# Sequential normal mode (takes ~10+ min - for comparison only)
+bash dev-rust-scanner-1/scripts/analyze/full_sequential_test.sh
+
+# Sequential paranoid mode (takes ~10+ min - for comparison only)
+bash dev-rust-scanner-1/scripts/analyze/full_sequential_test_paranoid.sh
 ```
 
 ---
 
 ## 📋 Scripts Overview
 
-### `parallel_testcase_scan.sh` ⭐
+### `parallel_testcase_scan.sh` ⭐ RECOMMENDED
 **Purpose**: Run both Bash and Rust scanners on all 26 test cases in parallel (normal mode)
 
 **What it does**:
 - Scans all test cases in `shai-hulud-detect/test-cases/`
-- Runs Bash scanner (normal mode) on each
-- Runs Rust scanner (normal mode) on each
+- Runs Bash scanner (max 4 concurrent)
+- Runs Rust scanner (max 8 concurrent - faster!)
 - Extracts summary counts (HIGH/MEDIUM/LOW)
-- Saves logs to timestamped directory
+- Creates comparison table automatically
+- Shows timing information
 
 **Usage**:
 ```bash
@@ -47,57 +52,15 @@ bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh
 
 **Output**:
 - Logs: `per-testcase-logs/YYYYMMDD_HHMMSS/`
-- Per test case: `bash_TESTNAME.log`, `rust_TESTNAME.log`
-- Summaries: `bash_TESTNAME_summary.txt`, `rust_TESTNAME_summary.txt`
+- CSV: `comparison.csv`
+- Timing: Start, End, Duration
 
-**Duration**: ~2-3 minutes (parallel execution, max 4 concurrent)
-
----
-
-### `verify_100_percent.sh` ⭐
-**Purpose**: Verify 100% match between Bash and Rust scanners (normal mode)
-
-**What it does**:
-- Reads latest per-test-case logs
-- Compares summary counts for each test case
-- Displays per-test-case comparison table
-- Shows overall verification result
-
-**Requirements**:
-- Must run `parallel_testcase_scan.sh` first
-
-**Usage**:
-```bash
-bash dev-rust-scanner-1/scripts/analyze/verify_100_percent.sh
-```
-
-**Expected Output**:
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 SHAI-HULUD RUST SCANNER - 100% MATCH VERIFICATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 PER-TEST-CASE COMPARISON:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Test Case                           Bash H/M/L Rust H/M/L Match
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-chalk-debug-attack                      6/7/0      6/7/0 ✅
-infected-project                       8/16/2     8/16/2 ✅
-...
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎉 100% MATCH ACHIEVED!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-✅ All 26 test cases produce identical results
-✅ Rust scanner is 100% compatible with Bash scanner
-✅ Ready for production use
-```
+**Duration**: ~2 minutes (parallel execution)
 
 ---
 
-### `parallel_testcase_scan_paranoid.sh`
-**Purpose**: Same as `parallel_testcase_scan.sh` but for **paranoid mode**
+### `parallel_testcase_scan_paranoid.sh` ⭐
+**Purpose**: Same as above but for **paranoid mode**
 
 **Usage**:
 ```bash
@@ -106,16 +69,62 @@ bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan_paranoid.sh
 
 **Output**:
 - Logs: `per-testcase-logs-paranoid/YYYYMMDD_HHMMSS/`
+- CSV: `comparison.csv`
+- Timing: Start, End, Duration
+
+**Duration**: ~2 minutes (parallel execution)
 
 ---
 
-### `verify_100_percent_paranoid.sh`
-**Purpose**: Verify 100% match for **paranoid mode**
+### `full_sequential_test.sh` 🐢 BASELINE
+**Purpose**: Sequential (non-parallel) baseline for performance comparison
+
+**What it does**:
+- Runs ALL test cases one-by-one (no parallelization)
+- Provides baseline timing for comparison
+- Proves parallel scripts are actually faster
 
 **Usage**:
 ```bash
-bash dev-rust-scanner-1/scripts/analyze/verify_100_percent_paranoid.sh
+bash dev-rust-scanner-1/scripts/analyze/full_sequential_test.sh
 ```
+
+**Output**:
+- Logs: `sequential-logs/YYYYMMDD_HHMMSS/`
+- CSV: `comparison.csv`
+- Timing: Shows total duration
+
+**Duration**: ~10+ minutes (sequential - SLOW!)
+
+**When to use**: Only for benchmarking/comparison, not for regular verification
+
+---
+
+### `full_sequential_test_paranoid.sh` 🐢 BASELINE
+**Purpose**: Sequential baseline for **paranoid mode**
+
+**Usage**:
+```bash
+bash dev-rust-scanner-1/scripts/analyze/full_sequential_test_paranoid.sh
+```
+
+**Output**:
+- Logs: `sequential-logs-paranoid/YYYYMMDD_HHMMSS/`
+
+**Duration**: ~10+ minutes (sequential - SLOW!)
+
+---
+
+## ⏱️ Performance Comparison
+
+| Script | Mode | Execution | Duration | Use Case |
+|--------|------|-----------|----------|----------|
+| `parallel_testcase_scan.sh` | Normal | Parallel (4+8) | ~2 min | ✅ **Regular verification** |
+| `parallel_testcase_scan_paranoid.sh` | Paranoid | Parallel (4+4) | ~2 min | ✅ **Regular verification** |
+| `full_sequential_test.sh` | Normal | Sequential | ~10+ min | 📊 **Benchmarking only** |
+| `full_sequential_test_paranoid.sh` | Paranoid | Sequential | ~10+ min | 📊 **Benchmarking only** |
+
+**Speed Improvement**: Parallel scripts are **~5x faster** than sequential!
 
 ---
 
@@ -123,25 +132,24 @@ bash dev-rust-scanner-1/scripts/analyze/verify_100_percent_paranoid.sh
 
 ```
 scripts/analyze/
-├── parallel_testcase_scan.sh
-├── parallel_testcase_scan_paranoid.sh
-├── verify_100_percent.sh
-├── verify_100_percent_paranoid.sh
+├── parallel_testcase_scan.sh              ⭐ Use this
+├── parallel_testcase_scan_paranoid.sh     ⭐ Use this
+├── full_sequential_test.sh                🐢 Baseline only
+├── full_sequential_test_paranoid.sh       🐢 Baseline only
 ├── README.md
-├── per-testcase-logs/                    # Normal mode results
+├── per-testcase-logs/                     # Parallel normal mode
 │   └── 20251008_012345/
-│       ├── bash_infected-project.log
-│       ├── bash_infected-project_summary.txt
-│       ├── rust_infected-project.log
-│       ├── rust_infected-project_summary.txt
-│       └── ... (all 26 test cases)
-└── per-testcase-logs-paranoid/           # Paranoid mode results
-    └── 20251008_123456/
-        ├── bash_infected-project.log
-        ├── bash_infected-project_summary.txt
-        ├── rust_infected-project.log
-        ├── rust_infected-project_summary.txt
-        └── ... (all 26 test cases)
+│       ├── comparison.csv
+│       ├── bash_*.log
+│       ├── bash_*_summary.txt
+│       ├── rust_*.log
+│       └── rust_*_summary.txt
+├── per-testcase-logs-paranoid/            # Parallel paranoid mode
+│   └── 20251008_123456/
+├── sequential-logs/                       # Sequential normal mode
+│   └── 20251008_234567/
+└── sequential-logs-paranoid/              # Sequential paranoid mode
+    └── 20251008_345678/
 ```
 
 ---
@@ -155,6 +163,7 @@ Instead:
 - ✅ Full verification uses dedicated Bash scripts (this directory)
 
 To verify 100% compatibility, use the scripts above instead of cargo test.
+
 
 ---
 

@@ -4,13 +4,17 @@
 
 cd /c/Users/gstra/Code/rust-scanner
 
+START_TIME=$(date +%s)
+START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
+
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 LOG_DIR="dev-rust-scanner-1/scripts/analyze/per-testcase-logs-paranoid/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
-echo "🚀 Starting parallel per-test-case PARANOID scans..."
-echo "📁 Logs will be in: $LOG_DIR"
-echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🚀 PARALLEL TEST (PARANOID Mode)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⏱️  Started: $START_READABLE"
 
 # Function to run bash scanner on a single test case (PARANOID)
 run_bash_testcase_paranoid() {
@@ -84,10 +88,85 @@ echo "🔵 Phase 2: Running Rust scanners in PARANOID mode (max 4 concurrent)...
 echo "$TEST_CASES" | xargs -I {} -P 4 bash -c 'run_rust_testcase_paranoid "$@"' _ {}
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "✅ PARANOID MODE: All test cases scanned!"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📊 Creating comparison report..."
+
+# Strip ANSI codes
+strip_ansi() {
+    sed 's/\x1b\[[0-9;]*m//g'
+}
+
+# Create comparison CSV
+cat > "$LOG_DIR/comparison.csv" << 'CSVHEADER'
+TestCase,Bash_High,Bash_Medium,Bash_Low,Rust_High,Rust_Medium,Rust_Low,Match
+CSVHEADER
+
+# Get test cases array
+TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
+
+matched=0
+for testdir in "${TESTCASES[@]}"; do
+    testname=$(basename "$testdir")
+    
+    # Extract bash numbers with ANSI stripping
+    bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    bash_med=$(grep "Medium Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    bash_low=$(grep "Low Risk" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    
+    # Extract rust numbers with ANSI stripping
+    rust_high=$(grep "High Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    rust_med=$(grep "Medium Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    rust_low=$(grep "Low Risk" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    
+    # Default to 0 for empty values
+    bash_high=${bash_high:-0}
+    bash_med=${bash_med:-0}
+    bash_low=${bash_low:-0}
+    rust_high=${rust_high:-0}
+    rust_med=${rust_med:-0}
+    rust_low=${rust_low:-0}
+    
+    # Check match
+    if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
+        match="✅"
+        matched=$((matched + 1))
+    else
+        match="❌"
+    fi
+    
+    echo "$testname,$bash_high,$bash_med,$bash_low,$rust_high,$rust_med,$rust_low,$match" >> "$LOG_DIR/comparison.csv"
+done
+
 echo ""
-echo "📁 Logs: $LOG_DIR"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📊 PARANOID MODE - PER-TEST-CASE COMPARISON"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+printf "%-35s %12s %12s %8s\n" "Test Case" "Bash (H/M/L)" "Rust (H/M/L)" "Match"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Print formatted table from CSV (skip header)
+tail -n +2 "$LOG_DIR/comparison.csv" | while IFS=, read -r testname bash_h bash_m bash_l rust_h rust_m rust_l match; do
+    printf "%-35s %4s/%2s/%2s      %4s/%2s/%2s    %s\n" "$testname" "$bash_h" "$bash_m" "$bash_l" "$rust_h" "$rust_m" "$rust_l" "$match"
+done
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Summary
+total_tests=${#TESTCASES[@]}
+
+END_TIME=$(date +%s)
+END_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
 echo ""
-echo "Next step: bash dev-rust-scanner-1/scripts/analyze/verify_100_percent_paranoid.sh"
+echo "📈 Match Rate: $matched / $total_tests test cases (PARANOID)"
+echo ""
+echo "⏱️  TIMING:"
+echo "   Started:  $START_READABLE"
+echo "   Finished: $END_READABLE"
+echo "   Duration: ${MINUTES}m ${SECONDS}s"
+echo ""
+echo "💾 Results saved: $LOG_DIR"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+

@@ -4,11 +4,17 @@
 
 cd /c/Users/gstra/Code/rust-scanner
 
+START_TIME=$(date +%s)
+START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
+
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 LOG_DIR="dev-rust-scanner-1/scripts/analyze/per-testcase-logs/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
-echo "🚀 Starting parallel per-test-case Bash scans..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🚀 PARALLEL TEST (Normal Mode)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs will be in: $LOG_DIR"
 echo ""
 
@@ -145,9 +151,22 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 # Summary
 total_tests=${#TESTCASES[@]}
 matched=$(grep "✅" "$LOG_DIR/comparison.csv" | wc -l)
+
+END_TIME=$(date +%s)
+END_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
 echo ""
-echo "� RESULT: $matched / $total_tests test cases match perfectly"
+echo "📈 Match Rate: $matched / $total_tests test cases"
 echo ""
-echo "💾 CSV saved: $LOG_DIR/comparison.csv"
+echo "⏱️  TIMING:"
+echo "   Started:  $START_READABLE"
+echo "   Finished: $END_READABLE"
+echo "   Duration: ${MINUTES}m ${SECONDS}s"
+echo ""
+echo "💾 Results saved: $LOG_DIR"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
 

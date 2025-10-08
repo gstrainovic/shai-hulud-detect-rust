@@ -1,4 +1,6 @@
 target/
 per-testcase-logs/
 per-testcase-logs-paranoid/
+sequential-logs/
+sequential-logs-paranoid/
 test-results/
