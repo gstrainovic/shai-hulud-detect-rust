@@ -1,2 +1,0 @@
-[0;31m   High Risk Issues: 1[0m
-[1;33m   Medium Risk Issues: 7[0m

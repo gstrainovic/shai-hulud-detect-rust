@@ -1,0 +1,72 @@
+📦 Loaded 604 compromised packages from /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/compromised-packages.txt
+Starting Shai-Hulud detection scan...
+Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack
+
+🔍 Checking for malicious workflow files...
+🔍 Checking 3 files for known malicious content...
+[K0 / 3 checked (0 %)[K🔍 Checking 1 package.json files for compromised packages...
+[K1 / 1 checked (100 %)[K🔍 Checking for suspicious postinstall hooks...
+🔍 Checking for suspicious content patterns...
+🔍 Checking for cryptocurrency theft patterns...
+🔍 Checking for Trufflehog activity and secret scanning...
+🔍 Checking for suspicious git branches...
+🔍 Checking for Shai-Hulud repositories and migration patterns...
+🔍 Checking package lock files for integrity issues...
+
+==============================================
+      SHAI-HULUD DETECTION REPORT
+==============================================
+
+🚨 HIGH RISK: Compromised package versions detected:
+   - Package: ansi-styles@6.2.2
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+   [34m┌─ File: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json[0m
+   [34m│  Context: HIGH RISK: Contains compromised package version: ansi-styles@6.2.2[0m
+   [34m└─[0m
+
+   - Package: chalk@5.6.1
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+   [34m┌─ File: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json[0m
+   [34m│  Context: HIGH RISK: Contains compromised package version: chalk@5.6.1[0m
+   [34m└─[0m
+
+   - Package: debug@4.4.2
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json
+   [34m┌─ File: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/package.json[0m
+   [34m│  Context: HIGH RISK: Contains compromised package version: debug@4.4.2[0m
+   [34m└─[0m
+
+   NOTE: These specific package versions are known to be compromised.
+   You should immediately update or remove these packages.
+
+🚨 HIGH RISK: Cryptocurrency theft patterns detected:
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js:XMLHttpRequest prototype modification with crypto patterns detected - HIGH RISK
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js:Known attacker wallet address detected - HIGH RISK
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js:Known attacker wallet address detected - HIGH RISK
+   NOTE: These patterns strongly indicate crypto theft malware from the September 8 attack.
+   Immediate investigation and remediation required.
+
+⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js:Ethereum wallet address patterns detected
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js:Known crypto theft function names detected
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js:Phishing domain npmjs.help detected
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/malicious-chalk.js:Cryptocurrency regex patterns detected
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js:Ethereum wallet address patterns detected
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js:Phishing domain npmjs.help detected
+   - /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/chalk-debug-attack/obfuscated-payload.js:JavaScript obfuscation detected
+   NOTE: These may be legitimate crypto tools or framework code.
+   Manual review recommended to determine if they are malicious.
+
+==============================================
+🔍 SUMMARY:
+   High Risk Issues: 6
+   Medium Risk Issues: 7
+   Total Critical Issues: 13
+
+⚠️  IMPORTANT:
+   - High risk issues likely indicate actual compromise
+   - Medium risk issues require manual investigation
+   - Low risk issues are likely false positives from legitimate code
+   - Consider running additional security scans
+   - Review your npm audit logs and package history
+==============================================

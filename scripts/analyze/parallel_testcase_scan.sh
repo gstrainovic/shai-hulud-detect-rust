@@ -85,6 +85,11 @@ printf '%s\n' "${TESTCASES[@]}" | xargs -P 8 -I {} bash -c 'run_rust_testcase "$
 echo ""
 echo "📊 Creating comparison report..."
 
+# Strip ANSI codes
+strip_ansi() {
+    sed 's/\x1b\[[0-9;]*m//g'
+}
+
 # Create comparison CSV
 cat > "$LOG_DIR/comparison.csv" << 'CSVHEADER'
 TestCase,Bash_High,Bash_Medium,Bash_Low,Rust_High,Rust_Medium,Rust_Low,Match
@@ -93,15 +98,23 @@ CSVHEADER
 for testdir in "${TESTCASES[@]}"; do
     testname=$(basename "$testdir")
     
-    # Extract bash numbers
-    bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | awk '{print $NF}' || echo "0")
-    bash_med=$(grep "Medium Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | awk '{print $NF}' || echo "0")
-    bash_low=$(grep "Low Risk" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | grep "informational" | awk '{print $NF}' || echo "0")
+    # Extract bash numbers with ANSI stripping
+    bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    bash_med=$(grep "Medium Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    bash_low=$(grep "Low Risk" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
     
-    # Extract rust numbers
-    rust_high=$(grep "High Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | awk '{print $NF}' || echo "0")
-    rust_med=$(grep "Medium Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | awk '{print $NF}' || echo "0")
-    rust_low=$(grep "Low Risk" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | grep "informational" | awk '{print $NF}' || echo "0")
+    # Extract rust numbers with ANSI stripping
+    rust_high=$(grep "High Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    rust_med=$(grep "Medium Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    rust_low=$(grep "Low Risk" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
+    
+    # Default to 0 for empty values
+    bash_high=${bash_high:-0}
+    bash_med=${bash_med:-0}
+    bash_low=${bash_low:-0}
+    rust_high=${rust_high:-0}
+    rust_med=${rust_med:-0}
+    rust_low=${rust_low:-0}
     
     # Check match
     if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
