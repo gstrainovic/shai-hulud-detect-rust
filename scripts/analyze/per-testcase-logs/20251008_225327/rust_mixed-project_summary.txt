@@ -1,3 +1,0 @@
-   High Risk Issues: 0
-   Medium Risk Issues: 1
-   Low Risk (informational): 1

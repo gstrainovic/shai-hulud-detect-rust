@@ -1,38 +1,0 @@
-📦 Loaded 604 compromised packages from /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/compromised-packages.txt
-Starting Shai-Hulud detection scan...
-Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/mixed-project
-
-🔍 Checking for malicious workflow files...
-🔍 Checking 2 files for known malicious content...
-[K0 / 2 checked (0 %)[K🔍 Checking 1 package.json files for compromised packages...
-[K1 / 1 checked (100 %)[K🔍 Checking for suspicious postinstall hooks...
-🔍 Checking for suspicious content patterns...
-🔍 Checking for cryptocurrency theft patterns...
-🔍 Checking for Trufflehog activity and secret scanning...
-🔍 Checking for suspicious git branches...
-🔍 Checking for Shai-Hulud repositories and migration patterns...
-🔍 Checking package lock files for integrity issues...
-
-==============================================
-      SHAI-HULUD DETECTION REPORT
-==============================================
-
-⚠️  MEDIUM RISK: Suspicious content patterns:
-   - Pattern: webhook.site reference
-     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/mixed-project/suspicious.js
-   NOTE: Manual review required to determine if these are malicious.
-
-==============================================
-🔍 SUMMARY:
-   High Risk Issues: 0
-   Medium Risk Issues: 1
-   Low Risk (informational): 1
-   Total Critical Issues: 1
-
-⚠️  IMPORTANT:
-   - High risk issues likely indicate actual compromise
-   - Medium risk issues require manual investigation
-   - Low risk issues are likely false positives from legitimate code
-   - Consider running additional security scans
-   - Review your npm audit logs and package history
-==============================================
