@@ -1,0 +1,3 @@
+   High Risk Issues: 8
+   Medium Risk Issues: 16
+   Low Risk (informational): 2

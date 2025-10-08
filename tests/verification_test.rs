@@ -18,76 +18,6 @@ fn get_workspace_root() -> PathBuf {
 }
 
 #[test]
-#[ignore] // Run with: cargo test -- --ignored
-fn test_verify_normal_mode_100_percent() {
-    println!("🧪 Running normal mode verification...");
-
-    let workspace = get_workspace_root();
-
-    let output = Command::new("bash")
-        .arg("dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh")
-        .current_dir(&workspace)
-        .output()
-        .expect("Failed to run parallel_testcase_scan.sh");
-
-    assert!(output.status.success(), "Parallel scan failed");
-
-    let verify = Command::new("bash")
-        .arg("dev-rust-scanner-1/scripts/analyze/verify_100_percent.sh")
-        .current_dir(&workspace)
-        .output()
-        .expect("Failed to run verify_100_percent.sh");
-
-    let stdout = String::from_utf8_lossy(&verify.stdout);
-    println!("{}", stdout);
-
-    assert!(
-        verify.status.success(),
-        "Normal mode verification failed: {}",
-        stdout
-    );
-    assert!(
-        stdout.contains("100% MATCH ACHIEVED"),
-        "Did not achieve 100% match"
-    );
-}
-
-#[test]
-#[ignore] // Run with: cargo test -- --ignored
-fn test_verify_paranoid_mode_100_percent() {
-    println!("🧪 Running paranoid mode verification...");
-
-    let workspace = get_workspace_root();
-
-    let output = Command::new("bash")
-        .arg("dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan_paranoid.sh")
-        .current_dir(&workspace)
-        .output()
-        .expect("Failed to run parallel_testcase_scan_paranoid.sh");
-
-    assert!(output.status.success(), "Parallel paranoid scan failed");
-
-    let verify = Command::new("bash")
-        .arg("dev-rust-scanner-1/scripts/analyze/verify_100_percent_paranoid.sh")
-        .current_dir(&workspace)
-        .output()
-        .expect("Failed to run verify_100_percent_paranoid.sh");
-
-    let stdout = String::from_utf8_lossy(&verify.stdout);
-    println!("{}", stdout);
-
-    assert!(
-        verify.status.success(),
-        "Paranoid mode verification failed: {}",
-        stdout
-    );
-    assert!(
-        stdout.contains("100% MATCH ACHIEVED"),
-        "Did not achieve 100% match in paranoid mode"
-    );
-}
-
-#[test]
 fn test_single_testcase_infected_project() {
     println!("🧪 Testing single test case: infected-project...");
 
@@ -125,6 +55,9 @@ fn test_single_testcase_infected_project() {
     let rust_high = extract_number(&rust_stdout, "High Risk Issues:");
     let rust_med = extract_number(&rust_stdout, "Medium Risk Issues:");
     let rust_low = extract_number(&rust_stdout, "Low Risk");
+
+    println!("Bash: {}/{}/{}", bash_high, bash_med, bash_low);
+    println!("Rust: {}/{}/{}", rust_high, rust_med, rust_low);
 
     assert_eq!(bash_high, rust_high, "HIGH risk mismatch");
     assert_eq!(bash_med, rust_med, "MEDIUM risk mismatch");

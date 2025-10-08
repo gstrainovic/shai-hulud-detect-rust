@@ -1,0 +1,10 @@
+[0;34m📦 Loaded 604 compromised packages from /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/compromised-packages.txt[0m
+[0;32mStarting Shai-Hulud detection scan...[0m
+[0;34mScanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project (with paranoid mode enabled)[0m
+
+[0;34m🔍 Checking for malicious workflow files...[0m
+[0;34m🔍 Checking 5 files for known malicious content...[0m
+[K[0;34m🔍 Checking 1 package.json files for compromised packages...[0m
+      0 [main] bash (21940) child_copy: cygheap read copy failed, 0x800000000..0x80001E6F0, done 0, windows pid 21940, Win32 error 299
+   4636 [main] bash 305 child_copy: dll data read copy failed, 0x21022C000..0x210245C30, done 0, windows pid 21940, Win32 error 299
+   5930 [main] bash 305 C:\Users\gstra\scoop\apps\git\2.48.1\usr\bin\bash.exe: *** fatal error in forked process - couldn't create signal pipe, Win32 error 5

@@ -1,0 +1,2 @@
+   High Risk Issues: 6
+   Medium Risk Issues: 7

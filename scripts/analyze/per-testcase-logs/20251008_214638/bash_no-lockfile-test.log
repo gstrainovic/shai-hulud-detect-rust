@@ -1,0 +1,39 @@
+[0;34m📦 Loaded 604 compromised packages from /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/compromised-packages.txt[0m
+[0;32mStarting Shai-Hulud detection scan...[0m
+[0;34mScanning directory: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/no-lockfile-test[0m
+
+[0;34m🔍 Checking for malicious workflow files...[0m
+[0;34m🔍 Checking 1 files for known malicious content...[0m
+[K[0;34m🔍 Checking 1 package.json files for compromised packages...[0m
+[K1 / 1 checked (100 %)[K[0;34m🔍 Checking for suspicious postinstall hooks...[0m
+[0;34m🔍 Checking for suspicious content patterns...[0m
+[0;34m🔍 Checking for cryptocurrency theft patterns...[0m
+[0;34m🔍 Checking for Trufflehog activity and secret scanning...[0m
+[0;34m🔍 Checking for suspicious git branches...[0m
+[0;34m🔍 Checking for Shai-Hulud repositories and migration patterns...[0m
+[0;34m🔍 Checking package lock files for integrity issues...[0m
+
+[0;34m==============================================[0m
+[0;34m      SHAI-HULUD DETECTION REPORT[0m
+[0;34m==============================================[0m
+
+[1;33m⚠️  MEDIUM RISK: Suspicious package versions detected:[0m
+   - Package: debug@^4.0.1
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/no-lockfile-test/package.json
+   - Package: error-ex@^1.2.0
+     Found in: /c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/no-lockfile-test/package.json
+   [1;33mNOTE: Manual review required to determine if these are malicious.[0m
+
+[0;34m==============================================[0m
+[0;31m🔍 SUMMARY:[0m
+[0;31m   High Risk Issues: 0[0m
+[1;33m   Medium Risk Issues: 2[0m
+[0;34m   Total Critical Issues: 2[0m
+
+[1;33m⚠️  IMPORTANT:[0m
+[1;33m   - High risk issues likely indicate actual compromise[0m
+[1;33m   - Medium risk issues require manual investigation[0m
+[1;33m   - Low risk issues are likely false positives from legitimate code[0m
+[1;33m   - Consider running additional security scans[0m
+[1;33m   - Review your npm audit logs and package history[0m
+[0;34m==============================================[0m

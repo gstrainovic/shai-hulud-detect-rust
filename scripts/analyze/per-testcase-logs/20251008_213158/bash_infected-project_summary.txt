@@ -1,0 +1,3 @@
+[0;31m   High Risk Issues: 8[0m
+[1;33m   Medium Risk Issues: 16[0m
+[0;34m   Low Risk (informational): 2[0m
