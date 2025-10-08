@@ -34,8 +34,6 @@ cargo build --release
 ### 📚 Documentation
 
 - [VERIFICATION_GUIDE.md](VERIFICATION_GUIDE.md) - Comprehensive verification proof
-- [PERFECT_MATCH_ACHIEVEMENT.md](PERFECT_MATCH_ACHIEVEMENT.md) - Journey to 100%
-- [PARANOID_MODE_ACHIEVEMENT.md](PARANOID_MODE_ACHIEVEMENT.md) - Paranoid mode docs
 
 ### 🧪 Testing
 
@@ -82,12 +80,3 @@ Key detections:
 - Typosquatting attacks (paranoid mode)
 - Network exfiltration patterns (paranoid mode)
 
-### 🎓 How We Achieved 100%
-
-After 8 experimental scanner attempts, we achieved 100% match by:
-1. Line-by-line Bash implementation
-2. Per-test-case verification (26 test cases via Bash scripts)
-3. Pattern-level matching
-4. Systematic testing and verification
-
-See `../archive/failed-attempts/` for the learning journey.
