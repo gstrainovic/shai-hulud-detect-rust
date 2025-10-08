@@ -76,13 +76,14 @@ bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan_paranoid.sh
 
 ---
 
-### `full_sequential_test.sh` 🐢 BASELINE
-**Purpose**: Sequential (non-parallel) baseline for performance comparison
+### `full_sequential_test.sh` � INTEGRATION TEST
+**Purpose**: Scan ENTIRE test-cases/ directory at once (integration test, not per-folder)
 
 **What it does**:
-- Runs ALL test cases one-by-one (no parallelization)
-- Provides baseline timing for comparison
-- Proves parallel scripts are actually faster
+- Runs **ONE SCAN** of the entire `shai-hulud-detect/test-cases/` directory
+- Tests how scanners handle the complete collection together
+- Catches integration issues that per-folder testing might miss
+- Compares final summary counts (H/M/L)
 
 **Usage**:
 ```bash
@@ -91,17 +92,20 @@ bash dev-rust-scanner-1/scripts/analyze/full_sequential_test.sh
 
 **Output**:
 - Logs: `sequential-logs/YYYYMMDD_HHMMSS/`
-- CSV: `comparison.csv`
-- Timing: Shows total duration
+- Files: `bash_full_scan.log`, `rust_full_scan.log`
+- Comparison: `comparison.txt`
 
-**Duration**: ~10+ minutes (sequential - SLOW!)
+**Duration**: Variable (depends on total test-cases size)
 
-**When to use**: Only for benchmarking/comparison, not for regular verification
+**When to use**: 
+- Integration testing (how do scanners handle entire directory?)
+- Verify no cross-contamination between test cases
+- Test aggregation logic
 
 ---
 
-### `full_sequential_test_paranoid.sh` 🐢 BASELINE
-**Purpose**: Sequential baseline for **paranoid mode**
+### `full_sequential_test_paranoid.sh` � INTEGRATION TEST (PARANOID)
+**Purpose**: Same as above but for **paranoid mode**
 
 **Usage**:
 ```bash
@@ -111,20 +115,24 @@ bash dev-rust-scanner-1/scripts/analyze/full_sequential_test_paranoid.sh
 **Output**:
 - Logs: `sequential-logs-paranoid/YYYYMMDD_HHMMSS/`
 
-**Duration**: ~10+ minutes (sequential - SLOW!)
-
 ---
 
-## ⏱️ Performance Comparison
+## ⏱️ Performance & Testing Comparison
 
-| Script | Mode | Execution | Duration | Use Case |
-|--------|------|-----------|----------|----------|
-| `parallel_testcase_scan.sh` | Normal | Parallel (4+8) | ~2 min | ✅ **Regular verification** |
-| `parallel_testcase_scan_paranoid.sh` | Paranoid | Parallel (4+4) | ~2 min | ✅ **Regular verification** |
-| `full_sequential_test.sh` | Normal | Sequential | ~10+ min | 📊 **Benchmarking only** |
-| `full_sequential_test_paranoid.sh` | Paranoid | Sequential | ~10+ min | 📊 **Benchmarking only** |
+| Script | Mode | Type | Target | Duration | Use Case |
+|--------|------|------|--------|----------|----------|
+| `parallel_testcase_scan.sh` | Normal | Parallel | Each folder | ~2 min | ✅ **Per-folder verification** |
+| `parallel_testcase_scan_paranoid.sh` | Paranoid | Parallel | Each folder | ~2 min | ✅ **Per-folder verification** |
+| `full_sequential_test.sh` | Normal | Integration | Entire dir | Variable | � **Integration test** |
+| `full_sequential_test_paranoid.sh` | Paranoid | Integration | Entire dir | Variable | � **Integration test** |
 
-**Speed Improvement**: Parallel scripts are **~5x faster** than sequential!
+**Key Difference**:
+- **Parallel scripts**: Test each subfolder separately (26 individual scans)
+- **Sequential scripts**: Test entire test-cases/ directory at once (1 big scan)
+
+**Why both?**:
+- Per-folder: Catches individual test case issues
+- Full directory: Catches integration/aggregation issues
 
 ---
 

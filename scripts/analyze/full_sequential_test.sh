@@ -1,6 +1,6 @@
 #!/bin/bash
-# Sequential (non-parallel) full test - baseline for comparison
-# Runs ALL test cases one-by-one to measure total time
+# Full sequential test - scans ENTIRE test-cases directory at once
+# This tests how scanners handle the complete collection (integration test)
 
 cd /c/Users/gstra/Code/rust-scanner
 
@@ -12,95 +12,80 @@ LOG_DIR="dev-rust-scanner-1/scripts/analyze/sequential-logs/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🐢 SEQUENTIAL FULL TEST (Baseline for Comparison)"
+echo "� FULL SEQUENTIAL TEST - ENTIRE test-cases/ Directory"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs: $LOG_DIR"
+echo "📂 Target: shai-hulud-detect/test-cases/ (ALL test cases at once)"
 echo ""
 
-# Get all test cases
-TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
-TOTAL_TESTS=${#TESTCASES[@]}
+# Phase 1: Bash scanner on ENTIRE test-cases directory
+echo "🔵 Phase 1: Running Bash scanner on ENTIRE test-cases directory..."
+cd shai-hulud-detect
+timeout 600 ./shai-hulud-detector.sh test-cases/ > "../$LOG_DIR/bash_full_scan.log" 2>&1
+bash_exit=$?
+cd ..
 
-echo "Found $TOTAL_TESTS test cases"
-echo ""
+if [ $bash_exit -eq 124 ]; then
+    echo "⏱️  Bash scanner TIMEOUT (>10 min)" | tee -a "$LOG_DIR/bash_full_scan.log"
+elif [ $bash_exit -eq 0 ]; then
+    echo "✅ Bash scanner completed"
+else
+    echo "⚠️  Bash scanner exit code: $bash_exit"
+fi
 
-# Phase 1: Bash sequential
-echo "🔵 Phase 1: Running Bash scanners sequentially..."
-bash_count=0
-for testdir in "${TESTCASES[@]}"; do
-    testname=$(basename "$testdir")
-    bash_count=$((bash_count + 1))
-    
-    echo "  [$bash_count/$TOTAL_TESTS] Testing: $testname (Bash)"
-    
-    cd shai-hulud-detect
-    abs_testdir=$(realpath "../$testdir")
-    timeout 300 ./shai-hulud-detector.sh "$abs_testdir" > "../$LOG_DIR/bash_${testname}.log" 2>&1
-    cd ..
-    
-    # Extract summary
-    grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/bash_${testname}.log" > "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_${testname}_summary.txt"
-done
+# Extract bash summary
+grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/bash_full_scan.log" > "$LOG_DIR/bash_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_summary.txt"
 
 echo ""
-echo "🟢 Phase 2: Running Rust scanners sequentially..."
-rust_count=0
-for testdir in "${TESTCASES[@]}"; do
-    testname=$(basename "$testdir")
-    rust_count=$((rust_count + 1))
-    
-    echo "  [$rust_count/$TOTAL_TESTS] Testing: $testname (Rust)"
-    
-    cd dev-rust-scanner-1
-    abs_testdir=$(realpath "../$testdir")
-    cargo run --quiet --release -- "$abs_testdir" > "../$LOG_DIR/rust_${testname}.log" 2>&1
-    cd ..
-    
-    # Extract summary
-    grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/rust_${testname}.log" > "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/rust_${testname}_summary.txt"
-done
 
-# Create comparison
+# Phase 2: Rust scanner on ENTIRE test-cases directory
+echo "🟢 Phase 2: Running Rust scanner on ENTIRE test-cases directory..."
+cd dev-rust-scanner-1
+cargo run --quiet --release -- ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
+rust_exit=$?
+cd ..
+
+if [ $rust_exit -eq 0 ]; then
+    echo "✅ Rust scanner completed"
+else
+    echo "⚠️  Rust scanner exit code: $rust_exit"
+fi
+
+# Extract rust summary
+grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/rust_full_scan.log" > "$LOG_DIR/rust_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/rust_summary.txt"
+
 echo ""
-echo "📊 Creating comparison..."
+echo "📊 Comparing results..."
 
+# Strip ANSI codes
 strip_ansi() {
     sed 's/\x1b\[[0-9;]*m//g'
 }
 
-cat > "$LOG_DIR/comparison.csv" << 'CSVHEADER'
-TestCase,Bash_High,Bash_Medium,Bash_Low,Rust_High,Rust_Medium,Rust_Low,Match
-CSVHEADER
+# Extract numbers
+bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+bash_med=$(grep "Medium Risk Issues:" "$LOG_DIR/bash_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+bash_low=$(grep "Low Risk" "$LOG_DIR/bash_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
 
-matched=0
-for testdir in "${TESTCASES[@]}"; do
-    testname=$(basename "$testdir")
-    
-    bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
-    bash_med=$(grep "Medium Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
-    bash_low=$(grep "Low Risk" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
-    
-    rust_high=$(grep "High Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
-    rust_med=$(grep "Medium Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
-    rust_low=$(grep "Low Risk" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
-    
-    bash_high=${bash_high:-0}
-    bash_med=${bash_med:-0}
-    bash_low=${bash_low:-0}
-    rust_high=${rust_high:-0}
-    rust_med=${rust_med:-0}
-    rust_low=${rust_low:-0}
-    
-    if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
-        match="✅"
-        matched=$((matched + 1))
-    else
-        match="❌"
-    fi
-    
-    echo "$testname,$bash_high,$bash_med,$bash_low,$rust_high,$rust_med,$rust_low,$match" >> "$LOG_DIR/comparison.csv"
-done
+rust_high=$(grep "High Risk Issues:" "$LOG_DIR/rust_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+rust_med=$(grep "Medium Risk Issues:" "$LOG_DIR/rust_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
+rust_low=$(grep "Low Risk" "$LOG_DIR/rust_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
+
+# Default to 0
+bash_high=${bash_high:-0}
+bash_med=${bash_med:-0}
+bash_low=${bash_low:-0}
+rust_high=${rust_high:-0}
+rust_med=${rust_med:-0}
+rust_low=${rust_low:-0}
+
+# Check match
+if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
+    match="✅ PERFECT MATCH"
+else
+    match="❌ MISMATCH"
+fi
 
 END_TIME=$(date +%s)
 END_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
@@ -110,23 +95,48 @@ SECONDS=$((DURATION % 60))
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 SEQUENTIAL TEST RESULTS"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-printf "%-35s %12s %12s %8s\n" "Test Case" "Bash (H/M/L)" "Rust (H/M/L)" "Match"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-tail -n +2 "$LOG_DIR/comparison.csv" | while IFS=, read -r testname bash_h bash_m bash_l rust_h rust_m rust_l match; do
-    printf "%-35s %4s/%2s/%2s      %4s/%2s/%2s    %s\n" "$testname" "$bash_h" "$bash_m" "$bash_l" "$rust_h" "$rust_m" "$rust_l" "$match"
-done
-
+echo "📊 FULL SCAN RESULTS (Entire test-cases/ Directory)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "📈 Match Rate: $matched / $TOTAL_TESTS test cases"
+printf "%-20s %15s %15s\n" "Scanner" "Findings (H/M/L)" "Status"
+echo "──────────────────────────────────────────────────────────"
+printf "%-20s %4s/%3s/%3s      %s\n" "Bash Scanner" "$bash_high" "$bash_med" "$bash_low" "Exit: $bash_exit"
+printf "%-20s %4s/%3s/%3s      %s\n" "Rust Scanner" "$rust_high" "$rust_med" "$rust_low" "Exit: $rust_exit"
+echo "──────────────────────────────────────────────────────────"
+echo ""
+echo "🎯 Result: $match"
 echo ""
 echo "⏱️  TIMING:"
 echo "   Started:  $START_READABLE"
 echo "   Finished: $END_READABLE"
 echo "   Duration: ${MINUTES}m ${SECONDS}s"
 echo ""
-echo "💾 Results saved: $LOG_DIR"
+echo "💾 Logs saved:"
+echo "   Bash:     $LOG_DIR/bash_full_scan.log"
+echo "   Rust:     $LOG_DIR/rust_full_scan.log"
+echo "   Summary:  $LOG_DIR/*_summary.txt"
+echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Save comparison
+cat > "$LOG_DIR/comparison.txt" << EOF
+FULL SCAN COMPARISON (Entire test-cases/ directory)
+====================================================
+
+Bash Scanner: $bash_high HIGH / $bash_med MEDIUM / $bash_low LOW
+Rust Scanner: $rust_high HIGH / $rust_med MEDIUM / $rust_low LOW
+
+Match: $match
+
+Started:  $START_READABLE
+Finished: $END_READABLE
+Duration: ${MINUTES}m ${SECONDS}s
+EOF
+
+if [ "$match" = "✅ PERFECT MATCH" ]; then
+    exit 0
+else
+    echo "⚠️  Scanners produced different results - review logs for details"
+    exit 1
+fi
+
