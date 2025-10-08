@@ -12,10 +12,17 @@ authors = [
 name = "shai-hulud-detector"
 path = "src/main.rs"
 
+[[bin]]
+name = "verify-pattern-match"
+path = "src/bin/verify_pattern_match.rs"
+
 [dependencies]
 # Core dependencies
 anyhow = "1.0"
 thiserror = "1.0"
+
+# Timing
+chrono = "0.4"
 
 # JSON parsing
 serde = { version = "1.0", features = ["derive"] }

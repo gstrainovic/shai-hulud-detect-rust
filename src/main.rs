@@ -15,6 +15,7 @@ mod utils;
 use anyhow::Result;
 use clap::Parser;
 use cli::Cli;
+use std::time::Instant;
 
 // Function: main
 // Purpose: Main entry point - parse arguments, load data, run all checks, generate report
@@ -22,6 +23,9 @@ use cli::Cli;
 // Modifies: All global arrays via detection functions
 // Returns: Exit code 0 for clean, 1 for high-risk findings, 2 for medium-risk findings
 fn main() -> Result<()> {
+    let start_time = Instant::now();
+    let start_timestamp = chrono::Local::now();
+    
     let mut args = Cli::parse();
     args.validate()?;
 
@@ -127,6 +131,29 @@ fn main() -> Result<()> {
 
     // Generate report
     report::generate_report(&results, args.paranoid);
+
+    // Save JSON output for pattern-level verification
+    let json_output_path = "scan_results.json";
+    let json_output = serde_json::to_string_pretty(&results)?;
+    std::fs::write(json_output_path, json_output)?;
+    colors::print_status(
+        colors::Color::Green,
+        &format!("💾 JSON results saved: {}", json_output_path),
+    );
+
+    // Print timing information
+    let end_timestamp = chrono::Local::now();
+    let duration = start_time.elapsed();
+    
+    println!();
+    colors::print_status(colors::Color::Blue, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    colors::print_status(colors::Color::Blue, "⏱️  TIMING");
+    colors::print_status(colors::Color::Blue, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    println!("   Started:  {}", start_timestamp.format("%Y-%m-%d %H:%M:%S"));
+    println!("   Finished: {}", end_timestamp.format("%Y-%m-%d %H:%M:%S"));
+    println!("   Duration: {:.2}s", duration.as_secs_f64());
+    colors::print_status(colors::Color::Blue, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    println!();
 
     // IMPORTANT: Bash script DOES NOT exit with error codes based on findings!
     // It always exits with 0, even if HIGH/MEDIUM risk issues are found.

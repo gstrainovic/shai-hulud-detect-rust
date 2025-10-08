@@ -15,10 +15,11 @@ pub mod typosquatting;
 pub mod workflow;
 
 use std::path::PathBuf;
+use serde::{Serialize, Deserialize};
 
 /// Finding severity levels
 /// Corresponds to bash risk level prefixes (HIGH RISK, MEDIUM RISK, LOW RISK)
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RiskLevel {
     High,
     Medium,
@@ -27,7 +28,7 @@ pub enum RiskLevel {
 
 /// A detection finding with file path, message, and risk level
 /// Corresponds to bash array entries like "file:message"
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Finding {
     pub file_path: PathBuf,
     pub message: String,
@@ -48,7 +49,7 @@ impl Finding {
 
 /// Collection of all findings from a scan
 /// Corresponds to bash global arrays: WORKFLOW_FILES, MALICIOUS_HASHES, etc.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ScanResults {
     pub workflow_files: Vec<Finding>,
     pub malicious_hashes: Vec<Finding>,

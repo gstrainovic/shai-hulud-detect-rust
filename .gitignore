@@ -6,3 +6,4 @@ sequential-logs-paranoid/
 test-results/
 logs/
 *.log
+scan_results.json
