@@ -51,18 +51,23 @@ run_rust_testcase_paranoid() {
     
     echo "⚡ [$(date +%H:%M:%S)] Starting: $testname (Rust PARANOID)"
     
+    # Create temp directory for this scan to avoid JSON conflicts
+    local temp_scan_dir="dev-rust-scanner-1/temp_scan_$$_${testname}"
+    mkdir -p "$temp_scan_dir"
+    
     # Run rust scanner (PARANOID mode) - use absolute path
-    cd dev-rust-scanner-1
-    local abs_testdir=$(realpath "../$testdir")
-    cargo run --quiet --release -- --paranoid "$abs_testdir" > "../$logfile" 2>&1
+    cd "$temp_scan_dir"
+    local abs_testdir=$(realpath "../../$testdir")
+    cargo run --quiet --release --manifest-path ../Cargo.toml -- --paranoid "$abs_testdir" > "../../$logfile" 2>&1
     local exit_code=$?
     
     # Copy JSON output to log directory
     if [ -f "scan_results.json" ]; then
-        mv "scan_results.json" "../$LOG_DIR/rust_${testname}.json"
+        mv "scan_results.json" "../../$LOG_DIR/rust_${testname}.json"
     fi
     
-    cd ..
+    cd ../..
+    rm -rf "$temp_scan_dir"
     
     if [ $exit_code -eq 0 ]; then
         echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust PARANOID)"

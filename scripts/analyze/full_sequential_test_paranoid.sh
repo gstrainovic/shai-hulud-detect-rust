@@ -44,6 +44,13 @@ echo "🟢 Phase 2: Running Rust scanner (PARANOID) on ENTIRE test-cases directo
 cd dev-rust-scanner-1
 cargo run --quiet --release -- --paranoid ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
 rust_exit=$?
+
+# Save JSON output
+if [ -f "scan_results.json" ]; then
+    mv "scan_results.json" "../$LOG_DIR/rust_full_scan.json"
+    echo "💾 JSON results saved: $LOG_DIR/rust_full_scan.json"
+fi
+
 cd ..
 
 if [ $rust_exit -eq 0 ]; then

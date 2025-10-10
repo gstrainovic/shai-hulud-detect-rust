@@ -116,6 +116,8 @@ def parse_bash_log(log_file: Path) -> List[Finding]:
                 current_category = 'crypto_patterns'
             elif 'secret scanning' in line:
                 current_category = 'trufflehog'
+            elif 'Package integrity' in line or 'integrity' in line.lower():
+                current_category = 'integrity'
             else:
                 current_category = 'unknown'
         
@@ -125,6 +127,11 @@ def parse_bash_log(log_file: Path) -> List[Finding]:
                 current_category = 'namespace_warning'
             else:
                 current_category = 'unknown'
+        
+        # Special case: "ℹ️  LOW RISK FINDINGS (informational only):"
+        elif 'ℹ️  LOW RISK FINDINGS' in line or 'LOW RISK FINDINGS (informational only)' in line:
+            current_risk = 'LOW'
+            current_category = 'unknown'
         
         # Parse findings - Pattern 1: Simple file path (for workflow files - MUST BE FIRST!)
         # Workflows are just "- /path/to/file" without colon or message
@@ -150,6 +157,15 @@ def parse_bash_log(log_file: Path) -> List[Finding]:
                 findings.append(Finding(file_path, package, current_risk, current_category))
                 i += 1  # Skip next line
         
+        # Parse findings - Pattern 3b: "- Issue: XXX\n     Found in: YYY" (for integrity issues)
+        elif line.startswith('- Issue:') and current_risk:
+            issue = line.replace('- Issue:', '').strip()
+            # Look ahead for "Found in:" line
+            if i + 1 < len(lines) and 'Found in:' in lines[i + 1]:
+                file_path = lines[i + 1].replace('Found in:', '').strip()
+                findings.append(Finding(file_path, issue, current_risk, current_category))
+                i += 1  # Skip next line
+        
         # Parse findings - Pattern 4: "- Activity: XXX\n     Found in: YYY"
         elif line.startswith('- Activity:') and current_risk:
             activity = line.replace('- Activity:', '').strip()
@@ -167,6 +183,16 @@ def parse_bash_log(log_file: Path) -> List[Finding]:
                 file_path = match.group(1).strip()
                 message = match.group(2).strip()
                 findings.append(Finding(file_path, message, current_risk, current_category))
+        
+        # Parse findings - Pattern 6: "- Crypto pattern: /path:message" (informational LOW RISK)
+        elif line.startswith('- Crypto pattern:') and current_risk:
+            # Extract file path and message from rest of line
+            rest = line.replace('- Crypto pattern:', '').strip()
+            match = re.match(r'(.+?):(.*)', rest)
+            if match:
+                file_path = match.group(1).strip()
+                message = match.group(2).strip()
+                findings.append(Finding(file_path, message, current_risk, 'crypto_patterns'))
         
         i += 1
     
