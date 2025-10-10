@@ -25,7 +25,7 @@ use std::time::Instant;
 fn main() -> Result<()> {
     let start_time = Instant::now();
     let start_timestamp = chrono::Local::now();
-    
+
     let mut args = Cli::parse();
     args.validate()?;
 
@@ -144,15 +144,27 @@ fn main() -> Result<()> {
     // Print timing information
     let end_timestamp = chrono::Local::now();
     let duration = start_time.elapsed();
-    
+
     println!();
-    colors::print_status(colors::Color::Blue, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    colors::print_status(
+        colors::Color::Blue,
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    );
     colors::print_status(colors::Color::Blue, "⏱️  TIMING");
-    colors::print_status(colors::Color::Blue, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!("   Started:  {}", start_timestamp.format("%Y-%m-%d %H:%M:%S"));
+    colors::print_status(
+        colors::Color::Blue,
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    );
+    println!(
+        "   Started:  {}",
+        start_timestamp.format("%Y-%m-%d %H:%M:%S")
+    );
     println!("   Finished: {}", end_timestamp.format("%Y-%m-%d %H:%M:%S"));
     println!("   Duration: {:.2}s", duration.as_secs_f64());
-    colors::print_status(colors::Color::Blue, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    colors::print_status(
+        colors::Color::Blue,
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    );
     println!();
 
     // IMPORTANT: Bash script DOES NOT exit with error codes based on findings!

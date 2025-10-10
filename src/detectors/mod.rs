@@ -14,8 +14,8 @@ pub mod trufflehog;
 pub mod typosquatting;
 pub mod workflow;
 
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use serde::{Serialize, Deserialize};
 
 /// Finding severity levels
 /// Corresponds to bash risk level prefixes (HIGH RISK, MEDIUM RISK, LOW RISK)

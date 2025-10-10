@@ -12,10 +12,6 @@ authors = [
 name = "shai-hulud-detector"
 path = "src/main.rs"
 
-[[bin]]
-name = "verify-pattern-match"
-path = "src/bin/verify_pattern_match.rs"
-
 [dependencies]
 # Core dependencies
 anyhow = "1.0"
