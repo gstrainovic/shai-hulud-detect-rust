@@ -133,9 +133,10 @@ fn main() -> Result<()> {
     report::generate_report(&results, args.paranoid);
 
     // Save JSON output for pattern-level verification
+    // Save in current directory by default (can be redirected in scripts)
     let json_output_path = "scan_results.json";
     let json_output = serde_json::to_string_pretty(&results)?;
-    std::fs::write(json_output_path, json_output)?;
+    std::fs::write(&json_output_path, json_output)?;
     colors::print_status(
         colors::Color::Green,
         &format!("💾 JSON results saved: {}", json_output_path),

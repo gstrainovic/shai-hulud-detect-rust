@@ -58,6 +58,12 @@ run_rust_testcase() {
     local abs_testdir=$(realpath "../$testdir")
     cargo run --quiet --release -- "$abs_testdir" > "../$logfile" 2>&1
     local exit_code=$?
+    
+    # Copy JSON output to log directory
+    if [ -f "scan_results.json" ]; then
+        mv "scan_results.json" "../$LOG_DIR/rust_${testname}.json"
+    fi
+    
     cd ..
     
     if [ $exit_code -eq 0 ]; then
@@ -168,5 +174,39 @@ echo "   Duration: ${MINUTES}m ${SECONDS}s"
 echo ""
 echo "💾 Results saved: $LOG_DIR"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Pattern-level verification for test cases with findings
+echo ""
+echo "🔬 Running pattern-level verification (detailed)..."
+echo ""
+
+PATTERN_FAILED=0
+for testdir in "${TESTCASES[@]}"; do
+    testname=$(basename "$testdir")
+    
+    bash_log="$LOG_DIR/bash_${testname}.log"
+    rust_json="$LOG_DIR/rust_${testname}.json"
+    
+    # Skip if no JSON (scan may have failed)
+    if [ ! -f "$rust_json" ]; then
+        continue
+    fi
+    
+    # Run Python verification (suppress output, only show failures)
+    python dev-rust-scanner-1/scripts/verify_pattern_match.py "$bash_log" "$rust_json" > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "⚠️  $testname: Pattern mismatch detected!"
+        PATTERN_FAILED=$((PATTERN_FAILED + 1))
+    fi
+done
+
+if [ $PATTERN_FAILED -eq 0 ]; then
+    echo "✅ All test cases passed pattern-level verification!"
+else
+    echo "⚠️  $PATTERN_FAILED test case(s) had pattern mismatches"
+    echo "   Run verify_pattern_match.py manually on failed cases for details"
+fi
+
+echo ""
 
 
