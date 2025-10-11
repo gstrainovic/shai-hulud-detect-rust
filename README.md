@@ -45,28 +45,6 @@ cargo build --release
 cargo test
 # 12 unit tests in ~1 second
 ```
-
-### 100% Compatibility Verification (Comprehensive)
-
-**Mathematical Proof of 100% Match with Bash Scanner**:
-
-```bash
-# Full verification - all 26 test cases (normal mode)
-bash scripts/analyze/verify_100_percent.sh
-
-# Paranoid mode verification
-bash scripts/analyze/verify_100_percent_paranoid.sh
-```
-
-**Why not cargo test?** The full verification takes 3+ minutes and scans 26 test cases. 
-It's too slow for regular development workflow, so we use dedicated Bash scripts instead.
-
-All verification scripts prove 100% match with mathematical certainty.
-
-### 🏷️ Git Tags
-
-- `v1.0.0-perfect-match` - First 100% match with Bash scanner
-
 ### 📦 What It Detects
 
 See the original [shai-hulud-detect README](../shai-hulud-detect/README.md) for full details.
