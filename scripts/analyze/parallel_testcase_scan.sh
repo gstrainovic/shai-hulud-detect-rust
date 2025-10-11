@@ -18,6 +18,18 @@ echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs will be in: $LOG_DIR"
 echo ""
 
+# Build Rust scanner binary once at the start
+echo "🔨 Building Rust scanner binary..."
+cd dev-rust-scanner-1
+cargo build --release --quiet
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to build Rust scanner!"
+    exit 1
+fi
+cd ..
+echo "✅ Binary built: dev-rust-scanner-1/target/release/shai-hulud-detector"
+echo ""
+
 # Function to run bash scanner on a single test case
 run_bash_testcase() {
     local testdir=$1
@@ -57,10 +69,10 @@ run_rust_testcase() {
     local temp_scan_dir="dev-rust-scanner-1/temp_scan_$$_${testname}"
     mkdir -p "$temp_scan_dir"
     
-    # Run rust scanner (normal mode) - use absolute path
+    # Run rust scanner (normal mode) - use pre-built binary
     cd "$temp_scan_dir"
     local abs_testdir=$(realpath "../../$testdir")
-    cargo run --quiet --release --manifest-path ../Cargo.toml -- "$abs_testdir" > "../../$logfile" 2>&1
+    ../target/release/shai-hulud-detector "$abs_testdir" > "../../$logfile" 2>&1
     local exit_code=$?
     
     # Copy JSON output to log directory
@@ -96,8 +108,8 @@ echo "🔵 Phase 1: Running Bash scanners in parallel (max 4 concurrent)..."
 printf '%s\n' "${TESTCASES[@]}" | xargs -P 4 -I {} bash -c 'run_bash_testcase "$@"' _ {}
 
 echo ""
-echo "🟢 Phase 2: Running Rust scanners in parallel (max 8 concurrent - faster)..."
-printf '%s\n' "${TESTCASES[@]}" | xargs -P 8 -I {} bash -c 'run_rust_testcase "$@"' _ {}
+echo "🟢 Phase 2: Running Rust scanners in parallel (max 4 concurrent - optimal)..."
+printf '%s\n' "${TESTCASES[@]}" | xargs -P 4 -I {} bash -c 'run_rust_testcase "$@"' _ {}
 
 echo ""
 echo "📊 Creating comparison report..."

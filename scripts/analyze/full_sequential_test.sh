@@ -12,11 +12,23 @@ LOG_DIR="dev-rust-scanner-1/scripts/analyze/sequential-logs/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "� FULL SEQUENTIAL TEST - ENTIRE test-cases/ Directory"
+echo "🔧 FULL SEQUENTIAL TEST - ENTIRE test-cases/ Directory"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs: $LOG_DIR"
 echo "📂 Target: shai-hulud-detect/test-cases/ (ALL test cases at once)"
+echo ""
+
+# Build Rust scanner binary once at the start
+echo "🔨 Building Rust scanner binary..."
+cd dev-rust-scanner-1
+cargo build --release --quiet
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to build Rust scanner!"
+    exit 1
+fi
+cd ..
+echo "✅ Binary built: dev-rust-scanner-1/target/release/shai-hulud-detector"
 echo ""
 
 # Phase 1: Bash scanner on ENTIRE test-cases directory
@@ -42,7 +54,7 @@ echo ""
 # Phase 2: Rust scanner on ENTIRE test-cases directory
 echo "🟢 Phase 2: Running Rust scanner on ENTIRE test-cases directory..."
 cd dev-rust-scanner-1
-cargo run --quiet --release -- ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
+./target/release/shai-hulud-detector ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
 rust_exit=$?
 
 # Save JSON output

@@ -15,6 +15,19 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "🚀 PARALLEL TEST (PARANOID Mode)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "⏱️  Started: $START_READABLE"
+echo ""
+
+# Build Rust scanner binary once at the start
+echo "🔨 Building Rust scanner binary..."
+cd dev-rust-scanner-1
+cargo build --release --quiet
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to build Rust scanner!"
+    exit 1
+fi
+cd ..
+echo "✅ Binary built: dev-rust-scanner-1/target/release/shai-hulud-detector"
+echo ""
 
 # Function to run bash scanner on a single test case (PARANOID)
 run_bash_testcase_paranoid() {
@@ -55,10 +68,10 @@ run_rust_testcase_paranoid() {
     local temp_scan_dir="dev-rust-scanner-1/temp_scan_$$_${testname}"
     mkdir -p "$temp_scan_dir"
     
-    # Run rust scanner (PARANOID mode) - use absolute path
+    # Run rust scanner (PARANOID mode) - use pre-built binary
     cd "$temp_scan_dir"
     local abs_testdir=$(realpath "../../$testdir")
-    cargo run --quiet --release --manifest-path ../Cargo.toml -- --paranoid "$abs_testdir" > "../../$logfile" 2>&1
+    ../target/release/shai-hulud-detector --paranoid "$abs_testdir" > "../../$logfile" 2>&1
     local exit_code=$?
     
     # Copy JSON output to log directory
