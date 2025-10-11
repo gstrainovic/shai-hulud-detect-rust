@@ -43,7 +43,8 @@ Regeln:
     - Interleave Bash/Rust → further speedup
 - [x] **ACTION:** Implement performance fixes
   - [x] Change parallel_testcase_scan.sh to use `-P 4` (not 8)
-  - [x] Build binary once, use in scripts instead of `cargo run`
-  - [x] All 4 scripts now build binary at start and use pre-built binary
+  - [x] Build binary once at start of each script, use pre-built binary instead of `cargo run`
+  - [x] All 4 scripts updated (committed: 0b7009a)
+  - [ ] **TODO:** Run complete test to measure actual speedup
   - [ ] Optional: Interleave Bash and Rust scans (future optimization)
 
