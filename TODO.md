@@ -4,11 +4,16 @@ Regeln:
 - Messbare Erfolge commiten mit temporären scripts.
 - Aufrumen keine neuen unnötigen docs, scripts etc. 
 
-###  ✅ Bash Bug Fix (DONE - Ready for MR)
+###  ✅ Bash Bug Fix (READY FOR MR)
 - [x] Bug gefunden: Network exfiltration detector zu strikt
-- [x] Fix implementiert in shai-hulud-detector.sh (Zeile 1255, 1264)
+- [x] Fix implementiert in shai-hulud-detector.sh (Zeilen 1267-1268)
 - [x] Merge Request Vorlage erstellt: `MERGE_REQUEST_BASH_FIX.md`
-- [ ] **USER ACTION:** Merge Request in shai-hulud-detect repo erstellen
+- [x] Verifikation gegen echten Code durchgeführt
+- [x] Branch: `fix/network-exfiltration-hostname-pattern`
+- [x] Test Results: 18 MEDIUM → 19 MEDIUM (+1 detection)
+- [ ] **USER ACTION:** Merge Request in shai-hulud-detect-gs repo erstellen
+
+**Ready to submit!**
 
 ### ✅ Pattern-Level Verification Tool (COMPLETED!)
 - [x] Rust Parser mit `nom` (Parser Combinators) implementiert

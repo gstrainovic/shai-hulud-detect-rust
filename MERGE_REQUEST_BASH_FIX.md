@@ -109,7 +109,6 @@ To verify this fix:
 
 - Issue: Network exfiltration detector misses hostname property patterns
 - Test case: `test-cases/infected-project/actual-credential-harvester.js`
-- Comparison tool: Rust scanner correctly detected this pattern
 
 ---
 

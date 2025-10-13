@@ -87,11 +87,7 @@ fn strip_ansi(text: &str) -> String {
 fn risk_marker(input: &str) -> IResult<&str, &str> {
     // Skip any non-ASCII characters (emojis) before the marker
     let trimmed = input.trim_start_matches(|c: char| !c.is_ascii());
-    alt((
-        tag("HIGH RISK:"),
-        tag("MEDIUM RISK:"),
-        tag("LOW RISK:"),
-    ))(trimmed)
+    alt((tag("HIGH RISK:"), tag("MEDIUM RISK:"), tag("LOW RISK:")))(trimmed)
 }
 
 fn extract_risk(marker: &str) -> &str {
@@ -107,14 +103,14 @@ fn extract_risk(marker: &str) -> &str {
 // Parse "- Pattern: XXX" or "- Package: XXX" or "- Activity: XXX"
 // Note: Bash log has leading spaces (   -) so we need to handle them
 fn parse_label_value(input: &str) -> IResult<&str, &str> {
-    let (input, _) = space0(input)?;  // Handle leading spaces
+    let (input, _) = space0(input)?; // Handle leading spaces
     let (input, _) = tag("- ")(input)?;
     let (input, _) = alt((
         tag("Pattern:"),
         tag("Package:"),
         tag("Activity:"),
         tag("Issue:"),
-        tag("Warning:"),  // Add Warning for paranoid mode
+        tag("Warning:"), // Add Warning for paranoid mode
     ))(input)?;
     let (input, _) = space0(input)?;
     let (input, value) = not_line_ending(input)?;
@@ -132,7 +128,7 @@ fn parse_found_in(input: &str) -> IResult<&str, &str> {
 
 // Parse "- /path:message"
 fn parse_path_colon_message(input: &str) -> IResult<&str, (&str, &str)> {
-    let (input, _) = space0(input)?;  // Handle leading spaces
+    let (input, _) = space0(input)?; // Handle leading spaces
     let (input, _) = tag("- ")(input)?;
     let (input, path) = take_until(":")(input)?;
     let (input, _) = tag(":")(input)?;
@@ -142,7 +138,7 @@ fn parse_path_colon_message(input: &str) -> IResult<&str, (&str, &str)> {
 
 // Parse "- /path/to/file" (simple path for workflows)
 fn parse_simple_path(input: &str) -> IResult<&str, &str> {
-    let (input, _) = space0(input)?;  // Handle leading spaces
+    let (input, _) = space0(input)?; // Handle leading spaces
     preceded(
         tuple((tag("- "), space0)),
         take_while1(|c: char| c != '\n' && c != '\r'),
