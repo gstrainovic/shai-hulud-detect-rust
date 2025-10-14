@@ -5,6 +5,7 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take_until, take_while1},
     character::complete::{not_line_ending, space0},
+    combinator::map,
     sequence::{preceded, tuple},
     IResult,
 };
@@ -87,7 +88,15 @@ fn strip_ansi(text: &str) -> String {
 fn risk_marker(input: &str) -> IResult<&str, &str> {
     // Skip any non-ASCII characters (emojis) before the marker
     let trimmed = input.trim_start_matches(|c: char| !c.is_ascii());
-    alt((tag("HIGH RISK:"), tag("MEDIUM RISK:"), tag("LOW RISK:")))(trimmed)
+    alt((
+        tag("HIGH RISK:"),
+        tag("MEDIUM RISK:"),
+        tag("LOW RISK:"),
+        // Also match informational LOW risk sections (with any text after)
+        map(preceded(tag("LOW RISK FINDINGS"), take_until(":")), |_| {
+            "LOW RISK:"
+        }),
+    ))(trimmed)
 }
 
 fn extract_risk(marker: &str) -> &str {
@@ -157,7 +166,7 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
         let line = lines[i].trim();
 
         // Check for risk marker
-        if line.contains("RISK:") {
+        if line.contains("RISK:") || line.contains("RISK FINDINGS") {
             if let Ok((_, marker)) = risk_marker(line) {
                 current_risk = Some(extract_risk(marker));
             }
@@ -178,6 +187,22 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
             // Try: "- /path:message"
             if let Ok((_, (path, message))) = parse_path_colon_message(line) {
                 findings.push(Finding::new(path, message, risk));
+                i += 1;
+                continue;
+            }
+
+            // Try: "- simple list item" (for LOW RISK FINDINGS)
+            if line.trim().starts_with("- ") && risk == "LOW" {
+                let item = line.trim().trim_start_matches("- ").trim();
+                // For LOW RISK items, extract category prefix as file_path
+                if let Some(colon_pos) = item.find(": ") {
+                    let category = &item[..colon_pos];
+                    let message = &item[colon_pos + 2..];
+                    findings.push(Finding::new(category, message, risk));
+                } else {
+                    // Fallback: use full item as message with generic file_path
+                    findings.push(Finding::new("low risk finding", item, risk));
+                }
                 i += 1;
                 continue;
             }
@@ -213,29 +238,34 @@ fn load_rust_json(path: &Path) -> Result<Vec<Finding>> {
         "suspicious_content",
         "crypto_patterns",
         "trufflehog",
+        "trufflehog_activity",
         "git_branches",
         "postinstall_hooks",
         "shai_hulud_repos",
-        "namespace_warnings",
+        "namespace_warnings", // Restored - now properly filtered at source
         "integrity_issues",
         "typosquatting_warnings",
         "network_exfiltration_warnings",
         "lockfile_safe_versions",
     ];
 
-    for category in &categories {
-        if let Some(items) = data.get(category).and_then(|v| v.as_array()) {
-            for item in items {
-                if let (Some(path), Some(msg), Some(risk)) = (
-                    item.get("file_path").and_then(|v| v.as_str()),
-                    item.get("message").and_then(|v| v.as_str()),
-                    item.get("risk_level").and_then(|v| v.as_str()),
-                ) {
-                    findings.push(Finding::new(path, msg, risk));
-                }
-            }
-        }
-    }
+    findings.extend(
+        categories
+            .iter()
+            .filter_map(|category| data.get(category).and_then(|v| v.as_array()))
+            .flat_map(|items| {
+                items.iter().filter_map(|item| {
+                    match (
+                        item.get("file_path").and_then(|v| v.as_str()),
+                        item.get("message").and_then(|v| v.as_str()),
+                        item.get("risk_level").and_then(|v| v.as_str()),
+                    ) {
+                        (Some(path), Some(msg), Some(risk)) => Some(Finding::new(path, msg, risk)),
+                        _ => None,
+                    }
+                })
+            }),
+    );
 
     Ok(findings)
 }
@@ -301,9 +331,9 @@ fn main() -> Result<()> {
         if missing > 0 {
             println!();
             println!("{}", "Missing in Rust:".bright_red().bold());
-            for fp in bash_set.difference(&rust_set).take(5) {
+            bash_set.difference(&rust_set).take(5).for_each(|fp| {
                 println!("  - {}", fp);
-            }
+            });
             if missing > 5 {
                 println!("  ... and {} more", missing - 5);
             }
@@ -312,9 +342,9 @@ fn main() -> Result<()> {
         if extra > 0 {
             println!();
             println!("{}", "Extra in Rust:".bright_cyan().bold());
-            for fp in rust_set.difference(&bash_set).take(5) {
+            rust_set.difference(&bash_set).take(5).for_each(|fp| {
                 println!("  + {}", fp);
-            }
+            });
             if extra > 5 {
                 println!("  ... and {} more", extra - 5);
             }
