@@ -50,10 +50,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 
     // Report malicious workflow files
     if !results.workflow_files.is_empty() {
-        print_status(
-            Color::Red,
-            "🚨 HIGH RISK: Malicious workflow files detected:",
-        );
+        print_status(Color::Red, "HIGH RISK: Malicious workflow files detected:");
         for finding in &results.workflow_files {
             println!("   - {}", crate::utils::normalize_path(&finding.file_path));
             show_file_preview(
@@ -65,10 +62,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 
     // Report malicious file hashes
     if !results.malicious_hashes.is_empty() {
-        print_status(
-            Color::Red,
-            "🚨 HIGH RISK: Files with known malicious hashes:",
-        );
+        print_status(Color::Red, "HIGH RISK: Files with known malicious hashes:");
         for finding in &results.malicious_hashes {
             println!("   - {}", crate::utils::normalize_path(&finding.file_path));
             println!("     {}", finding.message);
@@ -80,7 +74,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !results.compromised_found.is_empty() {
         print_status(
             Color::Red,
-            "🚨 HIGH RISK: Compromised package versions detected:",
+            "HIGH RISK: Compromised package versions detected:",
         );
 
         // Sort by package name for consistent output (bash does this too)
@@ -116,7 +110,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !results.suspicious_found.is_empty() {
         print_status(
             Color::Yellow,
-            "⚠️  MEDIUM RISK: Suspicious package versions detected:",
+            "MEDIUM RISK: Suspicious package versions detected:",
         );
         for finding in &results.suspicious_found {
             println!("   - Package: {}", finding.message);
@@ -158,10 +152,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 
     // Report suspicious content
     if !results.suspicious_content.is_empty() {
-        print_status(
-            Color::Yellow,
-            "⚠️  MEDIUM RISK: Suspicious content patterns:",
-        );
+        print_status(Color::Yellow, "MEDIUM RISK: Suspicious content patterns:");
         for finding in &results.suspicious_content {
             println!("   - Pattern: {}", finding.message);
             println!(
@@ -191,7 +182,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !crypto_high.is_empty() {
         print_status(
             Color::Red,
-            "🚨 HIGH RISK: Cryptocurrency theft patterns detected:",
+            "HIGH RISK: Cryptocurrency theft patterns detected:",
         );
         for finding in crypto_high {
             println!(
@@ -214,7 +205,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !crypto_medium.is_empty() {
         print_status(
             Color::Yellow,
-            "⚠️  MEDIUM RISK: Potential cryptocurrency manipulation patterns:",
+            "MEDIUM RISK: Potential cryptocurrency manipulation patterns:",
         );
         for finding in crypto_medium {
             println!(
@@ -236,7 +227,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 
     // Report git branches
     if !results.git_branches.is_empty() {
-        print_status(Color::Yellow, "⚠️  MEDIUM RISK: Suspicious git branches:");
+        print_status(Color::Yellow, "MEDIUM RISK: Suspicious git branches:");
         for finding in &results.git_branches {
             println!(
                 "   - Repository: {}",
@@ -255,7 +246,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !results.postinstall_hooks.is_empty() {
         print_status(
             Color::Red,
-            "🚨 HIGH RISK: Suspicious postinstall hooks detected:",
+            "HIGH RISK: Suspicious postinstall hooks detected:",
         );
         for finding in &results.postinstall_hooks {
             println!("   - Hook: {}", finding.message);
@@ -277,10 +268,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 
     // Report Shai-Hulud repositories
     if !results.shai_hulud_repos.is_empty() {
-        print_status(
-            Color::Red,
-            "🚨 HIGH RISK: Shai-Hulud repositories detected:",
-        );
+        print_status(Color::Red, "HIGH RISK: Shai-Hulud repositories detected:");
         for finding in &results.shai_hulud_repos {
             println!(
                 "   - Repository: {}",
@@ -303,7 +291,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !results.integrity_issues.is_empty() {
         print_status(
             Color::Yellow,
-            "⚠️  MEDIUM RISK: Package integrity issues detected:",
+            "MEDIUM RISK: Package integrity issues detected:",
         );
         for finding in &results.integrity_issues {
             println!("   - Issue: {}", finding.message);
@@ -334,7 +322,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !trufflehog_high.is_empty() {
         print_status(
             Color::Red,
-            "🚨 HIGH RISK: Trufflehog/secret scanning activity detected:",
+            "HIGH RISK: Trufflehog/secret scanning activity detected:",
         );
         for finding in trufflehog_high {
             println!("   - Activity: {}", finding.message);
@@ -361,7 +349,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if !trufflehog_medium.is_empty() {
         print_status(
             Color::Yellow,
-            "⚠️  MEDIUM RISK: Potentially suspicious secret scanning patterns:",
+            "MEDIUM RISK: Potentially suspicious secret scanning patterns:",
         );
         for finding in trufflehog_medium {
             println!("   - Pattern: {}", finding.message);
@@ -385,7 +373,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if paranoid_mode && !results.typosquatting_warnings.is_empty() {
         print_status(
             Color::Yellow,
-            "⚠️  MEDIUM RISK (PARANOID): Potential typosquatting/homoglyph attacks detected:",
+            "MEDIUM RISK (PARANOID): Potential typosquatting/homoglyph attacks detected:",
         );
         for finding in results.typosquatting_warnings.iter().take(5) {
             println!("   - Warning: {}", finding.message);
@@ -415,7 +403,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     if paranoid_mode && !results.network_exfiltration_warnings.is_empty() {
         print_status(
             Color::Yellow,
-            "⚠️  MEDIUM RISK (PARANOID): Network exfiltration patterns detected:",
+            "MEDIUM RISK (PARANOID): Network exfiltration patterns detected:",
         );
         for finding in results.network_exfiltration_warnings.iter().take(5) {
             println!("   - Warning: {}", finding.message);
@@ -470,7 +458,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
             );
         }
     } else {
-        print_status(Color::Red, "🔍 SUMMARY:");
+        print_status(Color::Red, "SUMMARY:");
         print_status(Color::Red, &format!("   High Risk Issues: {}", high_risk));
         print_status(
             Color::Yellow,
@@ -487,7 +475,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
             &format!("   Total Critical Issues: {}", total_issues),
         );
         println!();
-        print_status(Color::Yellow, "⚠️  IMPORTANT:");
+        print_status(Color::Yellow, "IMPORTANT:");
         print_status(
             Color::Yellow,
             "   - High risk issues likely indicate actual compromise",
@@ -514,6 +502,18 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
             Color::Yellow,
             "   - Review your npm audit logs and package history",
         );
+
+        // BASH EXACT: Show LOW risk findings in detail only if total_issues < 5
+        if low_risk > 0 && total_issues < 5 {
+            println!();
+            print_status(
+                Color::Blue,
+                "ℹ️  LOW RISK FINDINGS (likely false positives):",
+            );
+            for finding in &results.namespace_warnings {
+                println!("   - {}", finding.message);
+            }
+        }
     }
 
     print_status(

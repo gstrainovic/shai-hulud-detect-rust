@@ -69,10 +69,13 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
                             "crypto_xhr_hijack",
                         ));
                     } else {
-                        // BASH EXACT: Framework XMLHttpRequest = LOW RISK
+                        // BASH EXACT: Framework XMLHttpRequest = LOW RISK with "Crypto pattern" file_path
                         findings.push(Finding::new(
-                            entry.path().to_path_buf(),
-                            "XMLHttpRequest prototype modification detected in framework code - LOW RISK".to_string(),
+                            std::path::PathBuf::from("Crypto pattern"),
+                            format!(
+                                "{}:XMLHttpRequest prototype modification detected in framework code - LOW RISK",
+                                crate::utils::normalize_path(&entry.path().to_path_buf())
+                            ),
                             RiskLevel::Low,
                             "crypto_xhr_framework",
                         ));

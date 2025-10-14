@@ -105,7 +105,6 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 for domain in SUSPICIOUS_DOMAINS {
                     if content.contains(domain) {
                         // BASH LINE 1120-1122: Make sure it's not just a comment, get line number
-                        let mut line_num = 0;
                         let lines: Vec<(usize, &str)> = content
                             .lines()
                             .enumerate()
@@ -122,8 +121,7 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                             .take(1) // BASH takes only first match
                             .collect();
 
-                        if let Some((ln, first_line)) = lines.first() {
-                            line_num = *ln;
+                        if let Some((line_num, first_line)) = lines.first() {
                             // BASH LINE 1131-1154: Format snippet based on line length
                             let snippet = if path_str.ends_with(".min.js") || first_line.len() > 150
                             {

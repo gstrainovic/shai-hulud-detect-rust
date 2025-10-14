@@ -28,12 +28,36 @@ pub enum RiskLevel {
 
 /// A detection finding with file path, message, and risk level
 /// Corresponds to bash array entries like "file:message"
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Finding {
     pub file_path: PathBuf,
     pub message: String,
     pub risk_level: RiskLevel,
     pub category: String,
+}
+
+// Custom serialization to normalize Windows UNC paths (\\?\C:\...)
+impl Serialize for Finding {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+
+        // Normalize file_path: remove \\?\ prefix and convert to forward slashes
+        let path_str = self.file_path.to_string_lossy();
+        let normalized = path_str
+            .strip_prefix(r"\\?\")
+            .unwrap_or(&path_str)
+            .replace('\\', "/");
+
+        let mut state = serializer.serialize_struct("Finding", 4)?;
+        state.serialize_field("file_path", &normalized)?;
+        state.serialize_field("message", &self.message)?;
+        state.serialize_field("risk_level", &self.risk_level)?;
+        state.serialize_field("category", &self.category)?;
+        state.end()
+    }
 }
 
 impl Finding {
@@ -66,6 +90,10 @@ pub struct ScanResults {
     pub integrity_issues: Vec<Finding>,
     pub typosquatting_warnings: Vec<Finding>,
     pub network_exfiltration_warnings: Vec<Finding>,
+
+    // BASH COMPATIBILITY: Track counts for suppressed low risk findings
+    #[serde(skip)] // Don't include in JSON
+    pub suppressed_namespace_count: usize,
 }
 
 impl ScanResults {
@@ -133,8 +161,9 @@ impl ScanResults {
 
     pub fn low_risk_count(&self) -> usize {
         // NOTE: lockfile_safe_versions are NOT counted in low_risk (they're informational only)
-        // Only namespace warnings and LOW risk crypto/trufflehog patterns
+        // Include both actual namespace warnings AND suppressed ones (for bash compatibility)
         self.namespace_warnings.len()
+            + self.suppressed_namespace_count
             + self
                 .crypto_patterns
                 .iter()

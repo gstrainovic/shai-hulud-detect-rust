@@ -27,7 +27,7 @@ pub fn check_file_hashes<P: AsRef<Path>>(
     crate::colors::print_status(
         crate::colors::Color::Blue,
         &format!(
-            "🔍 Checking {} files for known malicious content...",
+            "Checking {} files for known malicious content...",
             files_count
         ),
     );

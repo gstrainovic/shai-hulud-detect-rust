@@ -14,7 +14,7 @@ use walkdir::WalkDir;
 pub fn check_content<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     crate::colors::print_status(
         crate::colors::Color::Blue,
-        "🔍 Checking for suspicious content patterns...",
+        "Checking for suspicious content patterns...",
     );
 
     let mut findings = Vec::new();

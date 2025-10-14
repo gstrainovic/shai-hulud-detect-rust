@@ -10,7 +10,7 @@ use walkdir::WalkDir;
 pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     crate::colors::print_status(
         crate::colors::Color::Blue,
-        "🔍 Checking for Trufflehog activity and secret scanning...",
+        "Checking for Trufflehog activity and secret scanning...",
     );
 
     let mut findings = Vec::new();

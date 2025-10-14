@@ -25,7 +25,7 @@ pub fn check_packages<P: AsRef<Path>>(
     crate::colors::print_status(
         crate::colors::Color::Blue,
         &format!(
-            "🔍 Checking {} package.json files for compromised packages...",
+            "Checking {} package.json files for compromised packages...",
             files_count
         ),
     );
@@ -131,12 +131,18 @@ pub fn check_packages<P: AsRef<Path>>(
                 for namespace in crate::data::COMPROMISED_NAMESPACES {
                     if package_str.contains(&format!("\"{}/", namespace)) {
                         namespace_warnings.push(Finding::new(
-                            entry.path().to_path_buf(),
+                            // BASH EXACT: Use "Namespace warning" as file_path for compatibility
+                            std::path::PathBuf::from("Namespace warning"),
                             format!(
-                                "Contains packages from compromised namespace: {}",
-                                namespace
+                                "Contains packages from compromised namespace: {} (found in {})",
+                                namespace,
+                                entry
+                                    .path()
+                                    .file_name()
+                                    .unwrap_or_default()
+                                    .to_string_lossy()
                             ),
-                            RiskLevel::Low,
+                            RiskLevel::Low, // BASH EXACT: namespace warnings are LOW risk in LOW_RISK_FINDINGS
                             "namespace_warning",
                         ));
                         // BASH EXACT: No break! Check ALL namespaces

@@ -54,7 +54,7 @@ pub fn check_package_integrity<P: AsRef<Path>>(
 ) -> Vec<Finding> {
     crate::colors::print_status(
         crate::colors::Color::Blue,
-        "🔍 Checking package lock files for integrity issues...",
+        "Checking package lock files for integrity issues...",
     );
 
     let mut findings = Vec::new();

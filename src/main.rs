@@ -116,18 +116,64 @@ fn main() -> Result<()> {
     if args.paranoid {
         colors::print_status(
             colors::Color::Blue,
-            "🔍+ Checking for typosquatting and homoglyph attacks...",
+            "Checking for typosquatting and homoglyph attacks...",
         );
         results.typosquatting_warnings =
             detectors::typosquatting::check_typosquatting(&args.scan_dir);
 
         colors::print_status(
             colors::Color::Blue,
-            "🔍+ Checking for network exfiltration patterns...",
+            "Checking for network exfiltration patterns...",
         );
         results.network_exfiltration_warnings =
             detectors::network::check_network_exfiltration(&args.scan_dir);
     }
+
+    // Calculate total_issues using same logic as report.rs
+    let high_risk = results.workflow_files.len()
+        + results.malicious_hashes.len()
+        + results.compromised_found.len()
+        + results
+            .crypto_patterns
+            .iter()
+            .filter(|f| f.risk_level == detectors::RiskLevel::High)
+            .count()
+        + results
+            .trufflehog_activity
+            .iter()
+            .filter(|f| f.risk_level == detectors::RiskLevel::High)
+            .count()
+        + results.postinstall_hooks.len()
+        + results.shai_hulud_repos.len();
+
+    let medium_risk = results.suspicious_found.len()
+        + results.suspicious_content.len()
+        + results
+            .crypto_patterns
+            .iter()
+            .filter(|f| f.risk_level == detectors::RiskLevel::Medium)
+            .count()
+        + results.git_branches.len()
+        + results
+            .trufflehog_activity
+            .iter()
+            .filter(|f| f.risk_level == detectors::RiskLevel::Medium)
+            .count()
+        + results.integrity_issues.len()
+        + results.typosquatting_warnings.len()
+        + results.network_exfiltration_warnings.len();
+
+    let total_issues = high_risk + medium_risk;
+
+    // BASH EXACT: Apply namespace warning logic - only include in results if they would be shown
+    // Bash shows namespace warnings in detail only when total_issues == 0 OR total_issues < 5
+    if total_issues >= 5 {
+        // Store count for bash compatibility before filtering
+        results.suppressed_namespace_count = results.namespace_warnings.len();
+        // Too many critical issues - don't include namespace warnings in detailed output/JSON
+        results.namespace_warnings = Vec::new();
+    }
+    // If total_issues == 0 or < 5, keep namespace warnings as-is
 
     // Generate report
     report::generate_report(&results, args.paranoid);

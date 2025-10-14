@@ -194,10 +194,25 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 # Pattern-level verification for test cases with findings
 echo ""
-echo "🔬 Running pattern-level verification (detailed)..."
+echo "🔬 Running pattern-level verification (nom-based parser)..."
 echo ""
 
+# Build bash-log-parser once
+echo "🔨 Building bash-log-parser..."
+cd dev-rust-scanner-1/bash-log-parser
+cargo build --release --quiet
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to build bash-log-parser!"
+    exit 1
+fi
+cd ../../
+
 PATTERN_FAILED=0
+PATTERN_TOTAL=0
+TOTAL_BASH_FINDINGS=0
+TOTAL_RUST_FINDINGS=0
+TOTAL_MATCHES=0
+
 for testdir in "${TESTCASES[@]}"; do
     testname=$(basename "$testdir")
     
@@ -209,19 +224,56 @@ for testdir in "${TESTCASES[@]}"; do
         continue
     fi
     
-    # Run Python verification (suppress output, only show failures)
-    python dev-rust-scanner-1/scripts/verify_pattern_match.py "$bash_log" "$rust_json" > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo "⚠️  $testname: Pattern mismatch detected!"
+    PATTERN_TOTAL=$((PATTERN_TOTAL + 1))
+    
+    # Run Rust bash-log-parser verification
+    verification_output=$(dev-rust-scanner-1/bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1)
+    verification_exit=$?
+    
+    # Extract findings counts with defaults
+    bash_count=$(echo "$verification_output" | grep "Bash:" | grep -o '[0-9]\+' | head -1)
+    rust_count=$(echo "$verification_output" | grep "Rust:" | grep -o '[0-9]\+' | head -1)
+    matches=$(echo "$verification_output" | grep "✓ Matches:" | grep -o '[0-9]\+' | head -1)
+    
+    # Default to 0 if empty
+    bash_count=${bash_count:-0}
+    rust_count=${rust_count:-0}
+    matches=${matches:-0}
+    
+    TOTAL_BASH_FINDINGS=$((TOTAL_BASH_FINDINGS + bash_count))
+    TOTAL_RUST_FINDINGS=$((TOTAL_RUST_FINDINGS + rust_count))
+    TOTAL_MATCHES=$((TOTAL_MATCHES + matches))
+    
+    if [ $verification_exit -ne 0 ] || echo "$verification_output" | grep -q "⚠️"; then
+        echo "⚠️  $testname: B:$bash_count R:$rust_count M:$matches"
         PATTERN_FAILED=$((PATTERN_FAILED + 1))
+    else
+        echo "✅ $testname: Perfect match ($matches findings)"
     fi
 done
 
+echo ""
+echo "📊 VERIFICATION SUMMARY:"
+echo "   Test Cases: $PATTERN_TOTAL"
+echo "   Perfect Matches: $((PATTERN_TOTAL - PATTERN_FAILED))"
+echo "   Issues: $PATTERN_FAILED"
+echo ""
+echo "📈 FINDINGS TOTALS:"
+echo "   Bash Findings: $TOTAL_BASH_FINDINGS"
+echo "   Rust Findings: $TOTAL_RUST_FINDINGS" 
+echo "   Matches: $TOTAL_MATCHES"
+if [ $TOTAL_BASH_FINDINGS -gt 0 ]; then
+    MATCH_RATE=$((TOTAL_MATCHES * 100 / TOTAL_BASH_FINDINGS))
+    echo "   Overall Match Rate: $MATCH_RATE%"
+fi
+
 if [ $PATTERN_FAILED -eq 0 ]; then
-    echo "✅ All test cases passed pattern-level verification!"
+    echo ""
+    echo "🎉 ALL TEST CASES ACHIEVED 100% FINDING-LEVEL VERIFICATION!"
 else
-    echo "⚠️  $PATTERN_FAILED test case(s) had pattern mismatches"
-    echo "   Run verify_pattern_match.py manually on failed cases for details"
+    echo ""
+    echo "⚠️  $PATTERN_FAILED test case(s) had finding mismatches"
+    echo "   Run bash-log-parser manually on failed cases for details"
 fi
 
 echo ""

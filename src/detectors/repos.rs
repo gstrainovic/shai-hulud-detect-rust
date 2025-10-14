@@ -14,7 +14,7 @@ use walkdir::WalkDir;
 pub fn check_shai_hulud_repos<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     crate::colors::print_status(
         crate::colors::Color::Blue,
-        "🔍 Checking for Shai-Hulud repositories and migration patterns...",
+        "Checking for Shai-Hulud repositories and migration patterns...",
     );
 
     let mut findings = Vec::new();
@@ -25,10 +25,7 @@ pub fn check_shai_hulud_repos<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
         .filter(|e| e.file_type().is_dir() && e.file_name() == ".git")
     {
         let repo_dir = entry.path().parent().unwrap_or(entry.path());
-        let repo_name = repo_dir
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("");
+        let repo_name = repo_dir.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
         // Check repo name
         if repo_name.to_lowercase().contains("shai-hulud") {
@@ -69,7 +66,8 @@ pub fn check_shai_hulud_repos<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             if content.contains("eyJ") && content.contains("==") {
                 findings.push(Finding::new(
                     repo_dir.to_path_buf(),
-                    "Contains suspicious data.json (possible base64-encoded credentials)".to_string(),
+                    "Contains suspicious data.json (possible base64-encoded credentials)"
+                        .to_string(),
                     RiskLevel::High,
                     "shai_hulud_repo",
                 ));

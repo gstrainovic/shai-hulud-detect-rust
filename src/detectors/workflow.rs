@@ -13,7 +13,7 @@ use walkdir::WalkDir;
 pub fn check_workflow_files<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     crate::colors::print_status(
         crate::colors::Color::Blue,
-        "🔍 Checking for malicious workflow files...",
+        "Checking for malicious workflow files...",
     );
 
     let mut findings = Vec::new();
