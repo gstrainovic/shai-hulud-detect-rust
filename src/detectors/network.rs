@@ -104,18 +104,26 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             if !path_str.ends_with("package-lock.json") && !path_str.ends_with("yarn.lock") {
                 for domain in SUSPICIOUS_DOMAINS {
                     if content.contains(domain) {
-                        // BASH LINE 1120-1122: Make sure it's not just a comment
-                        let lines: Vec<&str> = content
+                        // BASH LINE 1120-1122: Make sure it's not just a comment, get line number
+                        let mut line_num = 0;
+                        let lines: Vec<(usize, &str)> = content
                             .lines()
-                            .filter(|line| {
-                                line.contains(domain)
+                            .enumerate()
+                            .filter_map(|(idx, line)| {
+                                if line.contains(domain)
                                     && !line.trim().starts_with('#')
                                     && !line.trim().starts_with("//")
+                                {
+                                    Some((idx + 1, line)) // 1-indexed line numbers
+                                } else {
+                                    None
+                                }
                             })
                             .take(1) // BASH takes only first match
                             .collect();
 
-                        if let Some(first_line) = lines.first() {
+                        if let Some((ln, first_line)) = lines.first() {
+                            line_num = *ln;
                             // BASH LINE 1131-1154: Format snippet based on line length
                             let snippet = if path_str.ends_with(".min.js") || first_line.len() > 150
                             {
@@ -136,9 +144,13 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                 }
                             };
 
+                            // BASH format: "Suspicious domain found: DOMAIN at line N: snippet"
                             findings.push(Finding::new(
                                 entry.path().to_path_buf(),
-                                format!("Suspicious domain found: {}: {}", domain, snippet),
+                                format!(
+                                    "Suspicious domain found: {} at line {}: {}",
+                                    domain, line_num, snippet
+                                ),
                                 RiskLevel::Medium,
                                 "network_exfiltration",
                             ));
