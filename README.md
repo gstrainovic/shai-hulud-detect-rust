@@ -102,12 +102,13 @@ While functionally identical in detection results, the Rust implementation has s
 - Can crash on very large projects (290k+ files)
 
 ### 3. **Memory Safety** 🛡️
-**Rust:** Memory-safe, no segfaults
-- Handles extremely large projects (290k+ files)
+**Rust:** Memory-safe, no segfaults possible
 - Predictable memory usage (~15MB constant)
+- No subprocess overhead (grep/awk/sed)
 
-**Bash:** Can crash on large projects
+**Bash:** Can crash on very large projects
 - Known issue: segfaults on 290k+ files ([Issue #32](https://github.com/Cobenian/shai-hulud-detect/issues/32))
+- Memory usage can grow with project size
 
 ### 4. **Cross-Platform Binaries** 📦
 **Rust:** Pre-built binaries for all platforms
