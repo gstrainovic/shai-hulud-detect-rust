@@ -522,6 +522,11 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                 }
             }
 
+            // Show trufflehog activity (environment variable access)
+            for finding in &results.trufflehog_activity {
+                println!("   - {}", finding.message);
+            }
+
             println!("   \x1b[34mNOTE: These are typically legitimate framework patterns.\x1b[0m");
         }
     }

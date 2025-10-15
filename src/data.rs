@@ -72,23 +72,68 @@ pub fn load_compromised_packages<P: AsRef<Path>>(
     packages_file: P,
 ) -> Result<HashSet<CompromisedPackage>> {
     let packages_file = packages_file.as_ref();
-
     let mut packages = HashSet::new();
 
+    // STRATEGY: GitHub-First (always fresh data!)
+    // 1. Try GitHub download (best - always up to date)
+    // 2. Fall back to local files (offline mode)
+    // 3. Last resort: embedded minimal list
+
+    // Try GitHub first
+    crate::colors::print_status(
+        crate::colors::Color::Blue,
+        "📡 Fetching latest compromised packages from GitHub...",
+    );
+
+    match download_from_github() {
+        Ok(content) => {
+            // Parse GitHub content
+            for line in content.lines() {
+                let line = line.trim_end_matches('\r');
+                if line.trim().starts_with('#') || line.trim().is_empty() {
+                    continue;
+                }
+                if let Some(pkg) = CompromisedPackage::from_line(line) {
+                    packages.insert(pkg);
+                }
+            }
+
+            crate::colors::print_status(
+                crate::colors::Color::Green,
+                &format!(
+                    "✅ Downloaded {} compromised packages from GitHub",
+                    packages.len()
+                ),
+            );
+
+            // Cache for offline use
+            if let Err(e) = fs::write("compromised-packages.txt", &content) {
+                crate::colors::print_status(
+                    crate::colors::Color::Yellow,
+                    &format!("⚠️  Could not cache file: {}", e),
+                );
+            }
+
+            return Ok(packages);
+        }
+        Err(e) => {
+            crate::colors::print_status(
+                crate::colors::Color::Yellow,
+                &format!("⚠️  GitHub download failed: {} - using cached files...", e),
+            );
+        }
+    }
+
+    // Fallback: Try local file
     if packages_file.exists() {
         let content =
             fs::read_to_string(packages_file).context("Failed to read compromised-packages.txt")?;
 
         for line in content.lines() {
-            // Trim potential Windows carriage returns
             let line = line.trim_end_matches('\r');
-
-            // Skip comments and empty lines
             if line.trim().starts_with('#') || line.trim().is_empty() {
                 continue;
             }
-
-            // Add valid package:version lines to set
             if let Some(pkg) = CompromisedPackage::from_line(line) {
                 packages.insert(pkg);
             }
@@ -96,41 +141,51 @@ pub fn load_compromised_packages<P: AsRef<Path>>(
 
         crate::colors::print_status(
             crate::colors::Color::Blue,
-            &format!(
-                "📦 Loaded {} compromised packages from {}",
-                packages.len(),
-                crate::utils::normalize_path(packages_file)
-            ),
-        );
-    } else {
-        // Fallback to embedded list if file not found
-        crate::colors::print_status(
-            crate::colors::Color::Yellow,
-            &format!(
-                "⚠️  Warning: {} not found, using embedded package list",
-                packages_file.display()
-            ),
+            &format!("📦 Using cached file ({} packages)", packages.len()),
         );
 
-        // Core compromised packages - fallback list
-        let fallback = vec![
-            "@ctrl/tinycolor:4.1.0",
-            "@ctrl/tinycolor:4.1.1",
-            "@ctrl/tinycolor:4.1.2",
-            "@ctrl/deluge:1.2.0",
-            "angulartics2:14.1.2",
-            "koa2-swagger-ui:5.11.1",
-            "koa2-swagger-ui:5.11.2",
-        ];
+        return Ok(packages);
+    }
 
-        for entry in fallback {
-            if let Some(pkg) = CompromisedPackage::from_line(entry) {
-                packages.insert(pkg);
-            }
+    // Last resort: embedded list
+    crate::colors::print_status(
+        crate::colors::Color::Red,
+        "❌ No internet and no cached file!",
+    );
+    crate::colors::print_status(
+        crate::colors::Color::Yellow,
+        "⚠️  Using embedded minimal list (7 packages only!)",
+    );
+
+    let fallback = vec![
+        "@ctrl/tinycolor:4.1.0",
+        "@ctrl/tinycolor:4.1.1",
+        "@ctrl/tinycolor:4.1.2",
+        "@ctrl/deluge:1.2.0",
+        "angulartics2:14.1.2",
+        "koa2-swagger-ui:5.11.1",
+        "koa2-swagger-ui:5.11.2",
+    ];
+
+    for entry in fallback {
+        if let Some(pkg) = CompromisedPackage::from_line(entry) {
+            packages.insert(pkg);
         }
     }
 
     Ok(packages)
+}
+
+// Helper: Download from GitHub
+fn download_from_github() -> Result<String> {
+    let url = "https://raw.githubusercontent.com/Cobenian/shai-hulud-detect/main/compromised-packages.txt";
+
+    let response = ureq::get(url)
+        .timeout(std::time::Duration::from_secs(10))
+        .call()
+        .context("HTTP request failed")?;
+
+    response.into_string().context("Failed to read response")
 }
 
 // Helper to load both packages and hashes
