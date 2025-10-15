@@ -1,6 +1,6 @@
 [package]
 name = "shai-hulud-detector"
-version = "2.6.3"
+version = "2.6.4"
 edition = "2021"
 description = "Rust Shai-Hulud NPM Supply Chain Attack Detection Tool - 100% Bash Compatible"
 authors = ["Goran Strainovic", "Optimized for exact Bash compatibility"]
@@ -40,6 +40,9 @@ clap = { version = "4.4", features = ["derive"] }
 
 # Terminal colors
 colored = "2.1"
+
+# HTTP client for auto-downloading compromised-packages.txt
+ureq = "2.10"
 
 [dev-dependencies]
 tempfile = "3.8"
