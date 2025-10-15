@@ -103,13 +103,15 @@ TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d |
 echo "Found ${#TESTCASES[@]} test cases"
 echo ""
 
-# Run Bash scans in parallel (max 4 at a time to not overload)
-echo "🔵 Phase 1: Running Bash scanners in parallel (max 4 concurrent)..."
-printf '%s\n' "${TESTCASES[@]}" | xargs -P 4 -I {} bash -c 'run_bash_testcase "$@"' _ {}
+# Run Bash scans in parallel (CPU-based scaling with 2.25x multiplier for all 25 parallel)
+CPU_CORES_RAW=$(nproc 2>/dev/null || echo 4)  # fallback to 4 if nproc unavailable
+CPU_CORES=$((CPU_CORES_RAW * 9 / 4))  # 2.25x scaling (integer math: 9/4 = 2.25)
+echo "🔵 Phase 1: Running Bash scanners in parallel (max $CPU_CORES concurrent)..."
+printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_bash_testcase "$@"' _ {}
 
 echo ""
-echo "🟢 Phase 2: Running Rust scanners in parallel (max 4 concurrent - optimal)..."
-printf '%s\n' "${TESTCASES[@]}" | xargs -P 4 -I {} bash -c 'run_rust_testcase "$@"' _ {}
+echo "🟢 Phase 2: Running Rust scanners in parallel (max $CPU_CORES concurrent - optimal)..."
+printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_rust_testcase "$@"' _ {}
 
 echo ""
 echo "📊 Creating comparison report..."

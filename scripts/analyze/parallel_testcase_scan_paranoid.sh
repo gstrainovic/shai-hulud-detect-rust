@@ -103,13 +103,17 @@ TEST_COUNT=$(echo "$TEST_CASES" | wc -l)
 echo "Found $TEST_COUNT test cases"
 echo ""
 
-# Phase 1: Run Bash scanners in parallel (max 4 concurrent)
-echo "🔵 Phase 1: Running Bash scanners in PARANOID mode (max 4 concurrent)..."
-echo "$TEST_CASES" | xargs -I {} -P 4 bash -c 'run_bash_testcase_paranoid "$@"' _ {}
+# Run scans in parallel (CPU-based scaling with 2.25x multiplier for all parallel)
+CPU_CORES_RAW=$(nproc 2>/dev/null || echo 4)  # fallback to 4 if nproc unavailable
+CPU_CORES=$((CPU_CORES_RAW * 9 / 4))  # 2.25x scaling (integer math: 9/4 = 2.25)
+
+# Phase 1: Run Bash scanners in parallel
+echo "🔵 Phase 1: Running Bash scanners in PARANOID mode (max $CPU_CORES concurrent)..."
+echo "$TEST_CASES" | xargs -I {} -P $CPU_CORES bash -c 'run_bash_testcase_paranoid "$@"' _ {}
 
 echo ""
-echo "🔵 Phase 2: Running Rust scanners in PARANOID mode (max 4 concurrent)..."
-echo "$TEST_CASES" | xargs -I {} -P 4 bash -c 'run_rust_testcase_paranoid "$@"' _ {}
+echo "🔵 Phase 2: Running Rust scanners in PARANOID mode (max $CPU_CORES concurrent)..."
+echo "$TEST_CASES" | xargs -I {} -P $CPU_CORES bash -c 'run_rust_testcase_paranoid "$@"' _ {}
 
 echo ""
 echo "📊 Creating comparison report..."
