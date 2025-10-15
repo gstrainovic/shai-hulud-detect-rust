@@ -178,10 +178,22 @@ fn main() -> Result<()> {
     // Generate report
     report::generate_report(&results, args.paranoid);
 
+    // BASH COMPATIBILITY: Remove LOW RISK findings from JSON if total_issues >= 5
+    // (Bash doesn't show them in output, so they shouldn't be in our JSON either)
+    let mut results_for_json = results.clone();
+    let total_issues = results.high_risk_count() + results.medium_risk_count(args.paranoid);
+    if total_issues >= 5 {
+        // Remove LOW RISK findings (namespace warnings and crypto patterns with LOW risk)
+        results_for_json.namespace_warnings.clear();
+        results_for_json
+            .crypto_patterns
+            .retain(|f| f.risk_level != detectors::RiskLevel::Low);
+    }
+
     // Save JSON output for pattern-level verification
     // Save in current directory by default (can be redirected in scripts)
     let json_output_path = "scan_results.json";
-    let json_output = serde_json::to_string_pretty(&results)?;
+    let json_output = serde_json::to_string_pretty(&results_for_json)?;
     std::fs::write(&json_output_path, json_output)?;
     colors::print_status(
         colors::Color::Green,

@@ -40,9 +40,9 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
                 .unwrap_or(false)
         })
     {
-        if let Ok(content) = fs::read_to_string(entry.path()) {
-            let path_str = entry.path().to_string_lossy().to_string();
+        let path_str = entry.path().to_string_lossy().to_string();
 
+        if let Ok(content) = fs::read_to_string(entry.path()) {
             // Check for XMLHttpRequest hijacking - EXACT BASH Logic for 100% compatibility
             if content.contains("XMLHttpRequest.prototype.send") {
                 // Bash exact logic: framework paths get LOW RISK (effectively ignored in MEDIUM count)

@@ -548,13 +548,10 @@ fn main() -> Result<()> {
         if extra > 0 {
             println!();
             println!("{}", "Extra in Rust:".bright_cyan().bold());
-            // Show unmatched rust findings
-            unmatched_rust.iter().take(5).for_each(|fp| {
+            // Show ALL extra rust findings (no truncation)
+            unmatched_rust.iter().for_each(|fp| {
                 println!("  + {}", fp);
             });
-            if extra > 5 {
-                println!("  ... and {} more", extra - 5);
-            }
         }
 
         let webhook_mismatch = unmatched_bash

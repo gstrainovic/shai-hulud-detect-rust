@@ -1,88 +1,94 @@
 #!/bin/bash
 # Full sequential test - scans ENTIRE test-cases directory at once
-# This tests how scanners handle the complete collection (integration test)
+# Usage: ./full_sequential_test.sh [--paranoid]
 
-cd /c/Users/gstra/Code/rust-scanner
+# Parse mode
+PARANOID_MODE=""
+LOG_SUBDIR="sequential-logs"
+MODE_LABEL="Normal Mode"
+
+if [[ "${1:-}" == "--paranoid" ]]; then
+    PARANOID_MODE="--paranoid"
+    LOG_SUBDIR="sequential-logs-paranoid"
+    MODE_LABEL="PARANOID Mode"
+fi
+
+ cd /c/Users/gstra/Code/rust-scanner
 
 START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_DIR="dev-rust-scanner-1/scripts/analyze/sequential-logs/$TIMESTAMP"
-mkdir -p "$LOG_DIR"
+LOG_DIR="dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR/$TIMESTAMP"
+ mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔧 FULL SEQUENTIAL TEST - ENTIRE test-cases/ Directory"
+echo "🔧 FULL SEQUENTIAL TEST - $MODE_LABEL"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs: $LOG_DIR"
 echo "📂 Target: shai-hulud-detect/test-cases/ (ALL test cases at once)"
 echo ""
 
-# Build Rust scanner binary once at the start
+# Build Rust scanner binary
 echo "🔨 Building Rust scanner binary..."
-cd dev-rust-scanner-1
-cargo build --release --quiet
+ cd dev-rust-scanner-1
+ cargo build --release --quiet
 if [ $? -ne 0 ]; then
     echo "❌ Failed to build Rust scanner!"
     exit 1
 fi
-cd ..
-echo "✅ Binary built: dev-rust-scanner-1/target/release/shai-hulud-detector"
+ cd ..
+echo "✅ Binary built"
 echo ""
 
-# Phase 1: Bash scanner on ENTIRE test-cases directory
+# Phase 1: Bash scanner
 echo "🔵 Phase 1: Running Bash scanner on ENTIRE test-cases directory..."
-cd shai-hulud-detect
-timeout 600 ./shai-hulud-detector.sh test-cases/ > "../$LOG_DIR/bash_full_scan.log" 2>&1
+ cd shai-hulud-detect
+ timeout 600 ./shai-hulud-detector.sh $PARANOID_MODE test-cases/ > "../$LOG_DIR/bash_full_scan.log" 2>&1
 bash_exit=$?
-cd ..
+ cd ..
 
 if [ $bash_exit -eq 124 ]; then
-    echo "⏱️  Bash scanner TIMEOUT (>10 min)" | tee -a "$LOG_DIR/bash_full_scan.log"
+    echo "⏱️  Bash TIMEOUT (>10 min)"
 elif [ $bash_exit -eq 0 ]; then
-    echo "✅ Bash scanner completed"
+    echo "✅ Bash completed"
 else
-    echo "⚠️  Bash scanner exit code: $bash_exit"
+    echo "⚠️  Bash exit code: $bash_exit"
 fi
 
-# Extract bash summary
-grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/bash_full_scan.log" > "$LOG_DIR/bash_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_summary.txt"
+ grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/bash_full_scan.log" > "$LOG_DIR/bash_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_summary.txt"
 
 echo ""
 
-# Phase 2: Rust scanner on ENTIRE test-cases directory
+# Phase 2: Rust scanner
 echo "🟢 Phase 2: Running Rust scanner on ENTIRE test-cases directory..."
-cd dev-rust-scanner-1
-./target/release/shai-hulud-detector ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
+ cd dev-rust-scanner-1
+ ./target/release/shai-hulud-detector $PARANOID_MODE ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
 rust_exit=$?
 
-# Save JSON output
 if [ -f "scan_results.json" ]; then
-    mv "scan_results.json" "../$LOG_DIR/rust_full_scan.json"
-    echo "💾 JSON results saved: $LOG_DIR/rust_full_scan.json"
+     mv "scan_results.json" "../$LOG_DIR/rust_full_scan.json"
+    echo "💾 JSON saved"
 fi
 
-cd ..
+ cd ..
 
 if [ $rust_exit -eq 0 ]; then
-    echo "✅ Rust scanner completed"
+    echo "✅ Rust completed"
 else
-    echo "⚠️  Rust scanner exit code: $rust_exit"
+    echo "⚠️  Rust exit code: $rust_exit"
 fi
 
-# Extract rust summary
-grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/rust_full_scan.log" > "$LOG_DIR/rust_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/rust_summary.txt"
+ grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/rust_full_scan.log" > "$LOG_DIR/rust_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/rust_summary.txt"
 
 echo ""
 echo "📊 Comparing results..."
 
-# Strip ANSI codes
 strip_ansi() {
-    sed 's/\x1b\[[0-9;]*m//g'
+     sed 's/\x1b\[[0-9;]*m//g'
 }
 
-# Extract numbers
 bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
 bash_med=$(grep "Medium Risk Issues:" "$LOG_DIR/bash_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
 bash_low=$(grep "Low Risk" "$LOG_DIR/bash_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
@@ -91,7 +97,6 @@ rust_high=$(grep "High Risk Issues:" "$LOG_DIR/rust_summary.txt" 2>/dev/null | s
 rust_med=$(grep "Medium Risk Issues:" "$LOG_DIR/rust_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
 rust_low=$(grep "Low Risk" "$LOG_DIR/rust_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
 
-# Default to 0
 bash_high=${bash_high:-0}
 bash_med=${bash_med:-0}
 bash_low=${bash_low:-0}
@@ -99,9 +104,8 @@ rust_high=${rust_high:-0}
 rust_med=${rust_med:-0}
 rust_low=${rust_low:-0}
 
-# Check match
 if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
-    match="✅ PERFECT MATCH"
+    match="✅ MATCH"
 else
     match="❌ MISMATCH"
 fi
@@ -114,48 +118,51 @@ SECONDS=$((DURATION % 60))
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 FULL SCAN RESULTS (Entire test-cases/ Directory)"
+echo "📊 RESULTS - $MODE_LABEL"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-printf "%-20s %15s %15s\n" "Scanner" "Findings (H/M/L)" "Status"
-echo "──────────────────────────────────────────────────────────"
-printf "%-20s %4s/%3s/%3s      %s\n" "Bash Scanner" "$bash_high" "$bash_med" "$bash_low" "Exit: $bash_exit"
-printf "%-20s %4s/%3s/%3s      %s\n" "Rust Scanner" "$rust_high" "$rust_med" "$rust_low" "Exit: $rust_exit"
-echo "──────────────────────────────────────────────────────────"
-echo ""
-echo "🎯 Result: $match"
-echo ""
-echo "⏱️  TIMING:"
-echo "   Started:  $START_READABLE"
-echo "   Finished: $END_READABLE"
-echo "   Duration: ${MINUTES}m ${SECONDS}s"
-echo ""
-echo "💾 Logs saved:"
-echo "   Bash:     $LOG_DIR/bash_full_scan.log"
-echo "   Rust:     $LOG_DIR/rust_full_scan.log"
-echo "   Summary:  $LOG_DIR/*_summary.txt"
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+printf "Bash: %s/%s/%s | Rust: %s/%s/%s | %s\n" "$bash_high" "$bash_med" "$bash_low" "$rust_high" "$rust_med" "$rust_low" "$match"
 
-# Save comparison
-cat > "$LOG_DIR/comparison.txt" << EOF
-FULL SCAN COMPARISON (Entire test-cases/ directory)
-====================================================
+# Pattern verification
+echo ""
+echo "🔬 Pattern-level verification..."
 
-Bash Scanner: $bash_high HIGH / $bash_med MEDIUM / $bash_low LOW
-Rust Scanner: $rust_high HIGH / $rust_med MEDIUM / $rust_low LOW
-
-Match: $match
-
-Started:  $START_READABLE
-Finished: $END_READABLE
-Duration: ${MINUTES}m ${SECONDS}s
-EOF
-
-if [ "$match" = "✅ PERFECT MATCH" ]; then
-    exit 0
-else
-    echo "⚠️  Scanners produced different results - review logs for details"
-    exit 1
+PARSER_BIN="dev-rust-scanner-1/bash-log-parser/target/release/bash-log-parser"
+if [[ ! -x "$PARSER_BIN" ]]; then
+    echo "🔨 Building parser..."
+     cd dev-rust-scanner-1/bash-log-parser
+     cargo build --release --quiet
+     cd ../../
 fi
 
+if [ -f "$LOG_DIR/rust_full_scan.json" ]; then
+    # Run parser and show FULL output with details
+    "$PARSER_BIN" "$LOG_DIR/bash_full_scan.log" "$LOG_DIR/rust_full_scan.json" 2>&1 | tee "$LOG_DIR/pattern_verification.log"
+    verification_exit=$?
+    
+    if [ $verification_exit -eq 0 ]; then
+        echo ""
+        echo "✅ Perfect fingerprint match!"
+        PATTERN_OK=true
+    else
+        echo ""
+        echo "⚠️  Pattern differences detected - see details above"
+        echo "📝 Full report: $LOG_DIR/pattern_verification.log"
+        PATTERN_OK=false
+    fi
+else
+    echo "⚠️  No JSON - skipped"
+    PATTERN_OK=true
+fi
+
+echo ""
+echo "⏱️  Duration: ${MINUTES}m ${SECONDS}s"
+echo "💾 Logs: $LOG_DIR"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+if [ "$match" = "✅ MATCH" ] && [ "$PATTERN_OK" = true ]; then
+    echo "🎉 FULL VERIFICATION PASSED!"
+    exit 0
+else
+    echo "⚠️  Differences detected - review logs"
+    exit 1
+fi

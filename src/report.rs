@@ -510,9 +510,19 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                 Color::Blue,
                 "ℹ️  LOW RISK FINDINGS (likely false positives):",
             );
+
+            // Show all LOW risk findings
             for finding in &results.namespace_warnings {
                 println!("   - {}", finding.message);
             }
+
+            for finding in &results.crypto_patterns {
+                if finding.risk_level == RiskLevel::Low {
+                    println!("   - Crypto pattern: {}", finding.message);
+                }
+            }
+
+            println!("   \x1b[34mNOTE: These are typically legitimate framework patterns.\x1b[0m");
         }
     }
 

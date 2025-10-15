@@ -73,7 +73,7 @@ impl Finding {
 
 /// Collection of all findings from a scan
 /// Corresponds to bash global arrays: WORKFLOW_FILES, MALICIOUS_HASHES, etc.
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ScanResults {
     pub workflow_files: Vec<Finding>,
     pub malicious_hashes: Vec<Finding>,
