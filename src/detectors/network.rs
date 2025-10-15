@@ -134,11 +134,12 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     format!("...{}...", &first_line[..80.min(first_line.len())])
                                 }
                             } else {
-                                // BASH LINE 1147: Cut to 80 chars
+                                // BASH LINE 1147: Cut to 80 chars and ALWAYS append ...
                                 if first_line.len() > 80 {
                                     format!("{}...", &first_line[..80])
                                 } else {
-                                    first_line.to_string()
+                                    // Bash appends ... even if line < 80 chars
+                                    format!("{}...", first_line)
                                 }
                             };
 
@@ -163,6 +164,14 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             {
                 // BASH LINE 1166: Get line number for snippet
                 let has_atob = content.contains("atob(");
+
+                // Find line number
+                let line_num = content
+                    .lines()
+                    .enumerate()
+                    .find(|(_, l)| l.contains("atob") || l.contains("base64"))
+                    .map(|(idx, _)| idx + 1);
+
                 let snippet = if path_str.ends_with(".min.js")
                     || content.lines().next().map(|l| l.len()).unwrap_or(0) > 500
                 {
@@ -198,9 +207,23 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     }
                 };
 
+                // BASH ALWAYS appends "..." after snippet
+                let formatted_snippet = if snippet.ends_with("...") {
+                    snippet
+                } else {
+                    format!("{}...", snippet)
+                };
+
+                // Format message based on whether we have line number (like Bash does)
+                let message = if let Some(num) = line_num {
+                    format!("Base64 decoding at line {}: {}", num, formatted_snippet)
+                } else {
+                    format!("Base64 decoding at line: {}", formatted_snippet)
+                };
+
                 findings.push(Finding::new(
                     entry.path().to_path_buf(),
-                    format!("Base64 decoding at line: {}", snippet),
+                    message,
                     RiskLevel::Medium,
                     "network_exfiltration",
                 ));
@@ -275,10 +298,11 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                             .to_string()
                                     }
                                 } else {
+                                    // Bash cuts to 80 chars and ALWAYS appends ...
                                     if line.len() > 80 {
                                         format!("{}...", &line[..80])
                                     } else {
-                                        line.to_string()
+                                        format!("{}...", line)
                                     }
                                 };
 

@@ -148,31 +148,8 @@ fn parse_paranoid_continuation(input: &str) -> IResult<&str, String> {
 }
 
 fn normalize_paranoid_message(message: &str) -> String {
-    let mut msg = message.trim().to_string();
-
-    if msg.ends_with("...") {
-        msg.truncate(msg.len().saturating_sub(3));
-        msg = msg.trim_end().to_string();
-    }
-
-    if msg.starts_with("Suspicious base64 encoding near network operation") {
-        return "Suspicious base64 encoding near network operation".to_string();
-    }
-
-    if msg.starts_with("Base64 decoding at line ") {
-        if let Some(idx) = msg.find("line ") {
-            let rest = &msg[idx + 5..];
-            if let Some(colon_pos) = rest.find(':') {
-                if rest[..colon_pos].chars().all(|c| c.is_ascii_digit()) {
-                    let prefix = &msg[..idx];
-                    let suffix = &rest[colon_pos..];
-                    msg = format!("{}line{}", prefix, suffix);
-                }
-            }
-        }
-    }
-
-    msg
+    // NO NORMALIZATION - parse exactly what Bash outputs
+    message.trim().to_string()
 }
 
 fn parse_paranoid_entry(input: &str) -> IResult<&str, (String, String)> {
@@ -268,48 +245,33 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
 
     while i < lines.len() {
         let line = lines[i].trim();
-        eprintln!("[DEBUG] Processing line {}: '{}'", i, line);
 
         // Check for risk marker (normal or paranoid)
         if (line.contains("RISK") && line.contains(":")) || line.contains("RISK FINDINGS") {
-            match risk_marker(line) {
-                Ok((_, marker)) => {
-                    current_risk = Some(extract_risk(marker));
-                    eprintln!("[DEBUG] Set current_risk to {:?}", current_risk);
-                }
-                Err(e) => eprintln!(
-                    "[DEBUG] risk_marker failed for line: '{}' error: {:?}",
-                    line, e
-                ),
+            if let Ok((_, marker)) = risk_marker(line) {
+                current_risk = Some(extract_risk(marker));
             }
         }
 
         if line.contains("RISK (PARANOID):") {
-            eprintln!("[DEBUG] Found PARANOID block at line {}", i);
             current_risk = None;
             let remaining = lines[i..].join("\n");
             if let Ok((rest, (risk_label, entries))) = parse_paranoid_block(&remaining) {
                 let consumed_len = remaining.len().saturating_sub(rest.len());
                 let consumed_lines = remaining[..consumed_len].lines().count().max(1);
-                eprintln!("[DEBUG] Parsed {} paranoid entries", entries.len());
                 for (message, path) in entries {
                     findings.push(Finding::new(&path, &message, &risk_label));
                 }
                 i += consumed_lines.saturating_sub(1);
                 continue;
-            } else {
-                eprintln!("[DEBUG] Failed to parse paranoid block");
             }
         }
 
         if let Some(risk) = current_risk {
-            eprintln!("[DEBUG] In risk block: {}", risk);
             // Try: "- Label: value" + "Found in: path"
             if let Ok((_, value)) = parse_label_value(line) {
-                eprintln!("[DEBUG] Matched label_value: {}", value);
                 if i + 1 < lines.len() {
                     if let Ok((_, path)) = parse_found_in(lines[i + 1].trim()) {
-                        eprintln!("[DEBUG] Matched found_in: {}", path);
                         let mut path_string = path.to_string();
                         // Handle soft-wrapped path lines (terminal line wraps) by concatenating following lines
                         let mut look_ahead = i + 2;
@@ -333,10 +295,6 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
                             look_ahead += 1;
                         }
                         findings.push(Finding::new(&path_string, value, risk));
-                        eprintln!(
-                            "[DEBUG] Added finding: {} | {} | {}",
-                            path_string, value, risk
-                        );
                         i = look_ahead;
                         continue;
                     }
@@ -345,7 +303,6 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
 
             // Try: "- /path:message"
             if let Ok((_, (path, message))) = parse_path_colon_message(line) {
-                eprintln!("[DEBUG] Matched path_colon_message: {} : {}", path, message);
                 findings.push(Finding::new(path, message, risk));
                 i += 1;
                 continue;
@@ -353,7 +310,6 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
 
             // Try: "- simple list item" (for LOW RISK FINDINGS)
             if line.trim().starts_with("- ") && risk == "LOW" {
-                eprintln!("[DEBUG] Matched low risk list item");
                 let item = line.trim().trim_start_matches("- ").trim();
                 // For LOW RISK items, extract category prefix as file_path
                 if let Some(colon_pos) = item.find(": ") {
@@ -370,14 +326,12 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
 
             // Try: "- /path" (workflows)
             if let Ok((_, path)) = parse_simple_path(line) {
-                eprintln!("[DEBUG] Matched simple_path: {}", path);
                 if !path.contains(':') && path.starts_with('/') {
                     findings.push(Finding::new(
                         path,
                         "Known malicious workflow filename",
                         risk,
                     ));
-                    eprintln!("[DEBUG] Added workflow finding");
                 }
             }
         }
@@ -535,6 +489,7 @@ fn main() -> Result<()> {
     );
     println!();
 
+    // SUCCESS CRITERIA: Fingerprint-based matching (100% fingerprint match required)
     if missing == 0
         && extra == 0
         && matches == bash_findings.len()

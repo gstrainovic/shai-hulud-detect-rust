@@ -1,6 +1,17 @@
 #!/bin/bash
-# Parallel per-test-case Bash scanner with detailed logging
-# This creates baseline data for each test case subfolder
+# Parallel per-test-case scanner - supports both normal and paranoid modes
+# Usage: ./parallel_testcase_scan.sh [--paranoid]
+
+# Parse mode
+PARANOID_MODE=""
+LOG_SUBDIR="per-testcase-logs"
+MODE_LABEL="Normal Mode"
+
+if [[ "${1:-}" == "--paranoid" ]]; then
+    PARANOID_MODE="--paranoid"
+    LOG_SUBDIR="per-testcase-logs-paranoid"
+    MODE_LABEL="PARANOID Mode"
+fi
 
 cd /c/Users/gstra/Code/rust-scanner
 
@@ -8,11 +19,11 @@ START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_DIR="dev-rust-scanner-1/scripts/analyze/per-testcase-logs/$TIMESTAMP"
+LOG_DIR="dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🚀 PARALLEL TEST (Normal Mode)"
+echo "🚀 PARALLEL TEST ($MODE_LABEL)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs will be in: $LOG_DIR"
@@ -38,10 +49,10 @@ run_bash_testcase() {
     
     echo "⏳ [$(date +%H:%M:%S)] Starting: $testname"
     
-    # Run bash scanner (normal mode) - use absolute path
+    # Run bash scanner - use absolute path
     cd shai-hulud-detect
     local abs_testdir=$(realpath "../$testdir")
-    timeout 300 ./shai-hulud-detector.sh "$abs_testdir" > "../$logfile" 2>&1
+    timeout 300 ./shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "../$logfile" 2>&1
     local exit_code=$?
     cd ..
     
@@ -69,10 +80,10 @@ run_rust_testcase() {
     local temp_scan_dir="dev-rust-scanner-1/temp_scan_$$_${testname}"
     mkdir -p "$temp_scan_dir"
     
-    # Run rust scanner (normal mode) - use pre-built binary
+    # Run rust scanner - use pre-built binary
     cd "$temp_scan_dir"
     local abs_testdir=$(realpath "../../$testdir")
-    ../target/release/shai-hulud-detector "$abs_testdir" > "../../$logfile" 2>&1
+    ../target/release/shai-hulud-detector "$abs_testdir" $PARANOID_MODE > "../../$logfile" 2>&1
     local exit_code=$?
     
     # Copy JSON output to log directory
@@ -96,6 +107,7 @@ run_rust_testcase() {
 export -f run_bash_testcase
 export -f run_rust_testcase
 export LOG_DIR
+export PARANOID_MODE
 
 # Get all test case directories
 TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
@@ -161,7 +173,7 @@ echo ""
 echo "✅ Done! Results in: $LOG_DIR"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "� PER-TEST-CASE COMPARISON"
+echo "📊 PER-TEST-CASE COMPARISON"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 printf "%-35s %12s %12s %8s\n" "Test Case" "Bash (H/M/L)" "Rust (H/M/L)" "Match"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -246,11 +258,16 @@ for testdir in "${TESTCASES[@]}"; do
     TOTAL_RUST_FINDINGS=$((TOTAL_RUST_FINDINGS + rust_count))
     TOTAL_MATCHES=$((TOTAL_MATCHES + matches))
     
-    if [ $verification_exit -ne 0 ] || echo "$verification_output" | grep -q "⚠️"; then
-        echo "⚠️  $testname: B:$bash_count R:$rust_count M:$matches"
+    # Check if perfect match (exit 0) or pattern mismatch (exit != 0)
+    if [ $verification_exit -ne 0 ]; then
+        echo "⚠️  $testname: Pattern mismatch detected!"
         PATTERN_FAILED=$((PATTERN_FAILED + 1))
     else
-        echo "✅ $testname: Perfect match ($matches findings)"
+        if [ $bash_count -eq 0 ]; then
+            echo "✅ $testname: Perfect match (0 findings)"
+        else
+            echo "✅ $testname: Perfect match ($bash_count findings)"
+        fi
     fi
 done
 
@@ -274,10 +291,8 @@ if [ $PATTERN_FAILED -eq 0 ]; then
     echo "🎉 ALL TEST CASES ACHIEVED 100% FINDING-LEVEL VERIFICATION!"
 else
     echo ""
-    echo "⚠️  $PATTERN_FAILED test case(s) had finding mismatches"
+    echo "⚠️  $PATTERN_FAILED test case(s) had pattern mismatches"
     echo "   Run bash-log-parser manually on failed cases for details"
 fi
 
 echo ""
-
-
