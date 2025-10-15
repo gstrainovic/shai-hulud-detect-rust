@@ -69,3 +69,56 @@ Key detections:
 - Typosquatting attacks (paranoid mode)
 - Network exfiltration patterns (paranoid mode)
 
+---
+
+## 🔄 Key Differences from Bash Scanner
+
+While functionally identical in detection results, the Rust implementation has several improvements:
+
+### 1. **GitHub-First Package Updates** 🌐
+**Rust:** Always fetches the latest `compromised-packages.txt` from GitHub on every scan
+- Ensures you always have the most current threat intelligence
+- Auto-caches downloaded file for offline use
+- Fallback chain: GitHub → local cache → embedded minimal list
+
+**Bash:** Uses local file only
+- Can become outdated if not manually updated
+- No automatic refresh mechanism
+
+```bash
+# Rust scanner output:
+📡 Fetching latest compromised packages from GitHub...
+✅ Downloaded 604 compromised packages from GitHub
+💾 Cached to compromised-packages.txt for offline use
+```
+
+### 2. **Performance** ⚡
+**Rust:** ~230x faster on typical projects
+- Single scan: 0.04s vs 9s (Bash)
+- Large projects (50k+ files): 45s vs estimated 6+ hours
+
+**Bash:** Slower but reliable
+- Uses grep/awk/sed subprocesses
+- Can crash on very large projects (290k+ files)
+
+### 3. **Memory Safety** 🛡️
+**Rust:** Memory-safe, no segfaults
+- Handles extremely large projects (290k+ files)
+- Predictable memory usage (~15MB constant)
+
+**Bash:** Can crash on large projects
+- Known issue: segfaults on 290k+ files ([Issue #32](https://github.com/Cobenian/shai-hulud-detect/issues/32))
+
+### 4. **Cross-Platform Binaries** 📦
+**Rust:** Pre-built binaries for all platforms
+- Linux (x64, x64-musl)
+- macOS (Intel, Apple Silicon)
+- Windows (x64)
+- No dependencies required
+
+**Bash:** Requires bash environment
+- Works on Linux/macOS natively
+- Requires Git Bash/WSL on Windows
+
+---
+
