@@ -82,25 +82,25 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R artifacts
 
-      - name: Rename binaries with correct extensions
+      - name: Rename and organize binaries
+        shell: bash
         run: |
-          cd artifacts
-          mv shai-hulud-detector-linux-x64/shai-hulud-detector shai-hulud-detector-linux-x64.bin || true
-          mv shai-hulud-detector-linux-x64-musl/shai-hulud-detector shai-hulud-detector-linux-x64-musl.bin || true
-          mv shai-hulud-detector-macos-x64/shai-hulud-detector shai-hulud-detector-macos-x64.bin || true
-          mv shai-hulud-detector-macos-arm64/shai-hulud-detector shai-hulud-detector-macos-arm64.bin || true
-          mv shai-hulud-detector-windows-x64.exe/shai-hulud-detector.exe shai-hulud-detector-windows-x64.exe || true
-          cd ..
+          mkdir -p release-assets
+          # Linux
+          cp artifacts/shai-hulud-detector-linux-x64/shai-hulud-detector release-assets/shai-hulud-detector-linux-x64 || echo "Linux x64 missing"
+          cp artifacts/shai-hulud-detector-linux-x64-musl/shai-hulud-detector release-assets/shai-hulud-detector-linux-x64-musl || echo "Linux musl missing"
+          # macOS
+          cp artifacts/shai-hulud-detector-macos-x64/shai-hulud-detector release-assets/shai-hulud-detector-macos-x64 || echo "macOS x64 missing"
+          cp artifacts/shai-hulud-detector-macos-arm64/shai-hulud-detector release-assets/shai-hulud-detector-macos-arm64 || echo "macOS ARM64 missing"
+          # Windows
+          cp artifacts/shai-hulud-detector-windows-x64.exe/shai-hulud-detector.exe release-assets/shai-hulud-detector-windows-x64.exe || echo "Windows missing"
+          # List what we have
+          ls -lh release-assets/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            artifacts/shai-hulud-detector-linux-x64.bin
-            artifacts/shai-hulud-detector-linux-x64-musl.bin
-            artifacts/shai-hulud-detector-macos-x64.bin
-            artifacts/shai-hulud-detector-macos-arm64.bin
-            artifacts/shai-hulud-detector-windows-x64.exe
+          files: release-assets/*
           body: |
             # Release ${{ github.ref_name }} - Rust Implementation
             
