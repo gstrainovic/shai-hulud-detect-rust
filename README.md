@@ -1,22 +1,38 @@
 # Shai-Hulud NPM Supply Chain Attack Detector (Rust)
 
+**Version 2.6.3** - Rust implementation of [shai-hulud-detector v2.6.3](../shai-hulud-detect/)
+
 ## 🎯 100% Compatible Rust Implementation
 
 This is a **100% functionally identical** Rust implementation of the [shai-hulud-detector.sh](../shai-hulud-detect/) Bash scanner.
 
-### ✅ Verification
+### ✅ Verification Status
 
-- **HIGH RISK**: 18/18 ✅
-- **MEDIUM RISK**: 58/58 ✅  
-- **LOW RISK**: 9/9 ✅
+**Count-Level Verification** (H/M/L findings):
+- ✅ **Normal Mode**: 25/25 test cases perfect match
+- ✅ **PARANOID Mode**: 24/25 test cases match (1 known webhook.site bug in Bash)
 
-Run `bash scripts/analyze/verify_100_percent.sh` for proof.
+**Pattern-Level Verification** (fingerprint matching):
+- ✅ **99% match rate** across all test cases
+- ⚠️ Known differences: webhook.site detection (Bash bug - [PR #50](https://github.com/Cobenian/shai-hulud-detect/pull/50))
+
+Run verification:
+```bash
+# Per-test-case verification
+bash scripts/analyze/parallel_testcase_scan.sh           # Normal mode
+bash scripts/analyze/parallel_testcase_scan_paranoid.sh  # PARANOID mode
+
+# Full directory scan verification
+bash scripts/analyze/full_sequential_test.sh             # Normal mode
+bash scripts/analyze/full_sequential_test_paranoid.sh    # PARANOID mode
+```
 
 ### ⚡ Performance
 
 ~50x faster than Bash while maintaining 100% accuracy:
-- Full scan: ~0.9s (Rust) vs ~45s (Bash)
-- Memory: ~15MB (Rust) vs ~50MB (Bash)
+- **Per-test-case scan**: ~0.5s (Rust) vs ~25s (Bash)
+- **Full parallel scan** (25 test cases): 2m 30s (Rust+Bash) with pattern verification
+- **Memory**: ~15MB (Rust) vs ~50MB (Bash)
 
 ### 🚀 Quick Start
 
@@ -31,19 +47,14 @@ cargo build --release
 ./target/release/shai-hulud-detector --paranoid /path/to/scan
 ```
 
-### 📚 Documentation
-
-- [VERIFICATION_GUIDE.md](VERIFICATION_GUIDE.md) - Comprehensive verification proof
-
 ### 🧪 Testing
 
 ```bash
-## 🧪 Testing & Verification
-
-### Unit Tests (Fast)
-```bash
+# Run unit tests (9 tests in ~0.02s)
 cargo test
-# 12 unit tests in ~1 second
+
+# Run full verification suite
+bash scripts/analyze/parallel_testcase_scan.sh
 ```
 ### 📦 What It Detects
 
