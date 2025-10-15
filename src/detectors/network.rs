@@ -249,23 +249,57 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
 
             // BASH LINE 1217-1232: Check for btoa near network operations (skip vendor/node_modules/min.js)
             if content.contains("btoa(") && !path_str.ends_with(".min.js") {
-                // BASH LINE 1220: Check if near network operations
-                let has_network = content.contains("fetch")
-                    || content.contains("XMLHttpRequest")
-                    || content.contains("axios");
-                if has_network {
-                    // BASH LINE 1222-1223: Skip if Authorization/Basic/Bearer
-                    if !content.contains("Authorization:")
-                        && !content.contains("Basic ")
-                        && !content.contains("Bearer ")
-                    {
-                        findings.push(Finding::new(
-                            entry.path().to_path_buf(),
-                            "Suspicious base64 encoding near network operation".to_string(),
-                            RiskLevel::Medium,
-                            "network_exfiltration",
-                        ));
+                let lines: Vec<&str> = content.lines().collect();
+                let mut reported = false;
+                for (idx, line) in lines.iter().enumerate() {
+                    if line.contains("btoa(") {
+                        let start = if idx >= 3 { idx - 3 } else { 0 };
+                        let end = std::cmp::min(lines.len(), idx + 4);
+                        let context = lines[start..end].join("\n");
+                        let has_network = context.contains("fetch")
+                            || context.contains("XMLHttpRequest")
+                            || context.contains("axios");
+                        if has_network {
+                            if !(context.contains("Authorization:")
+                                || context.contains("Basic ")
+                                || context.contains("Bearer "))
+                            {
+                                // Generate snippet similar to Bash behavior
+                                let snippet = if path_str.ends_with(".min.js") || line.len() > 500 {
+                                    if let Some(pos) = line.find("btoa") {
+                                        let start = pos.saturating_sub(30);
+                                        let end = (pos + 35).min(line.len());
+                                        format!("...{}...", &line[start..end])
+                                    } else {
+                                        "Suspicious base64 encoding near network operation"
+                                            .to_string()
+                                    }
+                                } else {
+                                    if line.len() > 80 {
+                                        format!("{}...", &line[..80])
+                                    } else {
+                                        line.to_string()
+                                    }
+                                };
+
+                                findings.push(Finding::new(
+                                    entry.path().to_path_buf(),
+                                    format!(
+                                        "Suspicious base64 encoding near network operation at line {}: {}",
+                                        idx + 1,
+                                        snippet
+                                    ),
+                                    RiskLevel::Medium,
+                                    "network_exfiltration",
+                                ));
+                                reported = true;
+                                break;
+                            }
+                        }
                     }
+                }
+                if reported {
+                    // already reported for this file
                 }
             }
         }
