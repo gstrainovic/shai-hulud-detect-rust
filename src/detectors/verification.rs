@@ -5,7 +5,6 @@ use crate::data::CompromisedPackage;
 use crate::detectors::lockfile_resolver::LockfileResolver;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -90,111 +89,6 @@ pub fn verify_via_lockfile(
     }
 
     VerificationStatus::Unknown
-}
-
-/// Verify vue-demi postinstall hook (legitimate version-switching)
-pub fn verify_vue_demi_postinstall(filepath: &Path) -> Option<VerificationStatus> {
-    let path_str = filepath.to_string_lossy();
-
-    if path_str.contains("vue-demi") {
-        // Read and analyze postinstall.js
-        if let Some(parent) = filepath.parent() {
-            let script_path = parent.join("scripts/postinstall.js");
-
-            if script_path.exists() {
-                if let Ok(script) = std::fs::read_to_string(&script_path) {
-                    // Check for legitimate vue-demi patterns
-                    if script.contains("switchVersion") || script.contains("loadModule") {
-                        return Some(VerificationStatus::Verified {
-                            reason: "Vue 2/3 compatibility layer - version switching only"
-                                .to_string(),
-                            confidence: Confidence::High,
-                            method: VerificationMethod::CodePatternAnalysis,
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    None
-}
-
-/// Verify formdata-polyfill XMLHttpRequest modification (legitimate IE polyfill)
-pub fn verify_formdata_polyfill(filepath: &Path, _code: &str) -> Option<VerificationStatus> {
-    let path_str = filepath.to_string_lossy();
-
-    if path_str.contains("formdata-polyfill") {
-        // formdata-polyfill is a legitimate package for IE compatibility
-        return Some(VerificationStatus::Verified {
-            reason: "FormData polyfill - IE compatibility wrapper".to_string(),
-            confidence: Confidence::High,
-            method: VerificationMethod::CodePatternAnalysis,
-        });
-    }
-
-    None
-}
-
-/// Verify known legitimate utility packages that are commonly flagged
-pub fn verify_known_utility_package(package_name: &str) -> Option<VerificationStatus> {
-    // These are well-known utility packages that are safe
-    // They might get flagged due to version ranges matching compromised versions
-    // But the actual compromised versions are very specific and rare
-
-    match package_name {
-        "ansi-regex" => Some(VerificationStatus::Verified {
-            reason: "Well-known ANSI color code regex utility (safe unless specific version matches)".to_string(),
-            confidence: Confidence::Medium,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "error-ex" => Some(VerificationStatus::Verified {
-            reason: "Well-known error handling utility (safe unless specific version matches)".to_string(),
-            confidence: Confidence::Medium,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "is-arrayish" => Some(VerificationStatus::Verified {
-            reason: "Well-known array detection utility (safe unless specific version matches)".to_string(),
-            confidence: Confidence::Medium,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "ms" => Some(VerificationStatus::Verified {
-            reason: "Well-known time conversion utility by Vercel (safe)".to_string(),
-            confidence: Confidence::High,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "debug" => Some(VerificationStatus::Verified {
-            reason: "Well-known debugging utility by TJ Holowaychuk (safe unless specific version matches)".to_string(),
-            confidence: Confidence::Medium,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "chalk" => Some(VerificationStatus::Verified {
-            reason: "Well-known terminal color utility by Sindre Sorhus (safe unless specific version matches)".to_string(),
-            confidence: Confidence::Medium,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "strip-ansi" => Some(VerificationStatus::Verified {
-            reason: "Well-known ANSI escape code stripping utility (safe)".to_string(),
-            confidence: Confidence::Medium,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "ansi-styles" => Some(VerificationStatus::Verified {
-            reason: "Well-known ANSI styling utility by Sindre Sorhus (safe)".to_string(),
-            confidence: Confidence::Medium,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "has-flag" => Some(VerificationStatus::Verified {
-            reason: "Well-known CLI flag detection utility (safe)".to_string(),
-            confidence: Confidence::High,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        "supports-color" => Some(VerificationStatus::Verified {
-            reason: "Well-known terminal color support detection utility (safe)".to_string(),
-            confidence: Confidence::High,
-            method: VerificationMethod::CodePatternAnalysis,
-        }),
-        _ => None,
-    }
 }
 
 #[cfg(test)]

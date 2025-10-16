@@ -97,7 +97,7 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
                         ));
                     } else {
                         // BASH FIX: XMLHttpRequest without crypto = MEDIUM RISK (simple-xhr.js case)
-                        let mut finding = Finding::new(
+                        let finding = Finding::new(
                             entry.path().to_path_buf(),
                             "XMLHttpRequest prototype modification detected - MEDIUM RISK"
                                 .to_string(),
@@ -105,15 +105,8 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
                             "crypto_xhr_simple",
                         );
 
-                        // Verify if it's formdata-polyfill (legitimate IE polyfill)
-                        if let Some(verification) =
-                            crate::detectors::verification::verify_formdata_polyfill(
-                                entry.path(),
-                                &content,
-                            )
-                        {
-                            finding.verification = Some(verification);
-                        }
+                        // Note: No hardcoded pattern verification
+                        // Only lockfile/runtime verification is used
 
                         findings.push(finding);
                     }

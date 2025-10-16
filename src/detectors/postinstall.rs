@@ -1,7 +1,7 @@
 // Postinstall Hooks Detector
 // Rust port of: check_postinstall_hooks()
 
-use crate::detectors::{verification, Finding, RiskLevel};
+use crate::detectors::{Finding, RiskLevel};
 use serde_json::Value;
 use std::fs;
 use std::path::Path;
@@ -34,19 +34,15 @@ pub fn check_postinstall_hooks<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                         let suspicious_patterns = ["curl", "wget", "node -e", "eval"];
 
                         if suspicious_patterns.iter().any(|p| postinstall.contains(p)) {
-                            let mut finding = Finding::new(
+                            let finding = Finding::new(
                                 entry.path().to_path_buf(),
                                 format!("Suspicious postinstall: {}", postinstall),
                                 RiskLevel::High,
                                 "postinstall_hook",
                             );
 
-                            // Try to verify known legitimate patterns (e.g., vue-demi)
-                            if let Some(verification_status) =
-                                verification::verify_vue_demi_postinstall(entry.path())
-                            {
-                                finding.verification = Some(verification_status);
-                            }
+                            // Note: No hardcoded pattern verification
+                            // Only lockfile/runtime verification is used
 
                             findings.push(finding);
                         }

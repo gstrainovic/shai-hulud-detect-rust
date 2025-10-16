@@ -121,28 +121,14 @@ pub fn check_packages<P: AsRef<Path>>(
                                             "suspicious_package",
                                         );
 
-                                        // Try to verify via lockfile/runtime if available
-                                        let mut verification_status =
+                                        // Only verify via lockfile/runtime (NO hardcoded patterns!)
+                                        let verification_status =
                                             verification::verify_via_lockfile(
                                                 &package_name,
                                                 lockfile_resolver,
                                                 runtime_resolver,
                                                 compromised_packages,
                                             );
-
-                                        // If lockfile/runtime didn't verify, try known utility package verification
-                                        if matches!(
-                                            verification_status,
-                                            verification::VerificationStatus::Unknown
-                                        ) {
-                                            if let Some(utility_status) =
-                                                verification::verify_known_utility_package(
-                                                    &package_name,
-                                                )
-                                            {
-                                                verification_status = utility_status;
-                                            }
-                                        }
 
                                         if let verification::VerificationStatus::Verified {
                                             ..
