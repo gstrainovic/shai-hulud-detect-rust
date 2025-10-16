@@ -1,16 +1,44 @@
 #!/bin/bash
 # Full sequential test - scans ENTIRE test-cases directory at once
-# Usage: ./full_sequential_test.sh [--paranoid]
+# Usage: ./full_sequential_test.sh [--paranoid] [--verify]
 
-# Parse mode
+# Parse modes
 PARANOID_MODE=""
+VERIFY_MODE=""
 LOG_SUBDIR="sequential-logs"
 MODE_LABEL="Normal Mode"
 
-if [[ "${1:-}" == "--paranoid" ]]; then
-    PARANOID_MODE="--paranoid"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --paranoid)
+            PARANOID_MODE="--paranoid"
+            shift
+            ;;
+        --verify)
+            VERIFY_MODE="--verify"
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 [--paranoid] [--verify]"
+            exit 1
+            ;;
+    esac
+done
+
+# Set log directory and label based on modes
+if [[ -n "$PARANOID_MODE" && -n "$VERIFY_MODE" ]]; then
+    LOG_SUBDIR="sequential-logs-paranoid-verify"
+    MODE_LABEL="PARANOID Mode + --verify"
+elif [[ -n "$PARANOID_MODE" ]]; then
     LOG_SUBDIR="sequential-logs-paranoid"
     MODE_LABEL="PARANOID Mode"
+elif [[ -n "$VERIFY_MODE" ]]; then
+    LOG_SUBDIR="sequential-logs-verify"
+    MODE_LABEL="Normal Mode + --verify"
+else
+    LOG_SUBDIR="sequential-logs"
+    MODE_LABEL="Normal Mode"
 fi
 
  cd /c/Users/gstra/Code/rust-scanner
@@ -72,7 +100,7 @@ echo ""
 # Phase 2: Rust scanner
 echo "🟢 Phase 2: Running Rust scanner on ENTIRE test-cases directory..."
  cd dev-rust-scanner-1
- ./target/release/shai-hulud-detector $PARANOID_MODE ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
+ ./target/release/shai-hulud-detector $PARANOID_MODE $VERIFY_MODE ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
 rust_exit=$?
 
 if [ -f "scan_results.json" ]; then

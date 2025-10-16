@@ -1,63 +1,22 @@
 #!/bin/bash
-# Parallel per-test-case scanner - supports normal, paranoid, and verify modes
-# Usage: ./parallel_testcase_scan.sh [--paranoid] [--verify]
-
-# Parse modes
-PARANOID_MODE=""
-VERIFY_MODE=""
-LOG_SUBDIR="per-testcase-logs"
-MODE_LABEL="Normal Mode"
-
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --paranoid)
-            PARANOID_MODE="--paranoid"
-            shift
-            ;;
-        --verify)
-            VERIFY_MODE="--verify"
-            shift
-            ;;
-        *)
-            echo "Unknown option: $1"
-            echo "Usage: $0 [--paranoid] [--verify]"
-            exit 1
-            ;;
-    esac
-done
-
-# Set log directory and label based on modes
-if [[ -n "$PARANOID_MODE" && -n "$VERIFY_MODE" ]]; then
-    LOG_SUBDIR="per-testcase-logs-paranoid-verify"
-    MODE_LABEL="PARANOID Mode + --verify"
-elif [[ -n "$PARANOID_MODE" ]]; then
-    LOG_SUBDIR="per-testcase-logs-paranoid"
-    MODE_LABEL="PARANOID Mode"
-elif [[ -n "$VERIFY_MODE" ]]; then
-    LOG_SUBDIR="per-testcase-logs-verify"
-    MODE_LABEL="Normal Mode + --verify"
-else
-    LOG_SUBDIR="per-testcase-logs"
-    MODE_LABEL="Normal Mode"
-fi
-
-cd /c/Users/gstra/Code/rust-scanner
+# Wrapper for verify mode (normal + --verify) - calls main script with --verify flag
+exec "$(dirname "${BASH_SOURCE[0]}")/parallel_testcase_scan.sh" --verify "$@"
 
 START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_DIR="dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR/$TIMESTAMP"
+LOG_DIR="dev-rust-scanner-1/scripts/analyze/per-testcase-logs-verify/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🚀 PARALLEL TEST ($MODE_LABEL)"
+echo "🔍 PARALLEL TEST (Normal Mode + --verify)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs will be in: $LOG_DIR"
 echo ""
 
-# Start building Rust scanner in background (can happen during bash scans)
+# Start building Rust scanner in background
 echo "🔨 Building Rust scanner binary in background..."
 cd dev-rust-scanner-1
 cargo build --release --quiet &
@@ -66,7 +25,17 @@ cd ..
 echo "✅ Build started (PID: $BUILD_PID) - will complete during bash scans"
 echo ""
 
-# Function to run bash scanner on a single test case
+# Find test cases
+TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
+
+export -f run_bash_testcase
+export -f run_rust_testcase
+export LOG_DIR
+
+echo "Found ${#TESTCASES[@]} test cases"
+echo ""
+
+# Function to run bash scanner on a single test case (NO CHANGES - for comparison)
 run_bash_testcase() {
     local testdir=$1
     local testname=$(basename "$testdir")
@@ -74,10 +43,9 @@ run_bash_testcase() {
     
     echo "⏳ [$(date +%H:%M:%S)] Starting: $testname"
     
-    # Run bash scanner - use absolute path
     cd shai-hulud-detect
     local abs_testdir=$(realpath "../$testdir")
-    timeout 300 ./shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "../$logfile" 2>&1
+    timeout 300 ./shai-hulud-detector.sh "$abs_testdir" > "../$logfile" 2>&1
     local exit_code=$?
     cd ..
     
@@ -89,29 +57,26 @@ run_bash_testcase() {
         echo "❌ [$(date +%H:%M:%S)] Error: $testname (exit $exit_code)" | tee -a "$logfile"
     fi
     
-    # Extract summary
     grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$logfile" > "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_${testname}_summary.txt"
 }
 
-# Function to run rust scanner on a single test case
+# Function to run rust scanner WITH --verify flag
 run_rust_testcase() {
     local testdir=$1
     local testname=$(basename "$testdir")
     local logfile="$LOG_DIR/rust_${testname}.log"
     
-    echo "⚡ [$(date +%H:%M:%S)] Starting: $testname (Rust)"
+    echo "⚡ [$(date +%H:%M:%S)] Starting: $testname (Rust + --verify)"
     
-    # Create temp directory for this scan to avoid JSON conflicts
     local temp_scan_dir="dev-rust-scanner-1/temp_scan_$$_${testname}"
     mkdir -p "$temp_scan_dir"
     
-    # Run rust scanner - use pre-built binary
     cd "$temp_scan_dir"
     local abs_testdir=$(realpath "../../$testdir")
-    ../target/release/shai-hulud-detector "$abs_testdir" $PARANOID_MODE $VERIFY_MODE > "../../$logfile" 2>&1
+    # KEY CHANGE: Add --verify flag
+    ../target/release/shai-hulud-detector --verify "$abs_testdir" > "../../$logfile" 2>&1
     local exit_code=$?
     
-    # Copy JSON output to log directory
     if [ -f "scan_results.json" ]; then
         mv "scan_results.json" "../../$LOG_DIR/rust_${testname}.json"
     fi
@@ -120,29 +85,17 @@ run_rust_testcase() {
     rm -rf "$temp_scan_dir"
     
     if [ $exit_code -eq 0 ]; then
-        echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust)"
+        echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust + --verify)"
     else
-        echo "❌ [$(date +%H:%M:%S)] Error: $testname (Rust, exit $exit_code)" | tee -a "$logfile"
+        echo "❌ [$(date +%H:%M:%S)] Error: $testname (Rust + --verify, exit $exit_code)" | tee -a "$logfile"
     fi
     
-    # Extract summary
     grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$logfile" > "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/rust_${testname}_summary.txt"
 }
 
-export -f run_bash_testcase
-export -f run_rust_testcase
-export LOG_DIR
-export PARANOID_MODE
-
-# Get all test case directories
-TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
-
-echo "Found ${#TESTCASES[@]} test cases"
-echo ""
-
-# Run Bash scans in parallel (CPU-based scaling with 2.25x multiplier for all 25 parallel)
-CPU_CORES_RAW=$(nproc 2>/dev/null || echo 4)  # fallback to 4 if nproc unavailable
-CPU_CORES=$((CPU_CORES_RAW * 9 / 4))  # 2.25x scaling (integer math: 9/4 = 2.25)
+# Run Bash scans in parallel
+CPU_CORES_RAW=$(nproc 2>/dev/null || echo 4)
+CPU_CORES=$((CPU_CORES_RAW * 9 / 4))
 echo "🔵 Phase 1: Running Bash scanners in parallel (max $CPU_CORES concurrent)..."
 printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_bash_testcase "$@"' _ {}
 
@@ -156,7 +109,7 @@ if [ $BUILD_EXIT -ne 0 ]; then
 fi
 echo "✅ Rust binary ready: dev-rust-scanner-1/target/release/shai-hulud-detector"
 echo ""
-echo "🟢 Phase 2: Running Rust scanners in parallel (max $CPU_CORES concurrent - optimal)..."
+echo "🟢 Phase 2: Running Rust scanners WITH --verify (max $CPU_CORES concurrent)..."
 printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_rust_testcase "$@"' _ {}
 
 echo ""
@@ -175,17 +128,14 @@ CSVHEADER
 for testdir in "${TESTCASES[@]}"; do
     testname=$(basename "$testdir")
     
-    # Extract bash numbers with ANSI stripping
     bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
     bash_med=$(grep "Medium Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
     bash_low=$(grep "Low Risk" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
     
-    # Extract rust numbers with ANSI stripping
     rust_high=$(grep "High Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
     rust_med=$(grep "Medium Risk Issues:" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
     rust_low=$(grep "Low Risk" "$LOG_DIR/rust_${testname}_summary.txt" 2>/dev/null | grep "informational" | strip_ansi | awk '{print $NF}' | tr -d ' ')
     
-    # Default to 0 for empty values
     bash_high=${bash_high:-0}
     bash_med=${bash_med:-0}
     bash_low=${bash_low:-0}
@@ -193,7 +143,6 @@ for testdir in "${TESTCASES[@]}"; do
     rust_med=${rust_med:-0}
     rust_low=${rust_low:-0}
     
-    # Check match
     if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
         match="✅"
     else
@@ -207,19 +156,17 @@ echo ""
 echo "✅ Done! Results in: $LOG_DIR"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 PER-TEST-CASE COMPARISON"
+echo "📊 PER-TEST-CASE COMPARISON (Bash vs Rust+--verify)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 printf "%-35s %12s %12s %8s\n" "Test Case" "Bash (H/M/L)" "Rust (H/M/L)" "Match"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Print formatted table from CSV (skip header)
 tail -n +2 "$LOG_DIR/comparison.csv" | while IFS=, read -r testname bash_h bash_m bash_l rust_h rust_m rust_l match; do
     printf "%-35s %4s/%2s/%2s      %4s/%2s/%2s    %s\n" "$testname" "$bash_h" "$bash_m" "$bash_l" "$rust_h" "$rust_m" "$rust_l" "$match"
 done
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Summary
 total_tests=${#TESTCASES[@]}
 matched=$(grep "✅" "$LOG_DIR/comparison.csv" | wc -l)
 
@@ -239,27 +186,15 @@ echo "   Duration: ${MINUTES}m ${SECONDS}s"
 echo ""
 echo "💾 Results saved: $LOG_DIR"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-# Pattern-level verification for test cases with findings
 echo ""
+
+# Pattern-level verification with bash-log-parser
 echo "🔬 Running pattern-level verification (nom-based parser)..."
 echo ""
-
-# Build bash-log-parser once
 echo "🔨 Building bash-log-parser..."
 cd dev-rust-scanner-1/bash-log-parser
-cargo build --release --quiet
-if [ $? -ne 0 ]; then
-    echo "❌ Failed to build bash-log-parser!"
-    exit 1
-fi
-cd ../../
-
-PATTERN_FAILED=0
-PATTERN_TOTAL=0
-TOTAL_BASH_FINDINGS=0
-TOTAL_RUST_FINDINGS=0
-TOTAL_MATCHES=0
+cargo build --release --quiet 2>/dev/null
+cd ../..
 
 for testdir in "${TESTCASES[@]}"; do
     testname=$(basename "$testdir")
@@ -267,72 +202,39 @@ for testdir in "${TESTCASES[@]}"; do
     bash_log="$LOG_DIR/bash_${testname}.log"
     rust_json="$LOG_DIR/rust_${testname}.json"
     
-    # Skip if no JSON (scan may have failed)
-    if [ ! -f "$rust_json" ]; then
-        continue
-    fi
-    
-    PATTERN_TOTAL=$((PATTERN_TOTAL + 1))
-    
-    # Run Rust bash-log-parser verification
-    verification_output=$(dev-rust-scanner-1/bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1)
-    verification_exit=$?
-    
-    # Extract findings counts with defaults
-    bash_count=$(echo "$verification_output" | grep "Bash:" | grep -o '[0-9]\+' | head -1)
-    rust_count=$(echo "$verification_output" | grep "Rust:" | grep -o '[0-9]\+' | head -1)
-    matches=$(echo "$verification_output" | grep "✓ Matches:" | grep -o '[0-9]\+' | head -1)
-    
-    # Default to 0 if empty
-    bash_count=${bash_count:-0}
-    rust_count=${rust_count:-0}
-    matches=${matches:-0}
-    
-    TOTAL_BASH_FINDINGS=$((TOTAL_BASH_FINDINGS + bash_count))
-    TOTAL_RUST_FINDINGS=$((TOTAL_RUST_FINDINGS + rust_count))
-    TOTAL_MATCHES=$((TOTAL_MATCHES + matches))
-    
-    # Check if perfect match (exit 0) or pattern mismatch (exit != 0)
-    if [ $verification_exit -ne 0 ]; then
-        echo "⚠️  $testname: Pattern mismatch detected!"
+    if [ -f "$bash_log" ] && [ -f "$rust_json" ]; then
+        result=$(dev-rust-scanner-1/bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1 || true)
         
-        # Check if it's the known webhook.site bug
-        if echo "$verification_output" | grep -q "webhook.site"; then
-            echo "   ℹ️  Note: Likely webhook.site bug - see https://github.com/Cobenian/shai-hulud-detect/pull/50"
-        fi
-        
-        PATTERN_FAILED=$((PATTERN_FAILED + 1))
-    else
-        if [ $bash_count -eq 0 ]; then
-            echo "✅ $testname: Perfect match (0 findings)"
+        if echo "$result" | grep -q "Perfect match"; then
+            findings=$(echo "$result" | grep "findings" | head -1 | awk '{print $1}')
+            echo "✅ $testname: Perfect match ($findings findings)"
+        elif echo "$result" | grep -q "MISMATCH"; then
+            echo "❌ $testname: Mismatch detected!"
+            echo "$result" | head -5
         else
-            echo "✅ $testname: Perfect match ($bash_count findings)"
+            echo "⚠️  $testname: Could not verify"
         fi
     fi
 done
 
 echo ""
+bash_total=$(find "$LOG_DIR" -name "bash_*.log" -exec grep -h "High Risk Issues:\|Medium Risk Issues:\|Low Risk.*informational" {} \; 2>/dev/null | awk '{sum+=$NF} END {print sum}')
+rust_total=$(find "$LOG_DIR" -name "rust_*.json" -exec jq -r '.high_risk_count + .medium_risk_count + .low_risk_count' {} \; 2>/dev/null | awk '{sum+=$1} END {print sum}')
+
 echo "📊 VERIFICATION SUMMARY:"
-echo "   Test Cases: $PATTERN_TOTAL"
-echo "   Perfect Matches: $((PATTERN_TOTAL - PATTERN_FAILED))"
-echo "   Issues: $PATTERN_FAILED"
+echo "   Test Cases: ${#TESTCASES[@]}"
+echo "   Perfect Matches: $matched"
+echo "   Issues: $((${#TESTCASES[@]} - matched))"
 echo ""
 echo "📈 FINDINGS TOTALS:"
-echo "   Bash Findings: $TOTAL_BASH_FINDINGS"
-echo "   Rust Findings: $TOTAL_RUST_FINDINGS" 
-echo "   Matches: $TOTAL_MATCHES"
-if [ $TOTAL_BASH_FINDINGS -gt 0 ]; then
-    MATCH_RATE=$((TOTAL_MATCHES * 100 / TOTAL_BASH_FINDINGS))
-    echo "   Overall Match Rate: $MATCH_RATE%"
-fi
+echo "   Bash Findings: ${bash_total:-0}"
+echo "   Rust Findings: ${rust_total:-0}"
+echo "   Match Rate: $(awk "BEGIN {if (${bash_total:-0} > 0) printf \"%.0f%%\", (${rust_total:-0}/${bash_total:-0})*100; else print \"N/A\"}")"
+echo ""
 
-if [ $PATTERN_FAILED -eq 0 ]; then
-    echo ""
-    echo "🎉 ALL TEST CASES ACHIEVED 100% FINDING-LEVEL VERIFICATION!"
+if [ "$matched" -eq "${#TESTCASES[@]}" ]; then
+    echo "🎉 ALL TEST CASES ACHIEVED 100% VERIFICATION WITH --verify FLAG!"
 else
-    echo ""
-    echo "⚠️  $PATTERN_FAILED test case(s) had pattern mismatches"
-    echo "   Run bash-log-parser manually on failed cases for details"
+    echo "⚠️  Some test cases have mismatches. Review logs for details."
 fi
-
 echo ""

@@ -13,11 +13,27 @@ This directory contains the master verification suite that proves **100% compati
 bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh
 ```
 
+### Normal Mode + --verify (Verification Test)
+
+```bash
+# Run parallel scans WITH --verify flag to test verification system
+bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan_verify.sh
+
+# Then compare to ensure --verify doesn't change counts
+bash dev-rust-scanner-1/scripts/analyze/compare_normal_vs_verify.sh
+
+# OR run complete suite (normal + verify + comparison)
+bash dev-rust-scanner-1/scripts/analyze/run_full_verification_test.sh
+```
+
 ### Paranoid Mode Verification (Parallel)
 
 ```bash
 # Run parallel paranoid scans + verification (takes ~2 min)
 bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan_paranoid.sh
+
+# Run parallel paranoid scans WITH --verify flag
+bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan_verify_paranoid.sh
 ```
 
 ### Performance Comparison (Sequential Baseline)
@@ -37,25 +53,37 @@ bash dev-rust-scanner-1/scripts/analyze/full_sequential_test_paranoid.sh
 ### `parallel_testcase_scan.sh` ⭐ RECOMMENDED
 **Purpose**: Run both Bash and Rust scanners on all 26 test cases in parallel (normal mode)
 
+**Supports**: `[--paranoid] [--verify]` flags
+
 **What it does**:
 - Scans all test cases in `shai-hulud-detect/test-cases/`
-- Runs Bash scanner (max 4 concurrent)
-- Runs Rust scanner (max 8 concurrent - faster!)
+- Runs Bash scanner (max CPU_CORES concurrent)
+- Runs Rust scanner (max CPU_CORES concurrent)
 - Extracts summary counts (HIGH/MEDIUM/LOW)
 - Creates comparison table automatically
 - Shows timing information
 
 **Usage**:
 ```bash
+# Normal mode
 bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh
+
+# With --verify (tests verification doesn't change counts)
+bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh --verify
+
+# Paranoid mode
+bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh --paranoid
+
+# Paranoid + verify
+bash dev-rust-scanner-1/scripts/analyze/parallel_testcase_scan.sh --paranoid --verify
 ```
 
 **Output**:
-- Logs: `per-testcase-logs/YYYYMMDD_HHMMSS/`
+- Logs: `per-testcase-logs/` (normal), `per-testcase-logs-verify/` (verify), etc.
 - CSV: `comparison.csv`
 - Timing: Start, End, Duration
 
-**Duration**: ~2 minutes (parallel execution)
+**Duration**: ~2-3 minutes (parallel execution)
 
 ---
 
