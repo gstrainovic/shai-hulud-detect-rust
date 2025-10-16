@@ -78,7 +78,8 @@ fn main() -> Result<()> {
                 if resolver.has_lockfile() {
                     colors::print_status(
                         colors::Color::Green,
-                        &format!("✅ Lockfile loaded ({:?} format, {} packages)", 
+                        &format!(
+                            "✅ Lockfile loaded ({:?} format, {} packages)",
                             resolver.lockfile_type.unwrap(),
                             resolver.packages.len()
                         ),
@@ -95,7 +96,10 @@ fn main() -> Result<()> {
             Err(e) => {
                 colors::print_status(
                     colors::Color::Yellow,
-                    &format!("⚠️  Failed to load lockfile: {} - verification will be limited", e),
+                    &format!(
+                        "⚠️  Failed to load lockfile: {} - verification will be limited",
+                        e
+                    ),
                 );
                 None
             }
@@ -116,8 +120,11 @@ fn main() -> Result<()> {
         detectors::hashes::check_file_hashes(&args.scan_dir, &malicious_hashes, args.parallelism);
 
     // 3. check_packages
-    let (comp, susp, lockfile_safe, ns) =
-        detectors::packages::check_packages(&args.scan_dir, &compromised_packages);
+    let (comp, susp, lockfile_safe, ns) = detectors::packages::check_packages(
+        &args.scan_dir,
+        &compromised_packages,
+        lockfile_resolver.as_ref(),
+    );
     results.compromised_found = comp;
     results.suspicious_found = susp;
     results.lockfile_safe_versions = lockfile_safe;

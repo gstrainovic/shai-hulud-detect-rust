@@ -2,7 +2,7 @@
 // Rust port of: check_packages()
 
 use crate::data::CompromisedPackage;
-use crate::detectors::{Finding, RiskLevel};
+use crate::detectors::{lockfile_resolver::LockfileResolver, verification, Finding, RiskLevel};
 use crate::semver;
 use serde_json::Value;
 use std::collections::HashSet;
@@ -13,11 +13,13 @@ use walkdir::WalkDir;
 // Function: check_packages
 // Purpose: Scan package.json files for compromised packages and suspicious namespaces
 // Args: $1 = scan_dir (directory to scan), compromised_packages - set of known bad packages
+//       lockfile_resolver - optional lockfile for verification
 // Modifies: COMPROMISED_FOUND, SUSPICIOUS_FOUND, LOCKFILE_SAFE_VERSIONS, NAMESPACE_WARNINGS (global arrays)
 // Returns: Populates arrays with matches using exact and semver pattern matching
 pub fn check_packages<P: AsRef<Path>>(
     scan_dir: P,
     compromised_packages: &HashSet<CompromisedPackage>,
+    lockfile_resolver: Option<&LockfileResolver>,
 ) -> (Vec<Finding>, Vec<Finding>, Vec<Finding>, Vec<Finding>) {
     let scan_dir = scan_dir.as_ref();
     let files_count = crate::utils::count_files_by_name(scan_dir, "package.json");
@@ -111,12 +113,33 @@ pub fn check_packages<P: AsRef<Path>>(
                                         }
                                     } else {
                                         // No lockfile - suspicious (could install compromised on npm install)
-                                        suspicious_found.push(Finding::new(
+                                        let mut finding = Finding::new(
                                             entry.path().to_path_buf(),
                                             format!("{}@{}", package_name, version_str),
                                             RiskLevel::Medium,
                                             "suspicious_package",
-                                        ));
+                                        );
+
+                                        // Try to verify via lockfile if available
+                                        if let Some(resolver) = lockfile_resolver {
+                                            if let verification::VerificationStatus::Verified { .. } =
+                                                verification::verify_via_lockfile(
+                                                    &package_name,
+                                                    resolver,
+                                                    compromised_packages,
+                                                )
+                                            {
+                                                finding.verification = Some(
+                                                    verification::verify_via_lockfile(
+                                                        &package_name,
+                                                        resolver,
+                                                        compromised_packages,
+                                                    ),
+                                                );
+                                            }
+                                        }
+
+                                        suspicious_found.push(finding);
                                     }
                                 }
                             }
