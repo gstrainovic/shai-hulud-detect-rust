@@ -71,6 +71,39 @@ fn main() -> Result<()> {
     colors::print_status(colors::Color::Blue, &paranoid_msg);
     println!();
 
+    // Load lockfile for verification (if --verify flag is set)
+    let lockfile_resolver = if args.verify {
+        match detectors::lockfile_resolver::LockfileResolver::load_from_dir(&args.scan_dir) {
+            Ok(resolver) => {
+                if resolver.has_lockfile() {
+                    colors::print_status(
+                        colors::Color::Green,
+                        &format!("✅ Lockfile loaded ({:?} format, {} packages)", 
+                            resolver.lockfile_type.unwrap(),
+                            resolver.packages.len()
+                        ),
+                    );
+                    Some(resolver)
+                } else {
+                    colors::print_status(
+                        colors::Color::Yellow,
+                        "⚠️  No lockfile found - verification will be limited",
+                    );
+                    None
+                }
+            }
+            Err(e) => {
+                colors::print_status(
+                    colors::Color::Yellow,
+                    &format!("⚠️  Failed to load lockfile: {} - verification will be limited", e),
+                );
+                None
+            }
+        }
+    } else {
+        None
+    };
+
     // Create results container
     let mut results = detectors::ScanResults::new();
 

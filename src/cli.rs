@@ -18,6 +18,11 @@ pub struct Cli {
     #[arg(long)]
     pub paranoid: bool,
 
+    /// Enable intelligent verification to reduce false positives
+    /// Checks lockfiles and code patterns to identify legitimate packages
+    #[arg(long)]
+    pub verify: bool,
+
     /// Set the number of threads to use for parallelized steps
     #[arg(long, default_value = "4")]
     pub parallelism: usize,
