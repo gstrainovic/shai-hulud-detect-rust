@@ -36,6 +36,8 @@ pub struct Finding {
     pub message: String,
     pub risk_level: RiskLevel,
     pub category: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verification: Option<verification::VerificationStatus>,
 }
 
 // Custom serialization to normalize Windows UNC paths (\\?\C:\...)
@@ -69,7 +71,13 @@ impl Finding {
             message,
             risk_level,
             category: category.to_string(),
+            verification: None,
         }
+    }
+    
+    pub fn with_verification(mut self, verification: verification::VerificationStatus) -> Self {
+        self.verification = Some(verification);
+        self
     }
 }
 
