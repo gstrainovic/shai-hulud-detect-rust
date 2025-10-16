@@ -2,7 +2,7 @@
 // Rust port of: generate_report()
 
 use crate::colors::{print_status, Color};
-use crate::detectors::{RiskLevel, ScanResults};
+use crate::detectors::{verification, RiskLevel, ScanResults};
 use std::path::Path;
 
 // Helper: show_file_preview
@@ -254,6 +254,33 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                 "     Found in: {}",
                 crate::utils::normalize_path(&finding.file_path)
             );
+            
+            // Show verification status if present
+            if let Some(verification_status) = &finding.verification {
+                match verification_status {
+                    verification::VerificationStatus::Verified { reason, confidence, .. } => {
+                        print_status(
+                            Color::Green,
+                            &format!("     [VERIFIED SAFE - {:?} confidence]: {}", confidence, reason),
+                        );
+                    }
+                    verification::VerificationStatus::Compromised { reason } => {
+                        print_status(
+                            Color::Red,
+                            &format!("     [VERIFIED COMPROMISED]: {}", reason),
+                        );
+                    }
+                    verification::VerificationStatus::Suspicious { reason } => {
+                        print_status(
+                            Color::Yellow,
+                            &format!("     [SUSPICIOUS]: {}", reason),
+                        );
+                    }
+                    verification::VerificationStatus::Unknown => {
+                        // Don't print anything for unknown
+                    }
+                }
+            }
         }
         print_status(
             Color::Yellow,
