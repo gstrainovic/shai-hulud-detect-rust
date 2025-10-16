@@ -122,13 +122,12 @@ pub fn check_packages<P: AsRef<Path>>(
                                         );
 
                                         // Only verify via lockfile/runtime (NO hardcoded patterns!)
-                                        let verification_status =
-                                            verification::verify_via_lockfile(
-                                                &package_name,
-                                                lockfile_resolver,
-                                                runtime_resolver,
-                                                compromised_packages,
-                                            );
+                                        let verification_status = verification::verify_via_lockfile(
+                                            &package_name,
+                                            lockfile_resolver,
+                                            runtime_resolver,
+                                            compromised_packages,
+                                        );
 
                                         if let verification::VerificationStatus::Verified {
                                             ..
