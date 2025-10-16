@@ -30,19 +30,16 @@ echo "📁 Logs: $LOG_DIR"
 echo "📂 Target: shai-hulud-detect/test-cases/ (ALL test cases at once)"
 echo ""
 
-# Build Rust scanner binary
-echo "🔨 Building Rust scanner binary..."
+# Start building Rust scanner in background
+echo "🔨 Building Rust scanner binary in background..."
  cd dev-rust-scanner-1
- cargo build --release --quiet
-if [ $? -ne 0 ]; then
-    echo "❌ Failed to build Rust scanner!"
-    exit 1
-fi
+ cargo build --release --quiet &
+BUILD_PID=$!
  cd ..
-echo "✅ Binary built"
+echo "✅ Build started (PID: $BUILD_PID)"
 echo ""
 
-# Phase 1: Bash scanner
+# Phase 1: Bash scanner (runs while Rust builds)
 echo "🔵 Phase 1: Running Bash scanner on ENTIRE test-cases directory..."
  cd shai-hulud-detect
  timeout 600 ./shai-hulud-detector.sh $PARANOID_MODE test-cases/ > "../$LOG_DIR/bash_full_scan.log" 2>&1
@@ -58,6 +55,17 @@ else
 fi
 
  grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/bash_full_scan.log" > "$LOG_DIR/bash_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_summary.txt"
+
+# Wait for Rust build
+echo ""
+echo "⏳ Waiting for Rust build to complete..."
+ wait $BUILD_PID
+BUILD_EXIT=$?
+if [ $BUILD_EXIT -ne 0 ]; then
+    echo "❌ Rust build failed with exit code $BUILD_EXIT!"
+    exit 1
+fi
+echo "✅ Rust binary ready"
 
 echo ""
 

@@ -29,16 +29,13 @@ echo "⏱️  Started: $START_READABLE"
 echo "📁 Logs will be in: $LOG_DIR"
 echo ""
 
-# Build Rust scanner binary once at the start
-echo "🔨 Building Rust scanner binary..."
+# Start building Rust scanner in background (can happen during bash scans)
+echo "🔨 Building Rust scanner binary in background..."
 cd dev-rust-scanner-1
-cargo build --release --quiet
-if [ $? -ne 0 ]; then
-    echo "❌ Failed to build Rust scanner!"
-    exit 1
-fi
+cargo build --release --quiet &
+BUILD_PID=$!
 cd ..
-echo "✅ Binary built: dev-rust-scanner-1/target/release/shai-hulud-detector"
+echo "✅ Build started (PID: $BUILD_PID) - will complete during bash scans"
 echo ""
 
 # Function to run bash scanner on a single test case
@@ -121,6 +118,15 @@ CPU_CORES=$((CPU_CORES_RAW * 9 / 4))  # 2.25x scaling (integer math: 9/4 = 2.25)
 echo "🔵 Phase 1: Running Bash scanners in parallel (max $CPU_CORES concurrent)..."
 printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_bash_testcase "$@"' _ {}
 
+echo ""
+echo "⏳ Waiting for Rust build to complete..."
+wait $BUILD_PID
+BUILD_EXIT=$?
+if [ $BUILD_EXIT -ne 0 ]; then
+    echo "❌ Rust build failed with exit code $BUILD_EXIT!"
+    exit 1
+fi
+echo "✅ Rust binary ready: dev-rust-scanner-1/target/release/shai-hulud-detector"
 echo ""
 echo "🟢 Phase 2: Running Rust scanners in parallel (max $CPU_CORES concurrent - optimal)..."
 printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_rust_testcase "$@"' _ {}
