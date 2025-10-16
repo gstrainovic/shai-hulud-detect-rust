@@ -55,11 +55,20 @@ impl Serialize for Finding {
             .unwrap_or(&path_str)
             .replace('\\', "/");
 
-        let mut state = serializer.serialize_struct("Finding", 4)?;
+        // Count fields: 4 base fields + 1 optional verification field
+        let field_count = if self.verification.is_some() { 5 } else { 4 };
+        
+        let mut state = serializer.serialize_struct("Finding", field_count)?;
         state.serialize_field("file_path", &normalized)?;
         state.serialize_field("message", &self.message)?;
         state.serialize_field("risk_level", &self.risk_level)?;
         state.serialize_field("category", &self.category)?;
+        
+        // Include verification field if present
+        if let Some(ref verification) = self.verification {
+            state.serialize_field("verification", verification)?;
+        }
+        
         state.end()
     }
 }
@@ -74,7 +83,7 @@ impl Finding {
             verification: None,
         }
     }
-    
+
     pub fn with_verification(mut self, verification: verification::VerificationStatus) -> Self {
         self.verification = Some(verification);
         self
