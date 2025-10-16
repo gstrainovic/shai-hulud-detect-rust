@@ -97,13 +97,25 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
                         ));
                     } else {
                         // BASH FIX: XMLHttpRequest without crypto = MEDIUM RISK (simple-xhr.js case)
-                        findings.push(Finding::new(
+                        let mut finding = Finding::new(
                             entry.path().to_path_buf(),
                             "XMLHttpRequest prototype modification detected - MEDIUM RISK"
                                 .to_string(),
                             RiskLevel::Medium,
                             "crypto_xhr_simple",
-                        ));
+                        );
+
+                        // Verify if it's formdata-polyfill (legitimate IE polyfill)
+                        if let Some(verification) =
+                            crate::detectors::verification::verify_formdata_polyfill(
+                                entry.path(),
+                                &content,
+                            )
+                        {
+                            finding.verification = Some(verification);
+                        }
+
+                        findings.push(finding);
                     }
                 }
             }
