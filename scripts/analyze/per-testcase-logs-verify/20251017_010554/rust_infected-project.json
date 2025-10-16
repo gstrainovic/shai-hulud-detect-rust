@@ -1,0 +1,166 @@
+{
+  "workflow_files": [
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml",
+      "message": "Known malicious workflow filename",
+      "risk_level": "High",
+      "category": "workflow"
+    }
+  ],
+  "malicious_hashes": [],
+  "compromised_found": [
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package.json",
+      "message": "@ctrl/deluge@1.2.0",
+      "risk_level": "High",
+      "category": "compromised_package"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package.json",
+      "message": "@nativescript-community/ui-material-core@7.2.49",
+      "risk_level": "High",
+      "category": "compromised_package"
+    }
+  ],
+  "suspicious_found": [],
+  "lockfile_safe_versions": [],
+  "suspicious_content": [
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml",
+      "message": "webhook.site reference",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/.github/workflows/shai-hulud-workflow.yml",
+      "message": "malicious webhook endpoint",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "message": "webhook.site reference",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "message": "malicious webhook endpoint",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious.js",
+      "message": "webhook.site reference",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious.js",
+      "message": "malicious webhook endpoint",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
+      "message": "webhook.site reference",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/package-with-postinstall.json",
+      "message": "malicious webhook endpoint",
+      "risk_level": "Medium",
+      "category": "suspicious_content"
+    }
+  ],
+  "crypto_patterns": [
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "message": "XMLHttpRequest prototype modification with crypto patterns detected - HIGH RISK",
+      "risk_level": "High",
+      "category": "crypto_xhr_hijack"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "message": "Known attacker wallet address detected - HIGH RISK",
+      "risk_level": "High",
+      "category": "crypto_attacker_wallet"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "message": "Ethereum wallet address patterns detected",
+      "risk_level": "Medium",
+      "category": "crypto_wallet_pattern"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/crypto-theft.js",
+      "message": "Phishing domain npmjs.help detected",
+      "risk_level": "Medium",
+      "category": "crypto_phishing"
+    }
+  ],
+  "git_branches": [],
+  "postinstall_hooks": [],
+  "trufflehog_activity": [
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "message": "Trufflehog binary found",
+      "risk_level": "High",
+      "category": "trufflehog_binary"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "message": "Trufflehog binary found",
+      "risk_level": "High",
+      "category": "trufflehog_binary"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "message": "Contains credential scanning patterns",
+      "risk_level": "Medium",
+      "category": "credential_patterns"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/actual-credential-harvester.js",
+      "message": "Potentially suspicious environment variable access",
+      "risk_level": "Medium",
+      "category": "env_suspicious"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "message": "Contains trufflehog references in source code",
+      "risk_level": "Medium",
+      "category": "trufflehog_reference"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/malicious-trufflehog-wrapper.sh",
+      "message": "Credential patterns with potential exfiltration",
+      "risk_level": "High",
+      "category": "credential_exfiltration"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "message": "Contains trufflehog references in source code",
+      "risk_level": "Medium",
+      "category": "trufflehog_reference"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "message": "Contains credential scanning patterns",
+      "risk_level": "Medium",
+      "category": "credential_patterns"
+    },
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-project/trufflehog-script.sh",
+      "message": "Potentially suspicious environment variable access",
+      "risk_level": "Medium",
+      "category": "env_suspicious"
+    }
+  ],
+  "shai_hulud_repos": [],
+  "namespace_warnings": [],
+  "integrity_issues": [],
+  "typosquatting_warnings": [],
+  "network_exfiltration_warnings": []
+}

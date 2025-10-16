@@ -1,0 +1,24 @@
+{
+  "workflow_files": [],
+  "malicious_hashes": [],
+  "compromised_found": [],
+  "suspicious_found": [],
+  "lockfile_safe_versions": [],
+  "suspicious_content": [],
+  "crypto_patterns": [],
+  "git_branches": [],
+  "postinstall_hooks": [],
+  "trufflehog_activity": [],
+  "shai_hulud_repos": [],
+  "namespace_warnings": [],
+  "integrity_issues": [
+    {
+      "file_path": "C:/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/infected-lockfile-pnpm/pnpm-lock.yaml",
+      "message": "Recently modified lockfile contains @ctrl packages (potential worm activity)",
+      "risk_level": "Medium",
+      "category": "integrity"
+    }
+  ],
+  "typosquatting_warnings": [],
+  "network_exfiltration_warnings": []
+}

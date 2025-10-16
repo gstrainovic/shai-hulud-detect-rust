@@ -1,0 +1,30 @@
+{
+  "workflow_files": [],
+  "malicious_hashes": [],
+  "compromised_found": [],
+  "suspicious_found": [],
+  "lockfile_safe_versions": [],
+  "suspicious_content": [],
+  "crypto_patterns": [
+    {
+      "file_path": "Crypto pattern",
+      "message": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/next/dist/compiled/edge-runtime/index.js:XMLHttpRequest prototype modification detected in framework code - LOW RISK",
+      "risk_level": "Low",
+      "category": "crypto_xhr_framework"
+    },
+    {
+      "file_path": "Crypto pattern",
+      "message": "/c/Users/gstra/Code/rust-scanner/shai-hulud-detect/test-cases/xmlhttp-legitimate/node_modules/react-native/Libraries/Network/XHRInterceptor.js:XMLHttpRequest prototype modification detected in framework code - LOW RISK",
+      "risk_level": "Low",
+      "category": "crypto_xhr_framework"
+    }
+  ],
+  "git_branches": [],
+  "postinstall_hooks": [],
+  "trufflehog_activity": [],
+  "shai_hulud_repos": [],
+  "namespace_warnings": [],
+  "integrity_issues": [],
+  "typosquatting_warnings": [],
+  "network_exfiltration_warnings": []
+}

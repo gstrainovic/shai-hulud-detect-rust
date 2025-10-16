@@ -1,0 +1,30 @@
+{
+  "workflow_files": [],
+  "malicious_hashes": [],
+  "compromised_found": [],
+  "suspicious_found": [],
+  "lockfile_safe_versions": [],
+  "suspicious_content": [],
+  "crypto_patterns": [],
+  "git_branches": [],
+  "postinstall_hooks": [],
+  "trufflehog_activity": [],
+  "shai_hulud_repos": [],
+  "namespace_warnings": [
+    {
+      "file_path": "Namespace warning",
+      "message": "Contains packages from compromised namespace: @ctrl (found in package.json)",
+      "risk_level": "Low",
+      "category": "namespace_warning"
+    },
+    {
+      "file_path": "Namespace warning",
+      "message": "Contains packages from compromised namespace: @operato (found in package.json)",
+      "risk_level": "Low",
+      "category": "namespace_warning"
+    }
+  ],
+  "integrity_issues": [],
+  "typosquatting_warnings": [],
+  "network_exfiltration_warnings": []
+}
