@@ -74,49 +74,54 @@ fn main() -> Result<()> {
     // Load verification resolvers (if --verify flag is set)
     let (lockfile_resolver, runtime_resolver) = if args.verify {
         // Try lockfile first (static analysis)
-        let lockfile = match detectors::lockfile_resolver::LockfileResolver::load_from_dir(&args.scan_dir) {
-            Ok(resolver) if resolver.has_lockfile() => {
-                colors::print_status(
-                    colors::Color::Green,
-                    &format!(
-                        "✅ Lockfile loaded ({:?} format, {} packages)",
-                        resolver.lockfile_type.unwrap(),
-                        resolver.packages.len()
-                    ),
-                );
-                Some(resolver)
-            }
-            _ => None,
-        };
+        let lockfile =
+            match detectors::lockfile_resolver::LockfileResolver::load_from_dir(&args.scan_dir) {
+                Ok(resolver) if resolver.has_lockfile() => {
+                    colors::print_status(
+                        colors::Color::Green,
+                        &format!(
+                            "✅ Lockfile loaded ({:?} format, {} packages)",
+                            resolver.lockfile_type.unwrap(),
+                            resolver.packages.len()
+                        ),
+                    );
+                    Some(resolver)
+                }
+                _ => None,
+            };
 
         // Try runtime resolution (actual installed packages)
         colors::print_status(
             colors::Color::Blue,
             "🔍 Querying package manager for installed versions...",
         );
-        let runtime = match detectors::runtime_resolver::RuntimeResolver::from_runtime(&args.scan_dir) {
-            Ok(resolver) if resolver.has_packages() => {
-                colors::print_status(
-                    colors::Color::Green,
-                    &format!("✅ Runtime resolver: {} packages found", resolver.packages.len()),
-                );
-                Some(resolver)
-            }
-            Ok(_) => {
-                colors::print_status(
-                    colors::Color::Yellow,
-                    "⚠️  Runtime resolution failed - using lockfile only",
-                );
-                None
-            }
-            Err(e) => {
-                colors::print_status(
-                    colors::Color::Yellow,
-                    &format!("⚠️  Runtime resolution error: {} - using lockfile only", e),
-                );
-                None
-            }
-        };
+        let runtime =
+            match detectors::runtime_resolver::RuntimeResolver::from_runtime(&args.scan_dir) {
+                Ok(resolver) if resolver.has_packages() => {
+                    colors::print_status(
+                        colors::Color::Green,
+                        &format!(
+                            "✅ Runtime resolver: {} packages found",
+                            resolver.packages.len()
+                        ),
+                    );
+                    Some(resolver)
+                }
+                Ok(_) => {
+                    colors::print_status(
+                        colors::Color::Yellow,
+                        "⚠️  Runtime resolution failed - using lockfile only",
+                    );
+                    None
+                }
+                Err(e) => {
+                    colors::print_status(
+                        colors::Color::Yellow,
+                        &format!("⚠️  Runtime resolution error: {} - using lockfile only", e),
+                    );
+                    None
+                }
+            };
 
         (lockfile, runtime)
     } else {

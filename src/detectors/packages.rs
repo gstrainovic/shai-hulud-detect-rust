@@ -128,8 +128,11 @@ pub fn check_packages<P: AsRef<Path>>(
                                             runtime_resolver,
                                             compromised_packages,
                                         );
-                                        
-                                        if let verification::VerificationStatus::Verified { .. } = verification_status {
+
+                                        if let verification::VerificationStatus::Verified {
+                                            ..
+                                        } = verification_status
+                                        {
                                             finding.verification = Some(verification_status);
                                         }
 
