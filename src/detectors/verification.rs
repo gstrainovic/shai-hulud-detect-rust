@@ -40,29 +40,52 @@ pub enum VerificationMethod {
     Combined,
 }
 
-/// Verify if a package is safe via lockfile
+/// Verify if a package is safe via lockfile or runtime resolution
 pub fn verify_via_lockfile(
     package_name: &str,
-    lockfile_resolver: &LockfileResolver,
+    lockfile_resolver: Option<&LockfileResolver>,
+    runtime_resolver: Option<&crate::detectors::runtime_resolver::RuntimeResolver>,
     compromised_packages: &HashSet<CompromisedPackage>,
 ) -> VerificationStatus {
-    // Get actual locked version from lockfile
-    if let Some(locked_version) = lockfile_resolver.get_version(package_name) {
-        // Check if locked version is in compromised list
-        let is_compromised = compromised_packages
-            .iter()
-            .any(|cp| cp.name == package_name && cp.version == locked_version);
+    // Try runtime resolver first (most accurate - actual installed version)
+    if let Some(runtime) = runtime_resolver {
+        if let Some(installed_version) = runtime.get_version(package_name) {
+            let is_compromised = compromised_packages
+                .iter()
+                .any(|cp| cp.name == package_name && cp.version == installed_version);
 
-        if is_compromised {
-            return VerificationStatus::Compromised {
-                reason: format!("Lockfile pins to COMPROMISED version {}", locked_version),
-            };
-        } else {
-            return VerificationStatus::Verified {
-                reason: format!("Lockfile pins to safe version {}", locked_version),
-                confidence: Confidence::High,
-                method: VerificationMethod::LockfileMatch,
-            };
+            if is_compromised {
+                return VerificationStatus::Compromised {
+                    reason: format!("Installed version {} is COMPROMISED", installed_version),
+                };
+            } else {
+                return VerificationStatus::Verified {
+                    reason: format!("Installed version {} is safe", installed_version),
+                    confidence: Confidence::High,
+                    method: VerificationMethod::LockfileMatch,
+                };
+            }
+        }
+    }
+
+    // Fallback to lockfile
+    if let Some(lockfile) = lockfile_resolver {
+        if let Some(locked_version) = lockfile.get_version(package_name) {
+            let is_compromised = compromised_packages
+                .iter()
+                .any(|cp| cp.name == package_name && cp.version == locked_version);
+
+            if is_compromised {
+                return VerificationStatus::Compromised {
+                    reason: format!("Lockfile pins to COMPROMISED version {}", locked_version),
+                };
+            } else {
+                return VerificationStatus::Verified {
+                    reason: format!("Lockfile pins to safe version {}", locked_version),
+                    confidence: Confidence::High,
+                    method: VerificationMethod::LockfileMatch,
+                };
+            }
         }
     }
 
@@ -77,7 +100,7 @@ pub fn verify_vue_demi_postinstall(filepath: &Path) -> Option<VerificationStatus
         // Read and analyze postinstall.js
         if let Some(parent) = filepath.parent() {
             let script_path = parent.join("scripts/postinstall.js");
-            
+
             if script_path.exists() {
                 if let Ok(script) = std::fs::read_to_string(&script_path) {
                     // Check for legitimate vue-demi patterns
@@ -134,7 +157,7 @@ mod tests {
             version: "6.2.1".to_string(),
         });
 
-        let result = verify_via_lockfile("ansi-regex", &resolver, &compromised);
+        let result = verify_via_lockfile("ansi-regex", Some(&resolver), None, &compromised);
 
         match result {
             VerificationStatus::Verified {
@@ -166,7 +189,7 @@ mod tests {
             version: "6.2.1".to_string(),
         });
 
-        let result = verify_via_lockfile("ansi-regex", &resolver, &compromised);
+        let result = verify_via_lockfile("ansi-regex", Some(&resolver), None, &compromised);
 
         match result {
             VerificationStatus::Compromised { reason } => {
@@ -185,7 +208,7 @@ mod tests {
         };
 
         let compromised = HashSet::new();
-        let result = verify_via_lockfile("some-package", &resolver, &compromised);
+        let result = verify_via_lockfile("some-package", Some(&resolver), None, &compromised);
 
         assert!(matches!(result, VerificationStatus::Unknown));
     }

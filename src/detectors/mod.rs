@@ -11,6 +11,7 @@ pub mod network;
 pub mod packages;
 pub mod postinstall;
 pub mod repos;
+pub mod runtime_resolver;
 pub mod trufflehog;
 pub mod typosquatting;
 pub mod verification;
@@ -57,18 +58,18 @@ impl Serialize for Finding {
 
         // Count fields: 4 base fields + 1 optional verification field
         let field_count = if self.verification.is_some() { 5 } else { 4 };
-        
+
         let mut state = serializer.serialize_struct("Finding", field_count)?;
         state.serialize_field("file_path", &normalized)?;
         state.serialize_field("message", &self.message)?;
         state.serialize_field("risk_level", &self.risk_level)?;
         state.serialize_field("category", &self.category)?;
-        
+
         // Include verification field if present
         if let Some(ref verification) = self.verification {
             state.serialize_field("verification", verification)?;
         }
-        
+
         state.end()
     }
 }

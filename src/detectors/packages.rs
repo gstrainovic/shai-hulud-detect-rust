@@ -20,6 +20,7 @@ pub fn check_packages<P: AsRef<Path>>(
     scan_dir: P,
     compromised_packages: &HashSet<CompromisedPackage>,
     lockfile_resolver: Option<&LockfileResolver>,
+    runtime_resolver: Option<&crate::detectors::runtime_resolver::RuntimeResolver>,
 ) -> (Vec<Finding>, Vec<Finding>, Vec<Finding>, Vec<Finding>) {
     let scan_dir = scan_dir.as_ref();
     let files_count = crate::utils::count_files_by_name(scan_dir, "package.json");
@@ -120,23 +121,16 @@ pub fn check_packages<P: AsRef<Path>>(
                                             "suspicious_package",
                                         );
 
-                                        // Try to verify via lockfile if available
-                                        if let Some(resolver) = lockfile_resolver {
-                                            if let verification::VerificationStatus::Verified { .. } =
-                                                verification::verify_via_lockfile(
-                                                    &package_name,
-                                                    resolver,
-                                                    compromised_packages,
-                                                )
-                                            {
-                                                finding.verification = Some(
-                                                    verification::verify_via_lockfile(
-                                                        &package_name,
-                                                        resolver,
-                                                        compromised_packages,
-                                                    ),
-                                                );
-                                            }
+                                        // Try to verify via lockfile/runtime if available
+                                        let verification_status = verification::verify_via_lockfile(
+                                            &package_name,
+                                            lockfile_resolver,
+                                            runtime_resolver,
+                                            compromised_packages,
+                                        );
+                                        
+                                        if let verification::VerificationStatus::Verified { .. } = verification_status {
+                                            finding.verification = Some(verification_status);
                                         }
 
                                         suspicious_found.push(finding);
