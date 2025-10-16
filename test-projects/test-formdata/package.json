@@ -1,0 +1,7 @@
+{
+  "name": "test-formdata",
+  "version": "1.0.0",
+  "dependencies": {
+    "formdata-polyfill": "^4.0.10"
+  }
+}

@@ -10,3 +10,7 @@ scan_results.json
 compromised-packages.txt
 scripts/verify_findings.py
 scripts/verify_findings.sh
+
+# Test projects
+test-projects/*/node_modules/
+test-projects/*/package-lock.json
