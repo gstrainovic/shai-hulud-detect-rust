@@ -650,12 +650,13 @@ fn should_skip_file(path: &Path) -> bool {
 
 ## 📝 Documentation Updates
 
-- [ ] Update README.md with --verify flag
-- [ ] Add VERIFICATION.md explaining how it works (if needed)
-- [ ] Update bash-log-parser README about verification metadata (if needed)
-- [ ] Add examples to FINDINGS_STATUS.md
+- [x] Update README.md with --verify flag ✅
+- [x] --verify documented in cli.rs --help ✅
+- [ ] Add VERIFICATION.md explaining how it works (optional - system is self-explanatory)
+- [ ] Update bash-log-parser README about verification metadata (not needed - parser works correctly)
+- [ ] Add examples to FINDINGS_STATUS.md (optional)
 
-**STATUS:** Documentation not critical - system is self-explanatory with --help
+**STATUS:** Core documentation complete. System is self-explanatory with --help and README.
 
 ---
 
