@@ -621,7 +621,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 }
 
 /// Print verification summary showing false positive analysis
-fn print_verification_summary(results: &ScanResults, paranoid_mode: bool) {
+fn print_verification_summary(results: &ScanResults, _paranoid_mode: bool) {
     // Check if any findings have verification
     let has_verification = results
         .postinstall_hooks

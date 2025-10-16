@@ -141,7 +141,7 @@ pub fn verify_known_utility_package(package_name: &str) -> Option<VerificationSt
     // These are well-known utility packages that are safe
     // They might get flagged due to version ranges matching compromised versions
     // But the actual compromised versions are very specific and rare
-    
+
     match package_name {
         "ansi-regex" => Some(VerificationStatus::Verified {
             reason: "Well-known ANSI color code regex utility (safe unless specific version matches)".to_string(),

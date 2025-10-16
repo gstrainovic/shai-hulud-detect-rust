@@ -122,16 +122,24 @@ pub fn check_packages<P: AsRef<Path>>(
                                         );
 
                                         // Try to verify via lockfile/runtime if available
-                                        let mut verification_status = verification::verify_via_lockfile(
-                                            &package_name,
-                                            lockfile_resolver,
-                                            runtime_resolver,
-                                            compromised_packages,
-                                        );
+                                        let mut verification_status =
+                                            verification::verify_via_lockfile(
+                                                &package_name,
+                                                lockfile_resolver,
+                                                runtime_resolver,
+                                                compromised_packages,
+                                            );
 
                                         // If lockfile/runtime didn't verify, try known utility package verification
-                                        if matches!(verification_status, verification::VerificationStatus::Unknown) {
-                                            if let Some(utility_status) = verification::verify_known_utility_package(&package_name) {
+                                        if matches!(
+                                            verification_status,
+                                            verification::VerificationStatus::Unknown
+                                        ) {
+                                            if let Some(utility_status) =
+                                                verification::verify_known_utility_package(
+                                                    &package_name,
+                                                )
+                                            {
                                                 verification_status = utility_status;
                                             }
                                         }
