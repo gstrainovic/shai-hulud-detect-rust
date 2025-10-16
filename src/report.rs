@@ -118,6 +118,33 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                 "     Found in: {}",
                 crate::utils::normalize_path(&finding.file_path)
             );
+
+            // Show verification status if present
+            if let Some(verification_status) = &finding.verification {
+                match verification_status {
+                    verification::VerificationStatus::Verified {
+                        reason, confidence, ..
+                    } => {
+                        print_status(
+                            Color::Green,
+                            &format!(
+                                "     [VERIFIED SAFE - {:?} confidence]: {}",
+                                confidence, reason
+                            ),
+                        );
+                    }
+                    verification::VerificationStatus::Compromised { reason } => {
+                        print_status(
+                            Color::Red,
+                            &format!("     [VERIFIED COMPROMISED]: {}", reason),
+                        );
+                    }
+                    verification::VerificationStatus::Suspicious { reason } => {
+                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {}", reason));
+                    }
+                    verification::VerificationStatus::Unknown => {}
+                }
+            }
         }
         print_status(
             Color::Yellow,
@@ -213,15 +240,39 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                 crate::utils::normalize_path(&finding.file_path),
                 finding.message
             );
+
+            // Show verification status if present
+            if let Some(verification_status) = &finding.verification {
+                match verification_status {
+                    verification::VerificationStatus::Verified {
+                        reason, confidence, ..
+                    } => {
+                        print_status(
+                            Color::Green,
+                            &format!(
+                                "     [VERIFIED SAFE - {:?} confidence]: {}",
+                                confidence, reason
+                            ),
+                        );
+                    }
+                    verification::VerificationStatus::Compromised { reason } => {
+                        print_status(
+                            Color::Red,
+                            &format!("     [VERIFIED COMPROMISED]: {}", reason),
+                        );
+                    }
+                    verification::VerificationStatus::Suspicious { reason } => {
+                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {}", reason));
+                    }
+                    verification::VerificationStatus::Unknown => {}
+                }
+            }
         }
         print_status(
             Color::Yellow,
             "   NOTE: These may be legitimate crypto tools or framework code.",
         );
-        print_status(
-            Color::Yellow,
-            "   Manual review recommended to determine if they are malicious.",
-        );
+        print_status(Color::Yellow, "   Manual review required.");
         println!();
     }
 
@@ -254,14 +305,19 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                 "     Found in: {}",
                 crate::utils::normalize_path(&finding.file_path)
             );
-            
+
             // Show verification status if present
             if let Some(verification_status) = &finding.verification {
                 match verification_status {
-                    verification::VerificationStatus::Verified { reason, confidence, .. } => {
+                    verification::VerificationStatus::Verified {
+                        reason, confidence, ..
+                    } => {
                         print_status(
                             Color::Green,
-                            &format!("     [VERIFIED SAFE - {:?} confidence]: {}", confidence, reason),
+                            &format!(
+                                "     [VERIFIED SAFE - {:?} confidence]: {}",
+                                confidence, reason
+                            ),
                         );
                     }
                     verification::VerificationStatus::Compromised { reason } => {
@@ -271,10 +327,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                         );
                     }
                     verification::VerificationStatus::Suspicious { reason } => {
-                        print_status(
-                            Color::Yellow,
-                            &format!("     [SUSPICIOUS]: {}", reason),
-                        );
+                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {}", reason));
                     }
                     verification::VerificationStatus::Unknown => {
                         // Don't print anything for unknown
@@ -558,8 +611,180 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         }
     }
 
+    // Add verification summary if any findings were verified
+    print_verification_summary(results, paranoid_mode);
+
     print_status(
         Color::Blue,
         "==============================================",
     );
+}
+
+/// Print verification summary showing false positive analysis
+fn print_verification_summary(results: &ScanResults, paranoid_mode: bool) {
+    // Check if any findings have verification
+    let has_verification = results
+        .postinstall_hooks
+        .iter()
+        .any(|f| f.verification.is_some())
+        || results
+            .suspicious_found
+            .iter()
+            .any(|f| f.verification.is_some())
+        || results
+            .crypto_patterns
+            .iter()
+            .any(|f| f.verification.is_some());
+
+    if !has_verification {
+        return; // No verification data, skip summary
+    }
+
+    println!();
+    print_status(
+        Color::Blue,
+        "==============================================",
+    );
+    print_status(Color::Blue, "🔍 VERIFICATION SUMMARY (--verify mode)");
+    print_status(
+        Color::Blue,
+        "==============================================",
+    );
+    println!();
+
+    // Count verifications by category
+    let mut high_total = 0;
+    let mut high_verified_safe = 0;
+    let mut high_needs_review = 0;
+
+    let mut medium_total = 0;
+    let mut medium_verified_safe = 0;
+    let mut medium_needs_review = 0;
+
+    // HIGH RISK: Postinstall hooks
+    for finding in &results.postinstall_hooks {
+        high_total += 1;
+        match &finding.verification {
+            Some(verification::VerificationStatus::Verified { .. }) => high_verified_safe += 1,
+            _ => high_needs_review += 1,
+        }
+    }
+
+    // MEDIUM RISK: Suspicious packages
+    for finding in &results.suspicious_found {
+        medium_total += 1;
+        match &finding.verification {
+            Some(verification::VerificationStatus::Verified { .. }) => medium_verified_safe += 1,
+            _ => medium_needs_review += 1,
+        }
+    }
+
+    // MEDIUM RISK: Crypto patterns
+    for finding in &results.crypto_patterns {
+        if finding.risk_level == RiskLevel::Medium {
+            medium_total += 1;
+            match &finding.verification {
+                Some(verification::VerificationStatus::Verified { .. }) => {
+                    medium_verified_safe += 1
+                }
+                _ => medium_needs_review += 1,
+            }
+        }
+    }
+
+    // Print HIGH RISK summary
+    if high_total > 0 {
+        print_status(Color::Red, "🔴 HIGH RISK VERIFICATION:");
+        println!("   Total findings: {}", high_total);
+        if high_verified_safe > 0 {
+            print_status(
+                Color::Green,
+                &format!(
+                    "   ✅ Verified SAFE: {} ({:.0}%)",
+                    high_verified_safe,
+                    (high_verified_safe as f32 / high_total as f32) * 100.0
+                ),
+            );
+        }
+        if high_needs_review > 0 {
+            print_status(
+                Color::Yellow,
+                &format!(
+                    "   ⚠️  Needs review: {} ({:.0}%)",
+                    high_needs_review,
+                    (high_needs_review as f32 / high_total as f32) * 100.0
+                ),
+            );
+        }
+        println!();
+    }
+
+    // Print MEDIUM RISK summary
+    if medium_total > 0 {
+        print_status(Color::Yellow, "🟡 MEDIUM RISK VERIFICATION:");
+        println!("   Total findings: {}", medium_total);
+        if medium_verified_safe > 0 {
+            print_status(
+                Color::Green,
+                &format!(
+                    "   ✅ Verified SAFE: {} ({:.0}%)",
+                    medium_verified_safe,
+                    (medium_verified_safe as f32 / medium_total as f32) * 100.0
+                ),
+            );
+        }
+        if medium_needs_review > 0 {
+            print_status(
+                Color::Yellow,
+                &format!(
+                    "   ⚠️  Needs review: {} ({:.0}%)",
+                    medium_needs_review,
+                    (medium_needs_review as f32 / medium_total as f32) * 100.0
+                ),
+            );
+        }
+        println!();
+    }
+
+    // Overall conclusion
+    let total_findings = high_total + medium_total;
+    let total_verified = high_verified_safe + medium_verified_safe;
+    let false_positive_rate = if total_findings > 0 {
+        (total_verified as f32 / total_findings as f32) * 100.0
+    } else {
+        0.0
+    };
+
+    print_status(Color::Blue, "📊 VERIFICATION STATISTICS:");
+    println!("   Total critical findings analyzed: {}", total_findings);
+    println!(
+        "   Verified as false positives: {} ({:.0}%)",
+        total_verified, false_positive_rate
+    );
+
+    if high_needs_review + medium_needs_review == 0 {
+        println!();
+        print_status(
+            Color::Green,
+            "✅ CONCLUSION: All findings verified as SAFE (false positives)",
+        );
+        print_status(
+            Color::Green,
+            "   No malicious activity detected. Project appears clean.",
+        );
+    } else {
+        println!();
+        print_status(
+            Color::Yellow,
+            &format!(
+                "⚠️  CONCLUSION: {} findings still need manual review",
+                high_needs_review + medium_needs_review
+            ),
+        );
+        print_status(
+            Color::Yellow,
+            "   Review items marked without [VERIFIED SAFE] tags above.",
+        );
+    }
+    println!();
 }
