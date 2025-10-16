@@ -46,22 +46,23 @@ impl RuntimeResolver {
     /// Try to resolve packages using runtime package manager query
     pub fn from_runtime<P: AsRef<Path>>(dir: P) -> Result<Self> {
         let dir = dir.as_ref();
-        
+
         // Try pnpm first
         if let Ok(packages) = Self::query_pnpm(dir) {
             return Ok(Self { packages });
         }
-        
+
         // Try npm
         if let Ok(packages) = Self::query_npm(dir) {
             return Ok(Self { packages });
         }
-        
+
         // No runtime resolution available
         Ok(Self {
             packages: HashMap::new(),
         })
-    }    /// Query pnpm for installed packages
+    }
+    /// Query pnpm for installed packages
     fn query_pnpm<P: AsRef<Path>>(dir: P) -> Result<HashMap<String, String>> {
         let output = Command::new("pnpm")
             .arg("list")
