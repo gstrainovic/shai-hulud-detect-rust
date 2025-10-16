@@ -7,14 +7,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-/// Resolved package with its actual installed version
-#[derive(Debug, Clone)]
-pub struct ResolvedPackage {
-    pub name: String,
-    pub version: String,
-    pub source: LockfileType,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum LockfileType {
     Npm,  // package-lock.json

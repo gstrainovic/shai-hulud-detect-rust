@@ -84,11 +84,6 @@ impl Finding {
             verification: None,
         }
     }
-
-    pub fn with_verification(mut self, verification: verification::VerificationStatus) -> Self {
-        self.verification = Some(verification);
-        self
-    }
 }
 
 /// Collection of all findings from a scan
