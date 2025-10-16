@@ -11,14 +11,17 @@ use std::process::Command;
 #[derive(Debug, Deserialize)]
 struct PnpmListOutput {
     #[serde(default)]
-    dependencies: HashMap<String, PnpmPackage>,
+    dependencies: HashMap<String, PnpmPackageInfo>,
+    #[serde(default)]
+    #[serde(rename = "devDependencies")]
+    dev_dependencies: HashMap<String, PnpmPackageInfo>,
 }
 
 #[derive(Debug, Deserialize)]
-struct PnpmPackage {
+struct PnpmPackageInfo {
     version: String,
     #[serde(default)]
-    dependencies: HashMap<String, PnpmPackage>,
+    dependencies: HashMap<String, PnpmPackageInfo>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -43,24 +46,22 @@ impl RuntimeResolver {
     /// Try to resolve packages using runtime package manager query
     pub fn from_runtime<P: AsRef<Path>>(dir: P) -> Result<Self> {
         let dir = dir.as_ref();
-
+        
         // Try pnpm first
         if let Ok(packages) = Self::query_pnpm(dir) {
             return Ok(Self { packages });
         }
-
+        
         // Try npm
         if let Ok(packages) = Self::query_npm(dir) {
             return Ok(Self { packages });
         }
-
+        
         // No runtime resolution available
         Ok(Self {
             packages: HashMap::new(),
         })
-    }
-
-    /// Query pnpm for installed packages
+    }    /// Query pnpm for installed packages
     fn query_pnpm<P: AsRef<Path>>(dir: P) -> Result<HashMap<String, String>> {
         let output = Command::new("pnpm")
             .arg("list")
@@ -84,6 +85,12 @@ impl RuntimeResolver {
 
         for result in results {
             Self::flatten_pnpm_deps(&result.dependencies, &mut all_packages);
+            Self::flatten_pnpm_deps(&result.dev_dependencies, &mut all_packages);
+        }
+
+        // If no packages found, consider it a failure
+        if all_packages.is_empty() {
+            anyhow::bail!("pnpm list returned no packages");
         }
 
         Ok(all_packages)
@@ -111,12 +118,17 @@ impl RuntimeResolver {
         let mut all_packages = HashMap::new();
         Self::flatten_npm_deps(&result.dependencies, &mut all_packages);
 
+        // If no packages found, consider it a failure
+        if all_packages.is_empty() {
+            anyhow::bail!("npm list returned no packages");
+        }
+
         Ok(all_packages)
     }
 
     /// Recursively flatten pnpm dependencies
     fn flatten_pnpm_deps(
-        deps: &HashMap<String, PnpmPackage>,
+        deps: &HashMap<String, PnpmPackageInfo>,
         output: &mut HashMap<String, String>,
     ) {
         for (name, pkg) in deps {
@@ -158,7 +170,7 @@ mod tests {
         let mut subdeps = HashMap::new();
         subdeps.insert(
             "ms".to_string(),
-            PnpmPackage {
+            PnpmPackageInfo {
                 version: "2.1.3".to_string(),
                 dependencies: HashMap::new(),
             },
@@ -166,7 +178,7 @@ mod tests {
 
         deps.insert(
             "debug".to_string(),
-            PnpmPackage {
+            PnpmPackageInfo {
                 version: "4.3.4".to_string(),
                 dependencies: subdeps,
             },
