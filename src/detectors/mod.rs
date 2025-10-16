@@ -6,6 +6,7 @@ pub mod crypto;
 pub mod git;
 pub mod hashes;
 pub mod integrity;
+pub mod lockfile_resolver;
 pub mod network;
 pub mod packages;
 pub mod postinstall;
