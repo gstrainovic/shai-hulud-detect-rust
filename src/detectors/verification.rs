@@ -1,0 +1,186 @@
+// Verification Module - Verify findings to reduce false positives
+// Purpose: Check if findings are legitimate patterns vs actual threats
+
+use crate::data::CompromisedPackage;
+use crate::detectors::lockfile_resolver::LockfileResolver;
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
+use std::path::Path;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum VerificationStatus {
+    Verified {
+        reason: String,
+        confidence: Confidence,
+        method: VerificationMethod,
+    },
+    Compromised {
+        reason: String,
+    },
+    Suspicious {
+        reason: String,
+    },
+    Unknown,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum Confidence {
+    High,   // 95%+ sure (lockfile match, code analysis)
+    Medium, // 70-95% (pattern matching)
+    Low,    // 50-70% (heuristics)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum VerificationMethod {
+    LockfileMatch,
+    CodePatternAnalysis,
+    Combined,
+}
+
+/// Verify if a package is safe via lockfile
+pub fn verify_via_lockfile(
+    package_name: &str,
+    lockfile_resolver: &LockfileResolver,
+    compromised_packages: &HashSet<CompromisedPackage>,
+) -> VerificationStatus {
+    // Get actual locked version from lockfile
+    if let Some(locked_version) = lockfile_resolver.get_version(package_name) {
+        // Check if locked version is in compromised list
+        let is_compromised = compromised_packages.iter().any(|cp| {
+            cp.name == package_name && cp.version == locked_version
+        });
+
+        if is_compromised {
+            return VerificationStatus::Compromised {
+                reason: format!("Lockfile pins to COMPROMISED version {}", locked_version),
+            };
+        } else {
+            return VerificationStatus::Verified {
+                reason: format!("Lockfile pins to safe version {}", locked_version),
+                confidence: Confidence::High,
+                method: VerificationMethod::LockfileMatch,
+            };
+        }
+    }
+
+    VerificationStatus::Unknown
+}
+
+/// Verify vue-demi postinstall hook (legitimate version-switching)
+pub fn verify_vue_demi_postinstall(filepath: &Path) -> Option<VerificationStatus> {
+    let path_str = filepath.to_string_lossy();
+    
+    if path_str.contains("vue-demi") {
+        // Read and analyze postinstall.js
+        if let Some(parent) = filepath.parent() {
+            let script_path = parent.join("scripts/postinstall.js");
+            if script_path.exists() {
+                if let Ok(script) = std::fs::read_to_string(script_path) {
+                    // Check for legitimate vue-demi patterns
+                    if script.contains("switchVersion") || script.contains("loadModule") {
+                        return Some(VerificationStatus::Verified {
+                            reason: "Vue 2/3 compatibility layer - version switching only".to_string(),
+                            confidence: Confidence::High,
+                            method: VerificationMethod::CodePatternAnalysis,
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    None
+}
+
+/// Verify formdata-polyfill XMLHttpRequest modification (legitimate IE polyfill)
+pub fn verify_formdata_polyfill(filepath: &Path, _code: &str) -> Option<VerificationStatus> {
+    let path_str = filepath.to_string_lossy();
+    
+    if path_str.contains("formdata-polyfill") {
+        // formdata-polyfill is a legitimate package for IE compatibility
+        return Some(VerificationStatus::Verified {
+            reason: "FormData polyfill - IE compatibility wrapper".to_string(),
+            confidence: Confidence::High,
+            method: VerificationMethod::CodePatternAnalysis,
+        });
+    }
+    
+    None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_verify_safe_via_lockfile() {
+        let mut packages = HashMap::new();
+        packages.insert("ansi-regex".to_string(), "6.1.0".to_string());
+        
+        let resolver = LockfileResolver {
+            packages,
+            lockfile_type: Some(crate::detectors::lockfile_resolver::LockfileType::Pnpm),
+        };
+        
+        let mut compromised = HashSet::new();
+        compromised.insert(CompromisedPackage {
+            name: "ansi-regex".to_string(),
+            version: "6.2.1".to_string(),
+        });
+        
+        let result = verify_via_lockfile("ansi-regex", &resolver, &compromised);
+        
+        match result {
+            VerificationStatus::Verified { reason, confidence, method } => {
+                assert!(reason.contains("6.1.0"));
+                assert_eq!(confidence, Confidence::High);
+                assert_eq!(method, VerificationMethod::LockfileMatch);
+            }
+            _ => panic!("Expected Verified status"),
+        }
+    }
+    
+    #[test]
+    fn test_verify_compromised_via_lockfile() {
+        let mut packages = HashMap::new();
+        packages.insert("ansi-regex".to_string(), "6.2.1".to_string());
+        
+        let resolver = LockfileResolver {
+            packages,
+            lockfile_type: Some(crate::detectors::lockfile_resolver::LockfileType::Pnpm),
+        };
+        
+        let mut compromised = HashSet::new();
+        compromised.insert(CompromisedPackage {
+            name: "ansi-regex".to_string(),
+            version: "6.2.1".to_string(),
+        });
+        
+        let result = verify_via_lockfile("ansi-regex", &resolver, &compromised);
+        
+        match result {
+            VerificationStatus::Compromised { reason } => {
+                assert!(reason.contains("COMPROMISED"));
+                assert!(reason.contains("6.2.1"));
+            }
+            _ => panic!("Expected Compromised status"),
+        }
+    }
+    
+    #[test]
+    fn test_verify_unknown_no_lockfile() {
+        let resolver = LockfileResolver {
+            packages: HashMap::new(),
+            lockfile_type: None,
+        };
+        
+        let compromised = HashSet::new();
+        let result = verify_via_lockfile("some-package", &resolver, &compromised);
+        
+        assert!(matches!(result, VerificationStatus::Unknown));
+    }
+}

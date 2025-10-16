@@ -13,6 +13,7 @@ pub mod postinstall;
 pub mod repos;
 pub mod trufflehog;
 pub mod typosquatting;
+pub mod verification;
 pub mod workflow;
 
 use serde::{Deserialize, Serialize};
