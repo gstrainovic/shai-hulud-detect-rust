@@ -1,10 +1,13 @@
 // Verification Module - Verify findings to reduce false positives
 // Purpose: Check if findings are legitimate patterns vs actual threats
 
-use crate::data::CompromisedPackage;
+use crate::data::{CompromisedPackage, VERIFIED_FILES};
 use crate::detectors::lockfile_resolver::LockfileResolver;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::collections::HashSet;
+use std::fs;
+use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -89,6 +92,39 @@ pub fn verify_via_lockfile(
     }
 
     VerificationStatus::Unknown
+}
+
+/// Verify file by SHA-256 hash against AI-reviewed whitelist
+pub fn verify_file_by_hash(file_path: &Path) -> VerificationStatus {
+    // Calculate SHA-256 hash of file
+    let hash = match calculate_file_hash(file_path) {
+        Ok(h) => h,
+        Err(_) => return VerificationStatus::Unknown,
+    };
+
+    // Check against verified files list
+    for verified in VERIFIED_FILES {
+        if verified.hash == hash {
+            return VerificationStatus::Verified {
+                reason: format!(
+                    "{} (reviewed by {} on {})",
+                    verified.reason, verified.reviewed_by, verified.reviewed_date
+                ),
+                confidence: Confidence::High,
+                method: VerificationMethod::CodePatternAnalysis,
+            };
+        }
+    }
+
+    VerificationStatus::Unknown
+}
+
+/// Calculate SHA-256 hash of a file
+fn calculate_file_hash(file_path: &Path) -> Result<String, std::io::Error> {
+    let contents = fs::read(file_path)?;
+    let mut hasher = Sha256::new();
+    hasher.update(&contents);
+    Ok(format!("{:x}", hasher.finalize()))
 }
 
 #[cfg(test)]
