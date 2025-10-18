@@ -12,8 +12,8 @@ fn show_file_preview(file_path: &Path, context: &str) {
     // Only show file preview for HIGH RISK items to reduce noise
     if context.contains("HIGH RISK") {
         let normalized = crate::utils::normalize_path(file_path);
-        println!("   \x1b[34m┌─ File: {}\x1b[0m", normalized);
-        println!("   \x1b[34m│  Context: {}\x1b[0m", context);
+        println!("   \x1b[34m┌─ File: {normalized}\x1b[0m");
+        println!("   \x1b[34m│  Context: {context}\x1b[0m");
         println!("   \x1b[34m└─\x1b[0m");
         println!();
     }
@@ -127,20 +127,17 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                     } => {
                         print_status(
                             Color::Green,
-                            &format!(
-                                "     [VERIFIED SAFE - {:?} confidence]: {}",
-                                confidence, reason
-                            ),
+                            &format!("     [VERIFIED SAFE - {confidence:?} confidence]: {reason}"),
                         );
                     }
                     verification::VerificationStatus::Compromised { reason } => {
                         print_status(
                             Color::Red,
-                            &format!("     [VERIFIED COMPROMISED]: {}", reason),
+                            &format!("     [VERIFIED COMPROMISED]: {reason}"),
                         );
                     }
                     verification::VerificationStatus::Suspicious { reason } => {
-                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {}", reason));
+                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {reason}"));
                     }
                     verification::VerificationStatus::Unknown => {}
                 }
@@ -249,20 +246,17 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                     } => {
                         print_status(
                             Color::Green,
-                            &format!(
-                                "     [VERIFIED SAFE - {:?} confidence]: {}",
-                                confidence, reason
-                            ),
+                            &format!("     [VERIFIED SAFE - {confidence:?} confidence]: {reason}"),
                         );
                     }
                     verification::VerificationStatus::Compromised { reason } => {
                         print_status(
                             Color::Red,
-                            &format!("     [VERIFIED COMPROMISED]: {}", reason),
+                            &format!("     [VERIFIED COMPROMISED]: {reason}"),
                         );
                     }
                     verification::VerificationStatus::Suspicious { reason } => {
-                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {}", reason));
+                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {reason}"));
                     }
                     verification::VerificationStatus::Unknown => {}
                 }
@@ -314,20 +308,17 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
                     } => {
                         print_status(
                             Color::Green,
-                            &format!(
-                                "     [VERIFIED SAFE - {:?} confidence]: {}",
-                                confidence, reason
-                            ),
+                            &format!("     [VERIFIED SAFE - {confidence:?} confidence]: {reason}"),
                         );
                     }
                     verification::VerificationStatus::Compromised { reason } => {
                         print_status(
                             Color::Red,
-                            &format!("     [VERIFIED COMPROMISED]: {}", reason),
+                            &format!("     [VERIFIED COMPROMISED]: {reason}"),
                         );
                     }
                     verification::VerificationStatus::Suspicious { reason } => {
-                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {}", reason));
+                        print_status(Color::Yellow, &format!("     [SUSPICIOUS]: {reason}"));
                     }
                     verification::VerificationStatus::Unknown => {
                         // Don't print anything for unknown
@@ -539,20 +530,20 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         }
     } else {
         print_status(Color::Red, "SUMMARY:");
-        print_status(Color::Red, &format!("   High Risk Issues: {}", high_risk));
+        print_status(Color::Red, &format!("   High Risk Issues: {high_risk}"));
         print_status(
             Color::Yellow,
-            &format!("   Medium Risk Issues: {}", medium_risk),
+            &format!("   Medium Risk Issues: {medium_risk}"),
         );
         if low_risk > 0 {
             print_status(
                 Color::Blue,
-                &format!("   Low Risk (informational): {}", low_risk),
+                &format!("   Low Risk (informational): {low_risk}"),
             );
         }
         print_status(
             Color::Blue,
-            &format!("   Total Critical Issues: {}", total_issues),
+            &format!("   Total Critical Issues: {total_issues}"),
         );
         println!();
         print_status(Color::Yellow, "IMPORTANT:");
@@ -685,7 +676,7 @@ fn print_verification_summary(results: &ScanResults, _paranoid_mode: bool) {
             medium_total += 1;
             match &finding.verification {
                 Some(verification::VerificationStatus::Verified { .. }) => {
-                    medium_verified_safe += 1
+                    medium_verified_safe += 1;
                 }
                 _ => medium_needs_review += 1,
             }
@@ -695,7 +686,7 @@ fn print_verification_summary(results: &ScanResults, _paranoid_mode: bool) {
     // Print HIGH RISK summary
     if high_total > 0 {
         print_status(Color::Red, "🔴 HIGH RISK VERIFICATION:");
-        println!("   Total findings: {}", high_total);
+        println!("   Total findings: {high_total}");
         if high_verified_safe > 0 {
             print_status(
                 Color::Green,
@@ -722,7 +713,7 @@ fn print_verification_summary(results: &ScanResults, _paranoid_mode: bool) {
     // Print MEDIUM RISK summary
     if medium_total > 0 {
         print_status(Color::Yellow, "🟡 MEDIUM RISK VERIFICATION:");
-        println!("   Total findings: {}", medium_total);
+        println!("   Total findings: {medium_total}");
         if medium_verified_safe > 0 {
             print_status(
                 Color::Green,
@@ -756,11 +747,8 @@ fn print_verification_summary(results: &ScanResults, _paranoid_mode: bool) {
     };
 
     print_status(Color::Blue, "📊 VERIFICATION STATISTICS:");
-    println!("   Total critical findings analyzed: {}", total_findings);
-    println!(
-        "   Verified as false positives: {} ({:.0}%)",
-        total_verified, false_positive_rate
-    );
+    println!("   Total critical findings analyzed: {total_findings}");
+    println!("   Verified as false positives: {total_verified} ({false_positive_rate:.0}%)");
 
     if high_needs_review + medium_needs_review == 0 {
         println!();

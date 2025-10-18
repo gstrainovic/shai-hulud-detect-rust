@@ -49,7 +49,9 @@ impl LockfileResolver {
 
     /// Get resolved version for a package
     pub fn get_version(&self, package_name: &str) -> Option<&str> {
-        self.packages.get(package_name).map(|s| s.as_str())
+        self.packages
+            .get(package_name)
+            .map(std::string::String::as_str)
     }
 
     /// Check if lockfile was found
@@ -262,7 +264,7 @@ fn extract_package_name(path: &str) -> Option<String> {
         }
     } else {
         // package
-        path.split('/').next().map(|s| s.to_string())
+        path.split('/').next().map(std::string::ToString::to_string)
     }
 }
 

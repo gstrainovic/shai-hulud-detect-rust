@@ -47,7 +47,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file() && e.file_name() == "package.json")
     {
         if let Ok(content) = fs::read_to_string(entry.path()) {
@@ -63,7 +63,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                         for package_name in deps.keys() {
                             // Skip if too short or no alpha chars
                             if package_name.len() < 2
-                                || !package_name.chars().any(|c| c.is_alphabetic())
+                                || !package_name.chars().any(char::is_alphabetic)
                             {
                                 continue;
                             }
@@ -82,8 +82,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                 findings.push(Finding::new(
                                     entry.path().to_path_buf(),
                                     format!(
-                                        "Potential Unicode/homoglyph characters in package: {}",
-                                        package_name
+                                        "Potential Unicode/homoglyph characters in package: {package_name}"
                                     ),
                                     RiskLevel::Medium,
                                     "typosquatting",
@@ -122,8 +121,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     findings.push(Finding::new(
                                         entry.path().to_path_buf(),
                                         format!(
-                                            "Potential typosquatting pattern '{}' in package: {}",
-                                            pattern, package_name
+                                            "Potential typosquatting pattern '{pattern}' in package: {package_name}"
                                         ),
                                         RiskLevel::Medium,
                                         "typosquatting",
@@ -153,7 +151,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     {
                                         findings.push(Finding::new(
                                             entry.path().to_path_buf(),
-                                            format!("Potential typosquatting of '{}': {} (1 character difference)", popular, package_name),
+                                            format!("Potential typosquatting of '{popular}': {package_name} (1 character difference)"),
                                             RiskLevel::Medium,
                                             "typosquatting",
                                         ));
@@ -171,7 +169,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                         if *package_name == test_name {
                                             findings.push(Finding::new(
                                                 entry.path().to_path_buf(),
-                                                format!("Potential typosquatting of '{}': {} (missing character)", popular, package_name),
+                                                format!("Potential typosquatting of '{popular}': {package_name} (missing character)"),
                                                 RiskLevel::Medium,
                                                 "typosquatting",
                                             ));
@@ -192,7 +190,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                         if test_name == *popular {
                                             findings.push(Finding::new(
                                                 entry.path().to_path_buf(),
-                                                format!("Potential typosquatting of '{}': {} (extra character)", popular, package_name),
+                                                format!("Potential typosquatting of '{popular}': {package_name} (extra character)"),
                                                 RiskLevel::Medium,
                                                 "typosquatting",
                                             ));
@@ -229,10 +227,10 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                                     .zip(sus_clean.chars())
                                                     .filter(|(a, b)| a != b)
                                                     .count();
-                                                if diff >= 1 && diff <= 2 {
+                                                if (1..=2).contains(&diff) {
                                                     findings.push(Finding::new(
                                                         entry.path().to_path_buf(),
-                                                        format!("Suspicious namespace variation: {} (similar to {})", namespace, suspicious),
+                                                        format!("Suspicious namespace variation: {namespace} (similar to {suspicious})"),
                                                         RiskLevel::Medium,
                                                         "typosquatting",
                                                     ));

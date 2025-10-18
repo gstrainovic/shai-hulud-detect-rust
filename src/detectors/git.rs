@@ -21,7 +21,7 @@ pub fn check_git_branches<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_dir() && e.file_name() == ".git")
     {
         let repo_dir = entry.path().parent().unwrap_or(entry.path());
@@ -31,7 +31,7 @@ pub fn check_git_branches<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             for branch_entry in WalkDir::new(&refs_heads)
                 .max_depth(1)
                 .into_iter()
-                .filter_map(|e| e.ok())
+                .filter_map(std::result::Result::ok)
                 .filter(|e| e.file_type().is_file())
             {
                 let branch_name = branch_entry.file_name().to_string_lossy();

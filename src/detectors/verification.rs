@@ -58,15 +58,14 @@ pub fn verify_via_lockfile(
 
             if is_compromised {
                 return VerificationStatus::Compromised {
-                    reason: format!("Installed version {} is COMPROMISED", installed_version),
-                };
-            } else {
-                return VerificationStatus::Verified {
-                    reason: format!("Installed version {} is safe", installed_version),
-                    confidence: Confidence::High,
-                    method: VerificationMethod::LockfileMatch,
+                    reason: format!("Installed version {installed_version} is COMPROMISED"),
                 };
             }
+            return VerificationStatus::Verified {
+                reason: format!("Installed version {installed_version} is safe"),
+                confidence: Confidence::High,
+                method: VerificationMethod::LockfileMatch,
+            };
         }
     }
 
@@ -79,15 +78,14 @@ pub fn verify_via_lockfile(
 
             if is_compromised {
                 return VerificationStatus::Compromised {
-                    reason: format!("Lockfile pins to COMPROMISED version {}", locked_version),
-                };
-            } else {
-                return VerificationStatus::Verified {
-                    reason: format!("Lockfile pins to safe version {}", locked_version),
-                    confidence: Confidence::High,
-                    method: VerificationMethod::LockfileMatch,
+                    reason: format!("Lockfile pins to COMPROMISED version {locked_version}"),
                 };
             }
+            return VerificationStatus::Verified {
+                reason: format!("Lockfile pins to safe version {locked_version}"),
+                confidence: Confidence::High,
+                method: VerificationMethod::LockfileMatch,
+            };
         }
     }
 

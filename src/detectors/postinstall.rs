@@ -22,7 +22,7 @@ pub fn check_postinstall_hooks<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file() && e.file_name() == "package.json")
     {
         if let Ok(content) = fs::read_to_string(entry.path()) {
@@ -36,7 +36,7 @@ pub fn check_postinstall_hooks<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                         if suspicious_patterns.iter().any(|p| postinstall.contains(p)) {
                             let mut finding = Finding::new(
                                 entry.path().to_path_buf(),
-                                format!("Suspicious postinstall: {}", postinstall),
+                                format!("Suspicious postinstall: {postinstall}"),
                                 RiskLevel::High,
                                 "postinstall_hook",
                             );

@@ -1,7 +1,7 @@
 // Terminal color output
 // Corresponds to bash color codes and print_status function
 
-use colored::*;
+use colored::Colorize;
 
 pub enum Color {
     Red,
@@ -22,5 +22,5 @@ pub fn print_status(color: Color, message: &str) {
         Color::Green => message.green(),
         Color::Blue => message.blue(),
     };
-    println!("{}", colored_msg);
+    println!("{colored_msg}");
 }

@@ -22,14 +22,13 @@ pub fn check_content<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| {
             e.path()
                 .extension()
                 .and_then(|ext| ext.to_str())
-                .map(|ext| extensions.contains(&ext))
-                .unwrap_or(false)
+                .is_some_and(|ext| extensions.contains(&ext))
         })
     {
         if let Ok(content) = fs::read_to_string(entry.path()) {

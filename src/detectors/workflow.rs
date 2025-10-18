@@ -21,7 +21,7 @@ pub fn check_workflow_files<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     // Look specifically for shai-hulud-workflow.yml files
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
     {
         if entry.file_name() == "shai-hulud-workflow.yml" {

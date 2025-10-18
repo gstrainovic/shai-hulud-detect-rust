@@ -30,14 +30,13 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| {
             e.path()
                 .extension()
                 .and_then(|ext| ext.to_str())
-                .map(|ext| extensions.contains(&ext))
-                .unwrap_or(false)
+                .is_some_and(|ext| extensions.contains(&ext))
         })
     {
         let path_str = entry.path().to_string_lossy().to_string();
@@ -74,7 +73,7 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
                             std::path::PathBuf::from("Crypto pattern"),
                             format!(
                                 "{}:XMLHttpRequest prototype modification detected in framework code - LOW RISK",
-                                crate::utils::normalize_path(&entry.path().to_path_buf())
+                                crate::utils::normalize_path(entry.path())
                             ),
                             RiskLevel::Low,
                             "crypto_xhr_framework",

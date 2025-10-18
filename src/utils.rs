@@ -22,7 +22,7 @@ pub fn normalize_path(path: &Path) -> String {
     if with_forward_slashes.len() >= 2 && with_forward_slashes.chars().nth(1) == Some(':') {
         let drive = with_forward_slashes.chars().next().unwrap().to_lowercase();
         let rest = &with_forward_slashes[2..];
-        format!("/{}{}", drive, rest)
+        format!("/{drive}{rest}")
     } else {
         with_forward_slashes
     }
@@ -36,14 +36,13 @@ pub fn normalize_path(path: &Path) -> String {
 pub fn count_files<P: AsRef<Path>>(path: P, extensions: &[&str]) -> usize {
     WalkDir::new(path)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| {
             e.path()
                 .extension()
                 .and_then(|ext| ext.to_str())
-                .map(|ext| extensions.contains(&ext))
-                .unwrap_or(false)
+                .is_some_and(|ext| extensions.contains(&ext))
         })
         .count()
 }
@@ -56,7 +55,7 @@ pub fn count_files<P: AsRef<Path>>(path: P, extensions: &[&str]) -> usize {
 pub fn count_files_by_name<P: AsRef<Path>>(path: P, filename: &str) -> usize {
     WalkDir::new(path)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| e.file_name() == filename)
         .count()
@@ -73,7 +72,7 @@ pub fn show_progress(current: usize, total: usize) {
     } else {
         0
     };
-    eprint!("\r\x1b[K{} / {} checked ({} %)", current, total, percent);
+    eprint!("\r\x1b[K{current} / {total} checked ({percent} %)");
 }
 
 // Function: clear_progress

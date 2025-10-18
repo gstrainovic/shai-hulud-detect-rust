@@ -199,7 +199,7 @@ pub fn load_compromised_packages<P: AsRef<Path>>(
             if let Err(e) = fs::write("compromised-packages.txt", &content) {
                 crate::colors::print_status(
                     crate::colors::Color::Yellow,
-                    &format!("⚠️  Could not cache file: {}", e),
+                    &format!("⚠️  Could not cache file: {e}"),
                 );
             }
 
@@ -208,7 +208,7 @@ pub fn load_compromised_packages<P: AsRef<Path>>(
         Err(e) => {
             crate::colors::print_status(
                 crate::colors::Color::Yellow,
-                &format!("⚠️  GitHub download failed: {} - using cached files...", e),
+                &format!("⚠️  GitHub download failed: {e} - using cached files..."),
             );
         }
     }
@@ -282,7 +282,10 @@ pub fn load_detection_data<P: AsRef<Path>>(
     packages_file: P,
 ) -> Result<(HashSet<CompromisedPackage>, HashSet<String>)> {
     let packages = load_compromised_packages(packages_file)?;
-    let hashes: HashSet<String> = MALICIOUS_HASHLIST.iter().map(|s| s.to_string()).collect();
+    let hashes: HashSet<String> = MALICIOUS_HASHLIST
+        .iter()
+        .map(|s| (*s).to_string())
+        .collect();
     Ok((packages, hashes))
 }
 

@@ -27,10 +27,7 @@ pub fn check_packages<P: AsRef<Path>>(
 
     crate::colors::print_status(
         crate::colors::Color::Blue,
-        &format!(
-            "Checking {} package.json files for compromised packages...",
-            files_count
-        ),
+        &format!("Checking {files_count} package.json files for compromised packages..."),
     );
 
     let mut compromised_found = Vec::new();
@@ -43,7 +40,7 @@ pub fn check_packages<P: AsRef<Path>>(
     // Collect and sort package.json files for consistent order
     let mut package_files: Vec<_> = WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file() && e.file_name() == "package.json")
         .collect();
 
@@ -76,7 +73,7 @@ pub fn check_packages<P: AsRef<Path>>(
                                 if version_str == comp_pkg.version {
                                     compromised_found.push(Finding::new(
                                         entry.path().to_path_buf(),
-                                        format!("{}@{}", package_name, version_str),
+                                        format!("{package_name}@{version_str}"),
                                         RiskLevel::High,
                                         "compromised_package",
                                     ));
@@ -95,7 +92,7 @@ pub fn check_packages<P: AsRef<Path>>(
                                             // Lockfile has exact compromised version!
                                             compromised_found.push(Finding::new(
                                                 entry.path().to_path_buf(),
-                                                format!("{}@{}", package_name, actual_version),
+                                                format!("{package_name}@{actual_version}"),
                                                 RiskLevel::High,
                                                 "compromised_package",
                                             ));
@@ -105,8 +102,7 @@ pub fn check_packages<P: AsRef<Path>>(
                                             lockfile_safe_versions.push(Finding::new(
                                                 entry.path().to_path_buf(),
                                                 format!(
-                                                    "{}@{} (locked to {} - safe)",
-                                                    package_name, version_str, actual_version
+                                                    "{package_name}@{version_str} (locked to {actual_version} - safe)"
                                                 ),
                                                 RiskLevel::Low,
                                                 "lockfile_safe",
@@ -116,14 +112,14 @@ pub fn check_packages<P: AsRef<Path>>(
                                         // No lockfile - suspicious (could install compromised on npm install)
                                         let mut finding = Finding::new(
                                             entry.path().to_path_buf(),
-                                            format!("{}@{}", package_name, version_str),
+                                            format!("{package_name}@{version_str}"),
                                             RiskLevel::Medium,
                                             "suspicious_package",
                                         );
 
                                         // Only verify via lockfile/runtime (NO hardcoded patterns!)
                                         let verification_status = verification::verify_via_lockfile(
-                                            &package_name,
+                                            package_name,
                                             lockfile_resolver,
                                             runtime_resolver.as_deref_mut(),
                                             compromised_packages,
@@ -149,7 +145,7 @@ pub fn check_packages<P: AsRef<Path>>(
                 // If file has @ctrl AND @nativescript, it generates 2 warnings
                 let package_str = serde_json::to_string(&json).unwrap_or_default();
                 for namespace in crate::data::COMPROMISED_NAMESPACES {
-                    if package_str.contains(&format!("\"{}/", namespace)) {
+                    if package_str.contains(&format!("\"{namespace}/")) {
                         namespace_warnings.push(Finding::new(
                             // BASH EXACT: Use "Namespace warning" as file_path for compatibility
                             std::path::PathBuf::from("Namespace warning"),

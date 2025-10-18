@@ -26,23 +26,19 @@ pub fn check_file_hashes<P: AsRef<Path>>(
 
     crate::colors::print_status(
         crate::colors::Color::Blue,
-        &format!(
-            "Checking {} files for known malicious content...",
-            files_count
-        ),
+        &format!("Checking {files_count} files for known malicious content..."),
     );
 
     // Collect all files to process
     let files: Vec<_> = WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| {
             e.path()
                 .extension()
                 .and_then(|ext| ext.to_str())
-                .map(|ext| extensions.contains(&ext))
-                .unwrap_or(false)
+                .is_some_and(|ext| extensions.contains(&ext))
         })
         .map(|e| e.path().to_path_buf())
         .collect();
@@ -71,7 +67,7 @@ pub fn check_file_hashes<P: AsRef<Path>>(
                     if malicious_hashes.contains(&hash) {
                         return Some(Finding::new(
                             path.clone(),
-                            format!("Hash: {}", hash),
+                            format!("Hash: {hash}"),
                             RiskLevel::High,
                             "malicious_hash",
                         ));

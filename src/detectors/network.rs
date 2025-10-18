@@ -47,14 +47,13 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| {
             e.path()
                 .extension()
                 .and_then(|ext| ext.to_str())
-                .map(|ext| extensions.contains(&ext))
-                .unwrap_or(false)
+                .is_some_and(|ext| extensions.contains(&ext))
         })
     {
         let path_str = entry.path().to_string_lossy();
@@ -85,14 +84,14 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     if path_str.ends_with(".min.js") {
                         findings.push(Finding::new(
                             entry.path().to_path_buf(),
-                            format!("Hardcoded IP addresses found (minified file): {}", ips_str),
+                            format!("Hardcoded IP addresses found (minified file): {ips_str}"),
                             RiskLevel::Medium,
                             "network_exfiltration",
                         ));
                     } else {
                         findings.push(Finding::new(
                             entry.path().to_path_buf(),
-                            format!("Hardcoded IP addresses found: {}", ips_str),
+                            format!("Hardcoded IP addresses found: {ips_str}"),
                             RiskLevel::Medium,
                             "network_exfiltration",
                         ));
@@ -139,7 +138,7 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     format!("{}...", &first_line[..80])
                                 } else {
                                     // Bash appends ... even if line < 80 chars
-                                    format!("{}...", first_line)
+                                    format!("{first_line}...")
                                 }
                             };
 
@@ -147,8 +146,7 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                             findings.push(Finding::new(
                                 entry.path().to_path_buf(),
                                 format!(
-                                    "Suspicious domain found: {} at line {}: {}",
-                                    domain, line_num, snippet
+                                    "Suspicious domain found: {domain} at line {line_num}: {snippet}"
                                 ),
                                 RiskLevel::Medium,
                                 "network_exfiltration",
@@ -173,7 +171,7 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     .map(|(idx, _)| idx + 1);
 
                 let snippet = if path_str.ends_with(".min.js")
-                    || content.lines().next().map(|l| l.len()).unwrap_or(0) > 500
+                    || content.lines().next().map_or(0, str::len) > 500
                 {
                     // BASH LINE 1171-1179: Extract around atob
                     if has_atob {
@@ -211,14 +209,14 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 let formatted_snippet = if snippet.ends_with("...") {
                     snippet
                 } else {
-                    format!("{}...", snippet)
+                    format!("{snippet}...")
                 };
 
                 // Format message based on whether we have line number (like Bash does)
                 let message = if let Some(num) = line_num {
-                    format!("Base64 decoding at line {}: {}", num, formatted_snippet)
+                    format!("Base64 decoding at line {num}: {formatted_snippet}")
                 } else {
-                    format!("Base64 decoding at line: {}", formatted_snippet)
+                    format!("Base64 decoding at line: {formatted_snippet}")
                 };
 
                 findings.push(Finding::new(
@@ -249,7 +247,7 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     if !endpoint.contains("localhost") && !endpoint.contains("127.0.0.1") {
                         findings.push(Finding::new(
                             entry.path().to_path_buf(),
-                            format!("WebSocket connection to external endpoint: {}", endpoint),
+                            format!("WebSocket connection to external endpoint: {endpoint}"),
                             RiskLevel::Medium,
                             "network_exfiltration",
                         ));
@@ -276,37 +274,36 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 let mut reported = false;
                 for (idx, line) in lines.iter().enumerate() {
                     if line.contains("btoa(") {
-                        let start = if idx >= 3 { idx - 3 } else { 0 };
+                        let start = idx.saturating_sub(3);
                         let end = std::cmp::min(lines.len(), idx + 4);
                         let context = lines[start..end].join("\n");
                         let has_network = context.contains("fetch")
                             || context.contains("XMLHttpRequest")
                             || context.contains("axios");
-                        if has_network {
-                            if !(context.contains("Authorization:")
+                        if has_network
+                            && !(context.contains("Authorization:")
                                 || context.contains("Basic ")
                                 || context.contains("Bearer "))
-                            {
-                                // Generate snippet similar to Bash behavior
-                                let snippet = if path_str.ends_with(".min.js") || line.len() > 500 {
-                                    if let Some(pos) = line.find("btoa") {
-                                        let start = pos.saturating_sub(30);
-                                        let end = (pos + 35).min(line.len());
-                                        format!("...{}...", &line[start..end])
-                                    } else {
-                                        "Suspicious base64 encoding near network operation"
-                                            .to_string()
-                                    }
+                        {
+                            // Generate snippet similar to Bash behavior
+                            let snippet = if path_str.ends_with(".min.js") || line.len() > 500 {
+                                if let Some(pos) = line.find("btoa") {
+                                    let start = pos.saturating_sub(30);
+                                    let end = (pos + 35).min(line.len());
+                                    format!("...{}...", &line[start..end])
                                 } else {
-                                    // Bash cuts to 80 chars and ALWAYS appends ...
-                                    if line.len() > 80 {
-                                        format!("{}...", &line[..80])
-                                    } else {
-                                        format!("{}...", line)
-                                    }
-                                };
+                                    "Suspicious base64 encoding near network operation".to_string()
+                                }
+                            } else {
+                                // Bash cuts to 80 chars and ALWAYS appends ...
+                                if line.len() > 80 {
+                                    format!("{}...", &line[..80])
+                                } else {
+                                    format!("{line}...")
+                                }
+                            };
 
-                                findings.push(Finding::new(
+                            findings.push(Finding::new(
                                     entry.path().to_path_buf(),
                                     format!(
                                         "Suspicious base64 encoding near network operation at line {}: {}",
@@ -316,9 +313,8 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     RiskLevel::Medium,
                                     "network_exfiltration",
                                 ));
-                                reported = true;
-                                break;
-                            }
+                            reported = true;
+                            break;
                         }
                     }
                 }

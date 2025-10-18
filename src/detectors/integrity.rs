@@ -22,7 +22,7 @@ pub fn get_lockfile_version(package_name: &str, package_dir: &Path) -> Option<St
             if let Ok(json) = serde_json::from_str::<Value>(&content) {
                 // Check packages section (npm v2+)
                 if let Some(packages) = json.get("packages").and_then(|v| v.as_object()) {
-                    let search_key = format!("node_modules/{}", package_name);
+                    let search_key = format!("node_modules/{package_name}");
                     if let Some(pkg) = packages.get(&search_key) {
                         if let Some(version) = pkg.get("version").and_then(|v| v.as_str()) {
                             return Some(version.to_string());
@@ -47,7 +47,7 @@ pub fn get_lockfile_version(package_name: &str, package_dir: &Path) -> Option<St
 }
 
 /// Verify package lock files for compromised packages and version integrity
-/// Rust port of: check_package_integrity()
+/// Rust port of: `check_package_integrity()`
 pub fn check_package_integrity<P: AsRef<Path>>(
     scan_dir: P,
     compromised_packages: &HashSet<CompromisedPackage>,
@@ -62,7 +62,7 @@ pub fn check_package_integrity<P: AsRef<Path>>(
     // Check package-lock.json, yarn.lock, pnpm-lock.yaml
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| {
             let filename = e.file_name().to_string_lossy();
@@ -112,12 +112,12 @@ fn check_json_lockfile(
                     // Check against compromised packages - BASH: exact logic
                     for comp_pkg in compromised_packages {
                         if comp_pkg.name == pkg_name && comp_pkg.version == version {
-                            let package_key = format!("{}@{}", pkg_name, version);
+                            let package_key = format!("{pkg_name}@{version}");
                             if !found_packages.contains(&package_key) {
                                 found_packages.insert(package_key.clone());
                                 findings.push(Finding::new(
                                     path.to_path_buf(),
-                                    format!("Compromised package in lockfile: {}", package_key),
+                                    format!("Compromised package in lockfile: {package_key}"),
                                     RiskLevel::Medium,
                                     "integrity",
                                 ));
@@ -137,12 +137,12 @@ fn check_json_lockfile(
                 // Check against compromised packages - BASH: prevent duplicates
                 for comp_pkg in compromised_packages {
                     if &comp_pkg.name == pkg_name && comp_pkg.version == version {
-                        let package_key = format!("{}@{}", pkg_name, version);
+                        let package_key = format!("{pkg_name}@{version}");
                         if !found_packages.contains(&package_key) {
                             found_packages.insert(package_key.clone());
                             findings.push(Finding::new(
                                 path.to_path_buf(),
-                                format!("Compromised package in lockfile: {}", package_key),
+                                format!("Compromised package in lockfile: {package_key}"),
                                 RiskLevel::Medium,
                                 "integrity",
                             ));

@@ -19,7 +19,7 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     // Look for trufflehog binary files (always HIGH RISK) - V3 enhanced
     for entry in WalkDir::new(&scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
     {
         let filename = entry.file_name().to_string_lossy();
@@ -37,14 +37,13 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     let extensions = &["js", "py", "sh", "json"];
     for entry in WalkDir::new(&scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| {
             e.path()
                 .extension()
                 .and_then(|ext| ext.to_str())
-                .map(|ext| extensions.contains(&ext))
-                .unwrap_or(false)
+                .is_some_and(|ext| extensions.contains(&ext))
         })
     {
         if let Ok(content) = fs::read_to_string(entry.path()) {
@@ -206,7 +205,7 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                         "env_exfiltration",
                     ));
                 } else if (content_sample.contains("scan") || content_sample.contains("harvest") || content_sample.contains("steal"))
-                    && !high_risk_files.contains(entry.path()) 
+                    && !high_risk_files.contains(entry.path())
                     && !content_sample.contains("webpack") // BASH: additional filtering like is_legitimate_pattern
                     && !content_sample.contains("vite")
                     && !content_sample.contains("rollup")

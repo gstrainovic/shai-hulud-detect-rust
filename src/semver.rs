@@ -1,6 +1,6 @@
 //! Semantic versioning support for package version matching
-//! Port of semver_bash from the original shell script
-//! Origin: https://github.com/cloudflare/semver_bash/blob/6cc9ce10/semver.sh
+//! Port of `semver_bash` from the original shell script
+//! Origin: <https://github.com/cloudflare/semver_bash/blob/6cc9ce10/semver.sh>
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -34,7 +34,7 @@ impl SemVer {
         let major = caps.get(1)?.as_str().parse().ok()?;
         let minor = caps.get(2)?.as_str().parse().ok()?;
         let patch = caps.get(3)?.as_str().parse().ok()?;
-        let special = caps.get(4).map(|m| m.as_str()).unwrap_or("").to_string();
+        let special = caps.get(4).map_or("", |m| m.as_str()).to_string();
 
         Some(SemVer {
             major,

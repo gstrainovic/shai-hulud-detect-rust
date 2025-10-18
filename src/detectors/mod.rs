@@ -30,7 +30,7 @@ pub enum RiskLevel {
 }
 
 /// A detection finding with file path, message, and risk level
-/// Corresponds to bash array entries like "file:message"
+/// Corresponds to bash array entries like "<file:message>"
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Finding {
     pub file_path: PathBuf,
@@ -87,7 +87,7 @@ impl Finding {
 }
 
 /// Collection of all findings from a scan
-/// Corresponds to bash global arrays: WORKFLOW_FILES, MALICIOUS_HASHES, etc.
+/// Corresponds to bash global arrays: `WORKFLOW_FILES`, `MALICIOUS_HASHES`, etc.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ScanResults {
     pub workflow_files: Vec<Finding>,
@@ -117,7 +117,7 @@ impl ScanResults {
     }
 
     pub fn high_risk_count(&self) -> usize {
-        let arrays = vec![
+        let arrays = [
             &self.workflow_files,
             &self.malicious_hashes,
             &self.compromised_found,
@@ -139,7 +139,7 @@ impl ScanResults {
     }
 
     pub fn medium_risk_count(&self, paranoid_mode: bool) -> usize {
-        let arrays = vec![
+        let arrays = [
             &self.suspicious_found,
             &self.suspicious_content,
             &self.git_branches,

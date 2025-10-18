@@ -21,7 +21,7 @@ pub fn check_shai_hulud_repos<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_dir() && e.file_name() == ".git")
     {
         let repo_dir = entry.path().parent().unwrap_or(entry.path());

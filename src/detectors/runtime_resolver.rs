@@ -167,7 +167,7 @@ impl RuntimeResolver {
         }
     }
 
-    /// Fallback: Scan node_modules directory for package.json files
+    /// Fallback: Scan `node_modules` directory for package.json files
     /// This handles cases where pnpm list doesn't return all packages
     fn scan_node_modules_fallback<P: AsRef<Path>>(
         dir: P,
@@ -185,7 +185,7 @@ impl RuntimeResolver {
         for entry in WalkDir::new(&node_modules)
             .max_depth(3) // Limit depth for performance
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| e.file_name() == "package.json")
         {
             if let Ok(content) = fs::read_to_string(entry.path()) {
@@ -241,10 +241,10 @@ impl RuntimeResolver {
             return Ok(version);
         }
 
-        anyhow::bail!("Package {} not found", package_name)
+        anyhow::bail!("Package {package_name} not found")
     }
 
-    /// Find package version by searching node_modules directory
+    /// Find package version by searching `node_modules` directory
     /// This is a targeted search for a specific package, NOT a full scan
     fn find_package_in_node_modules(package_name: &str, dir: &Path) -> Result<String> {
         use std::fs;
@@ -284,7 +284,7 @@ impl RuntimeResolver {
 
                     // Match: strip-ansi@7.1.2 or @isaacs+cliui@8.0.2
                     let normalized_package = package_name.replace('/', "+");
-                    if dir_name.starts_with(&format!("{}@", normalized_package)) {
+                    if dir_name.starts_with(&format!("{normalized_package}@")) {
                         let package_json = entry
                             .path()
                             .join("node_modules")
@@ -309,7 +309,7 @@ impl RuntimeResolver {
             }
         }
 
-        anyhow::bail!("Package {} not found in node_modules", package_name)
+        anyhow::bail!("Package {package_name} not found in node_modules")
     }
 
     /// Query specific package with pnpm
@@ -341,7 +341,7 @@ impl RuntimeResolver {
             }
         }
 
-        anyhow::bail!("Package {} not found in pnpm output", package_name)
+        anyhow::bail!("Package {package_name} not found in pnpm output")
     }
 
     /// Query specific package with npm
@@ -367,7 +367,7 @@ impl RuntimeResolver {
             return Ok(pkg.version.clone());
         }
 
-        anyhow::bail!("Package {} not found in npm output", package_name)
+        anyhow::bail!("Package {package_name} not found in npm output")
     }
 
     /// Check if any packages were resolved

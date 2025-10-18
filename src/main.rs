@@ -117,7 +117,7 @@ fn main() -> Result<()> {
                 Err(e) => {
                     colors::print_status(
                         colors::Color::Yellow,
-                        &format!("⚠️  Runtime resolution error: {} - using lockfile only", e),
+                        &format!("⚠️  Runtime resolution error: {e} - using lockfile only"),
                     );
                     None
                 }
@@ -255,10 +255,10 @@ fn main() -> Result<()> {
     // Save in current directory by default (can be redirected in scripts)
     let json_output_path = "scan_results.json";
     let json_output = serde_json::to_string_pretty(&results_for_json)?;
-    std::fs::write(&json_output_path, json_output)?;
+    std::fs::write(json_output_path, json_output)?;
     colors::print_status(
         colors::Color::Green,
-        &format!("💾 JSON results saved: {}", json_output_path),
+        &format!("💾 JSON results saved: {json_output_path}"),
     );
 
     // Print timing information
