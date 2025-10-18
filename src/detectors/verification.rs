@@ -46,7 +46,7 @@ pub enum VerificationMethod {
 pub fn verify_via_lockfile(
     package_name: &str,
     lockfile_resolver: Option<&LockfileResolver>,
-    runtime_resolver: Option<&crate::detectors::runtime_resolver::RuntimeResolver>,
+    runtime_resolver: Option<&mut crate::detectors::runtime_resolver::RuntimeResolver>,
     compromised_packages: &HashSet<CompromisedPackage>,
 ) -> VerificationStatus {
     // Try runtime resolver first (most accurate - actual installed version)

@@ -72,7 +72,7 @@ fn main() -> Result<()> {
     println!();
 
     // Load verification resolvers (if --verify flag is set)
-    let (lockfile_resolver, runtime_resolver) = if args.verify {
+    let (lockfile_resolver, mut runtime_resolver) = if args.verify {
         // Try lockfile first (static analysis)
         let lockfile =
             match detectors::lockfile_resolver::LockfileResolver::load_from_dir(&args.scan_dir) {
@@ -144,7 +144,7 @@ fn main() -> Result<()> {
         &args.scan_dir,
         &compromised_packages,
         lockfile_resolver.as_ref(),
-        runtime_resolver.as_ref(),
+        runtime_resolver.as_mut(),
     );
     results.compromised_found = comp;
     results.suspicious_found = susp;

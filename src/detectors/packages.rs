@@ -20,7 +20,7 @@ pub fn check_packages<P: AsRef<Path>>(
     scan_dir: P,
     compromised_packages: &HashSet<CompromisedPackage>,
     lockfile_resolver: Option<&LockfileResolver>,
-    runtime_resolver: Option<&crate::detectors::runtime_resolver::RuntimeResolver>,
+    mut runtime_resolver: Option<&mut crate::detectors::runtime_resolver::RuntimeResolver>,
 ) -> (Vec<Finding>, Vec<Finding>, Vec<Finding>, Vec<Finding>) {
     let scan_dir = scan_dir.as_ref();
     let files_count = crate::utils::count_files_by_name(scan_dir, "package.json");
@@ -125,7 +125,7 @@ pub fn check_packages<P: AsRef<Path>>(
                                         let verification_status = verification::verify_via_lockfile(
                                             &package_name,
                                             lockfile_resolver,
-                                            runtime_resolver,
+                                            runtime_resolver.as_deref_mut(),
                                             compromised_packages,
                                         );
 

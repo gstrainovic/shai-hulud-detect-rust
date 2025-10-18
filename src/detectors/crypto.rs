@@ -107,7 +107,8 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
 
                         // Try to verify via file hash (AI-reviewed files)
                         let hash_verification = verification::verify_file_by_hash(entry.path());
-                        if let verification::VerificationStatus::Verified { .. } = hash_verification {
+                        if let verification::VerificationStatus::Verified { .. } = hash_verification
+                        {
                             finding.verification = Some(hash_verification);
                         }
 
