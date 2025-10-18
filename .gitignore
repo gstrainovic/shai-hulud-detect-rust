@@ -1,8 +1,5 @@
 target/
-per-testcase-logs/
-per-testcase-logs-paranoid/
-sequential-logs/
-sequential-logs-paranoid/
+*-logs*
 test-results/
 logs/
 *.log
