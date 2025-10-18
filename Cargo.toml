@@ -22,30 +22,30 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 
 # File system
-walkdir = "2.4"
+walkdir = "2.5"
 
 # Hashing (SHA-256)
 sha2 = "0.10"
 hex = "0.4"
 
 # Regex matching
-regex = "1.10"
-lazy_static = "1.4"
+regex = "1.12"
+lazy_static = "1.5"
 
 # Parallel processing
-rayon = "1.8"
+rayon = "1.11"
 
 # CLI
-clap = { version = "4.4", features = ["derive"] }
+clap = { version = "4.5", features = ["derive"] }
 
 # Terminal colors
-colored = "2.1"
+colored = "2.2"
 
 # HTTP client for auto-downloading compromised-packages.txt
-ureq = "2.10"
+ureq = "2.12"
 
 [dev-dependencies]
-tempfile = "3.8"
+tempfile = "3.23"
 
 [profile.release]
 opt-level = 3
