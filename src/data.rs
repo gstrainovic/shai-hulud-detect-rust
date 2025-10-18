@@ -42,6 +42,93 @@ pub const COMPROMISED_NAMESPACES: &[&str] = &[
     "@yoobic",
 ];
 
+// AI-Reviewed verified files - files manually reviewed and deemed safe
+// Each entry contains SHA-256 hash, file path, and review metadata
+#[derive(Debug, Clone)]
+pub struct VerifiedFile {
+    pub hash: &'static str,
+    pub path: &'static str, // Relative path from node_modules (e.g., "vue-demi/scripts/postinstall.js")
+    pub package: &'static str,
+    pub reason: &'static str,
+    pub reviewed_by: &'static str,
+    pub reviewed_date: &'static str,
+}
+
+pub const VERIFIED_FILES: &[VerifiedFile] = &[
+    VerifiedFile {
+        hash: "ce2f8852444caccee5a19008a7582cc3bd072c39fa6008edac3ad4e489f02d5e",
+        path: "error-ex/index.js",
+        package: "error-ex@1.3.4",
+        reason: "Error message manipulation utility - extracts error properties safely",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "85378d9a0f6e2bd60b2cf2228ac75b8004fac78582eebcd0dc9f9161f25666dc",
+        path: "parse-json/index.js",
+        package: "parse-json@7.1.1",
+        reason: "JSON parser with better error messages - no network or file system access",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "c5bb23b3ca69e97ddefdb76724b1a7936ac18b5e47c3fe3c5391969d6e6d06f8",
+        path: "strip-ansi/index.js",
+        package: "strip-ansi@7.1.2",
+        reason: "ANSI escape code stripping utility - removes terminal color codes safely",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "4508758772b1f52850b576ca714bbfd6edb05f8d36492ceab573db47f5cd7d84",
+        path: "string-width/index.js",
+        package: "string-width@5.1.2",
+        reason: "Calculates display width of strings - no network or file system access",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "6e3e10026230a33197e56422a2d95fc1815528c0bde7c1c790fd1a733b04bd39",
+        path: "unist-util-visit-parents/index.js",
+        package: "unist-util-visit-parents@6.0.1",
+        reason: "Abstract syntax tree visitor utility - no network or file system access",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "10361ec7e4678874114103e47caa1c8ef1cffc78e0efce5088e081a26fe6e977",
+        path: "wrap-ansi/index.js",
+        package: "wrap-ansi@8.1.0",
+        reason: "Text wrapping utility for ANSI escape codes - no network or file system access",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "2dd3014e8ce92317dfd819fc678217d8fdf47086a4607cc49566f0dee02b832a",
+        path: "markdown-table/index.js",
+        package: "markdown-table@3.0.4",
+        reason: "Markdown table generation utility - no network or file system access",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "a5dc0fe8f78d02ddf6554e75bab527612c047b80610128fa721287f71187fd7d",
+        path: "formdata-polyfill/FormData.js",
+        package: "formdata-polyfill@4.0.10",
+        reason: "FormData polyfill for IE compatibility - wraps XMLHttpRequest for FormData support only",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+    VerifiedFile {
+        hash: "697a9732b7e7c2ea771298fe0020dd80797b280a3ce528a5d3044c89f891f1d4",
+        path: "formdata-polyfill/formdata.min.js",
+        package: "formdata-polyfill@4.0.10",
+        reason: "FormData polyfill minified - IE compatibility wrapper, no network exfiltration",
+        reviewed_by: "ai-agent",
+        reviewed_date: "2025-10-18",
+    },
+];
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CompromisedPackage {
     pub name: String,
