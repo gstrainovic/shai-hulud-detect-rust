@@ -193,9 +193,9 @@ impl LockfileResolver {
                 if let Some(at_pos) = pkg_line.find('@') {
                     let name = if pkg_line.starts_with('"') {
                         pkg_line[1..at_pos].to_string()
-                    } else if pkg_line.starts_with('@') {
-                        // @scope/package@version
-                        if let Some(second_at) = pkg_line[1..].find('@') {
+                    } else if let Some(stripped) = pkg_line.strip_prefix('@') {
+                        // Scoped package: @scope/name@version
+                        if let Some(second_at) = stripped.find('@') {
                             pkg_line[..=second_at].to_string()
                         } else {
                             continue;

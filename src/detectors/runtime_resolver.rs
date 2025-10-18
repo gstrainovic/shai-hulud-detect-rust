@@ -390,6 +390,7 @@ mod tests {
             PnpmPackageInfo {
                 version: "2.1.3".to_string(),
                 dependencies: HashMap::new(),
+                dev_dependencies: HashMap::new(),
             },
         );
 
@@ -398,6 +399,7 @@ mod tests {
             PnpmPackageInfo {
                 version: "4.3.4".to_string(),
                 dependencies: subdeps,
+                dev_dependencies: HashMap::new(),
             },
         );
 

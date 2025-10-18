@@ -128,19 +128,18 @@ pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> 
             }
 
             // Check for wallet address patterns (V3 enhanced)
-            if ETH_WALLET.is_match(&content) {
-                if content.contains("ethereum")
+            if ETH_WALLET.is_match(&content)
+                && (content.contains("ethereum")
                     || content.contains("wallet")
                     || content.contains("address")
-                    || content.contains("crypto")
-                {
-                    findings.push(Finding::new(
-                        entry.path().to_path_buf(),
-                        "Ethereum wallet address patterns detected".to_string(),
-                        RiskLevel::Medium,
-                        "crypto_wallet_pattern",
-                    ));
-                }
+                    || content.contains("crypto"))
+            {
+                findings.push(Finding::new(
+                    entry.path().to_path_buf(),
+                    "Ethereum wallet address patterns detected".to_string(),
+                    RiskLevel::Medium,
+                    "crypto_wallet_pattern",
+                ));
             }
 
             // Check for specific malicious functions from chalk/debug attack

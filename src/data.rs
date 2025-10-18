@@ -47,7 +47,9 @@ pub const COMPROMISED_NAMESPACES: &[&str] = &[
 #[derive(Debug, Clone)]
 pub struct VerifiedFile {
     pub hash: &'static str,
+    #[allow(dead_code)]
     pub path: &'static str, // Relative path from node_modules (e.g., "vue-demi/scripts/postinstall.js")
+    #[allow(dead_code)]
     pub package: &'static str,
     pub reason: &'static str,
     pub reviewed_by: &'static str,

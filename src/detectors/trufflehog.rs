@@ -93,7 +93,7 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 if path_str.ends_with(".d.ts") || path_str.ends_with(".md") {
                     continue;
                 }
-                
+
                 // BASH line 721-723: node_modules = LOW RISK
                 if path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") {
                     findings.push(Finding::new(
@@ -147,11 +147,12 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 if high_risk_files.contains(entry.path()) {
                     continue; // BASH: no duplicate risk classification for same file
                 }
-                
+
                 // BASH line 750-755: node_modules/build_output = LOW RISK (if not legitimate)
                 if path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") {
                     // Check if it's legitimate pattern first - Vue/webpack/etc
-                    let content_sample: String = content.lines().take(20).collect::<Vec<_>>().join(" ");
+                    let content_sample: String =
+                        content.lines().take(20).collect::<Vec<_>>().join(" ");
                     let is_legit = content_sample.contains("webpack")
                         || content_sample.contains("vite")
                         || content_sample.contains("rollup")
@@ -159,7 +160,7 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                         || content_sample.contains("createApp")
                         || content_sample.contains("DefinePlugin")
                         || content_sample.contains("NODE_ENV");
-                    
+
                     if !is_legit {
                         findings.push(Finding::new(
                             entry.path().to_path_buf(),
@@ -212,7 +213,8 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     && !content_sample.contains("Vue") // BASH: Vue.js patterns are legitimate
                     && !content_sample.contains("createApp") // BASH: framework patterns are legitimate
                     && !content_sample.contains("DefinePlugin") // BASH: webpack DefinePlugin is legitimate
-                    && !content_sample.contains("NODE_ENV") // BASH: NODE_ENV usage is legitimate
+                    && !content_sample.contains("NODE_ENV")
+                // BASH: NODE_ENV usage is legitimate
                 {
                     findings.push(Finding::new(
                         entry.path().to_path_buf(),
