@@ -1,10 +1,10 @@
 # Shai-Hulud NPM Supply Chain Attack Detector (Rust)
 
-**Version 2.6.4** - Rust implementation of [shai-hulud-detector v2.6.3](../shai-hulud-detect/)
+**Version 2.6.3** - Rust implementation of [shai-hulud-detector v2.6.3](../shai-hulud-detect/)
 
 ## 🎯 100% Compatible Rust Implementation
 
-This is a **100% functionally identical** Rust implementation of the [shai-hulud-detector.sh](../shai-hulud-detect/) Bash scanner.
+This is a **100% functionally identical** Rust implementation of the [https://github.com/Cobenian/shai-hulud-detect](https://github.com/Cobenian/shai-hulud-detect) Bash scanner.
 
 ### ✅ Verification Status
 
