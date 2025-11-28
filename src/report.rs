@@ -60,6 +60,102 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         }
     }
 
+    // Report November 2025 "Second Coming" Attack Findings
+    // Bun Setup Files
+    if !results.bun_setup_files.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Fake Bun runtime installation files (November 2025 attack):");
+        for finding in &results.bun_setup_files {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+            println!("     {}", finding.message);
+        }
+        println!();
+    }
+
+    // Bun Environment Files
+    if !results.bun_environment_files.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Obfuscated credential harvesting payloads:");
+        for finding in &results.bun_environment_files {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+            println!("     {}", finding.message);
+        }
+        println!();
+    }
+
+    // New Workflow Files
+    if !results.new_workflow_files.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Malicious formatter workflow patterns:");
+        for finding in &results.new_workflow_files {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+        }
+        println!();
+    }
+
+    // Actions Secrets Files
+    if !results.actions_secrets_files.is_empty() {
+        print_status(Color::Red, "HIGH RISK: GitHub Actions secrets exfiltration files:");
+        for finding in &results.actions_secrets_files {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+        }
+        println!();
+    }
+
+    // Discussion Workflows
+    if !results.discussion_workflows.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Malicious discussion-triggered workflows:");
+        for finding in &results.discussion_workflows {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+            println!("     {}", finding.message);
+        }
+        println!();
+    }
+
+    // GitHub Runners
+    if !results.github_runners.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Self-hosted GitHub Actions runners (persistent backdoors):");
+        for finding in &results.github_runners {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+            println!("     {}", finding.message);
+        }
+        println!();
+    }
+
+    // Destructive Patterns
+    if !results.destructive_patterns.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Destructive data deletion patterns:");
+        for finding in &results.destructive_patterns {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+            println!("     {}", finding.message);
+        }
+        println!();
+    }
+
+    // Preinstall Bun Patterns
+    if !results.preinstall_bun_patterns.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Malicious preinstall scripts (fake Bun installation):");
+        for finding in &results.preinstall_bun_patterns {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+        }
+        println!();
+    }
+
+    // SHA1HULUD Runners
+    if !results.github_sha1hulud_runners.is_empty() {
+        print_status(Color::Red, "HIGH RISK: SHA1HULUD malicious runner references:");
+        for finding in &results.github_sha1hulud_runners {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+        }
+        println!();
+    }
+
+    // Second Coming Repos
+    if !results.second_coming_repos.is_empty() {
+        print_status(Color::Red, "HIGH RISK: Repositories with 'Second Coming' marker:");
+        for finding in &results.second_coming_repos {
+            println!("   - {}", crate::utils::normalize_path(&finding.file_path));
+        }
+        println!();
+    }
+
     // Report malicious file hashes
     if !results.malicious_hashes.is_empty() {
         print_status(Color::Red, "HIGH RISK: Files with known malicious hashes:");

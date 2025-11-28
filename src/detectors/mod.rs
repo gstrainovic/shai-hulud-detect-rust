@@ -1,21 +1,29 @@
 // Detectors Module - Detection functions for various attack indicators
 // Each detector corresponds to a bash function in shai-hulud-detector.sh
 
+pub mod bun_attack;
 pub mod content;
 pub mod crypto;
+pub mod destructive_patterns;
+pub mod discussion_workflows;
 pub mod git;
+pub mod github_runners;
 pub mod hashes;
 pub mod integrity;
 pub mod lockfile_resolver;
 pub mod network;
 pub mod packages;
 pub mod postinstall;
+pub mod preinstall_bun;
 pub mod repos;
 pub mod runtime_resolver;
+pub mod second_coming;
+pub mod sha1hulud_runner;
 pub mod trufflehog;
 pub mod typosquatting;
 pub mod verification;
 pub mod workflow;
+pub mod workflows_new;
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -105,6 +113,18 @@ pub struct ScanResults {
     pub integrity_issues: Vec<Finding>,
     pub typosquatting_warnings: Vec<Finding>,
     pub network_exfiltration_warnings: Vec<Finding>,
+    
+    // November 2025 "Shai-Hulud: The Second Coming" Attack detectors
+    pub bun_setup_files: Vec<Finding>,
+    pub bun_environment_files: Vec<Finding>,
+    pub new_workflow_files: Vec<Finding>,
+    pub actions_secrets_files: Vec<Finding>,
+    pub discussion_workflows: Vec<Finding>,
+    pub github_runners: Vec<Finding>,
+    pub destructive_patterns: Vec<Finding>,
+    pub preinstall_bun_patterns: Vec<Finding>,
+    pub github_sha1hulud_runners: Vec<Finding>,
+    pub second_coming_repos: Vec<Finding>,
 
     // BASH COMPATIBILITY: Track counts for suppressed low risk findings
     #[serde(skip)] // Don't include in JSON
@@ -123,6 +143,17 @@ impl ScanResults {
             &self.compromised_found,
             &self.postinstall_hooks,
             &self.shai_hulud_repos,
+            // November 2025 "Second Coming" detectors (all HIGH RISK)
+            &self.bun_setup_files,
+            &self.bun_environment_files,
+            &self.new_workflow_files,
+            &self.actions_secrets_files,
+            &self.discussion_workflows,
+            &self.github_runners,
+            &self.destructive_patterns,
+            &self.preinstall_bun_patterns,
+            &self.github_sha1hulud_runners,
+            &self.second_coming_repos,
         ];
 
         arrays.iter().map(|arr| arr.len()).sum::<usize>()

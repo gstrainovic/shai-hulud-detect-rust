@@ -173,6 +173,49 @@ fn main() -> Result<()> {
     results.integrity_issues =
         detectors::integrity::check_package_integrity(&args.scan_dir, &compromised_packages);
 
+    // 11-20. November 2025 "Shai-Hulud: The Second Coming" Attack detectors
+    // check_bun_attack_files (combines setup_bun.js and bun_environment.js)
+    let bun_findings = detectors::bun_attack::check_bun_attack_files(&args.scan_dir);
+    for finding in bun_findings {
+        if finding.category == "bun_setup_files" {
+            results.bun_setup_files.push(finding);
+        } else if finding.category == "bun_environment_files" {
+            results.bun_environment_files.push(finding);
+        }
+    }
+
+    // check_new_workflow_patterns
+    let new_workflow_findings = detectors::workflows_new::check_new_workflow_patterns(&args.scan_dir);
+    for finding in new_workflow_findings {
+        if finding.category == "new_workflow_files" {
+            results.new_workflow_files.push(finding);
+        } else if finding.category == "actions_secrets_files" {
+            results.actions_secrets_files.push(finding);
+        }
+    }
+
+    // check_discussion_workflows
+    results.discussion_workflows =
+        detectors::discussion_workflows::check_discussion_workflows(&args.scan_dir);
+
+    // check_github_runners
+    results.github_runners = detectors::github_runners::check_github_runners(&args.scan_dir);
+
+    // check_destructive_patterns
+    results.destructive_patterns =
+        detectors::destructive_patterns::check_destructive_patterns(&args.scan_dir);
+
+    // check_preinstall_bun_patterns
+    results.preinstall_bun_patterns =
+        detectors::preinstall_bun::check_preinstall_bun_patterns(&args.scan_dir);
+
+    // check_github_actions_runner (SHA1HULUD)
+    results.github_sha1hulud_runners =
+        detectors::sha1hulud_runner::check_github_actions_runner(&args.scan_dir);
+
+    // check_second_coming_repos
+    results.second_coming_repos = detectors::second_coming::check_second_coming_repos(&args.scan_dir);
+
     // Run additional security checks only in paranoid mode
     if args.paranoid {
         colors::print_status(
