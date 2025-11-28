@@ -40,7 +40,8 @@ pub fn check_new_workflow_patterns(scan_dir: &Path) -> Vec<Finding> {
                     if parent.ends_with(".github/workflows") {
                         findings.push(Finding::new(
                             path.to_path_buf(),
-                            "Malicious formatter workflow pattern (November 2025 attack)".to_string(),
+                            "Malicious formatter workflow pattern (November 2025 attack)"
+                                .to_string(),
                             RiskLevel::High,
                             "new_workflow_files",
                         ));

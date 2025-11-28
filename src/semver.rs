@@ -46,11 +46,11 @@ impl SemVer {
 }
 
 // Function: semver_match
-// Purpose: Check if version matches semver pattern with caret (^), tilde (~), or exact matching
-// Args: test_subject (version to test), test_pattern (pattern like "^1.0.0" or "~1.1.0")
+// Purpose: Check if version matches semver pattern with caret (^), tilde (~), wildcard (x/X), or exact matching
+// Args: test_subject (version to test), test_pattern (pattern like "^1.0.0", "~1.1.0", "4.x", "1.2.X")
 // Modifies: None
 // Returns: true for match, false for no match (supports || for multi-pattern matching)
-// Examples: "1.1.2" matches "^1.0.0", "~1.1.0", "*" but not "^2.0.0" or "~1.2.0"
+// Examples: "1.1.2" matches "^1.0.0", "~1.1.0", "1.x", "*" but not "^2.0.0" or "~1.2.0"
 pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
     // Always matches
     if test_pattern == "*" {
@@ -103,6 +103,49 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
                 && subject.minor == pattern_ver.minor
                 && subject.patch >= pattern_ver.patch
             {
+                return true;
+            }
+        } else if pattern.contains('x') || pattern.contains('X') {
+            // Wildcard pattern (4.x, 1.2.x, 4.X, 1.2.X, x.x.x, etc.)
+            // Parse pattern components, handling 'x'/'X' wildcards specially
+            let pattern_parts: Vec<&str> = pattern.split('.').collect();
+            let subject_parts = vec![
+                subject.major.to_string(),
+                subject.minor.to_string(),
+                subject.patch.to_string(),
+            ];
+
+            // Check each component, skip comparison for 'x'/'X' wildcards
+            let mut matches = true;
+            for i in 0..3 {
+                if i < pattern_parts.len() && i < subject_parts.len() {
+                    let pattern_part = pattern_parts[i];
+                    let subject_part = &subject_parts[i];
+
+                    // Skip wildcard components (both lowercase x and uppercase X)
+                    if pattern_part == "x" || pattern_part == "X" {
+                        continue;
+                    }
+
+                    // Extract numeric part (remove any non-numeric suffix)
+                    let pattern_num = pattern_part
+                        .chars()
+                        .take_while(|c| c.is_ascii_digit())
+                        .collect::<String>();
+                    let subject_num = subject_part
+                        .chars()
+                        .take_while(|c| c.is_ascii_digit())
+                        .collect::<String>();
+
+                    // Compare numeric parts
+                    if subject_num != pattern_num {
+                        matches = false;
+                        break;
+                    }
+                }
+            }
+
+            if matches {
                 return true;
             }
         } else {
@@ -189,5 +232,34 @@ mod tests {
         assert!(semver_match("1.0.0", "^1.0.0 || ^2.0.0"));
         assert!(semver_match("2.0.0", "^1.0.0 || ^2.0.0"));
         assert!(!semver_match("3.0.0", "^1.0.0 || ^2.0.0"));
+    }
+
+    #[test]
+    fn test_wildcard_patterns() {
+        // Test lowercase x wildcards
+        assert!(semver_match("4.0.0", "4.x"));
+        assert!(semver_match("4.1.2", "4.x"));
+        assert!(semver_match("4.99.99", "4.x"));
+        assert!(!semver_match("5.0.0", "4.x"));
+        assert!(!semver_match("3.99.99", "4.x"));
+
+        // Test uppercase X wildcards (case insensitive)
+        assert!(semver_match("3.0.0", "3.X"));
+        assert!(semver_match("3.5.7", "3.X"));
+        assert!(!semver_match("4.0.0", "3.X"));
+
+        // Test major.minor.x pattern
+        assert!(semver_match("1.2.0", "1.2.x"));
+        assert!(semver_match("1.2.5", "1.2.x"));
+        assert!(semver_match("1.2.99", "1.2.x"));
+        assert!(!semver_match("1.3.0", "1.2.x"));
+        assert!(!semver_match("2.2.0", "1.2.x"));
+
+        // Test x.x.x (matches everything)
+        assert!(semver_match("1.2.3", "x.x.x"));
+        assert!(semver_match("99.88.77", "x.x.x"));
+
+        // Test mixed case
+        assert!(semver_match("2.3.4", "2.X.x"));
     }
 }

@@ -13,9 +13,8 @@ use walkdir::WalkDir;
 
 // Known malicious file hashes from Koi.ai incident report
 // https://www.koi.ai/incident/live-updates-sha1-hulud-the-second-coming
-const SETUP_BUN_HASHES: &[&str] = &[
-    "a3894003ad1d293ba96d77881ccd2071446dc3f65f434669b49b3da92421901a",
-];
+const SETUP_BUN_HASHES: &[&str] =
+    &["a3894003ad1d293ba96d77881ccd2071446dc3f65f434669b49b3da92421901a"];
 
 const BUN_ENVIRONMENT_HASHES: &[&str] = &[
     "62ee164b9b306250c1172583f138c9614139264f889fa99614903c12755468d0",
@@ -76,8 +75,7 @@ pub fn check_bun_attack_files(scan_dir: &Path) -> Vec<Finding> {
         }
 
         // Check for bun_environment.js (10MB+ obfuscated payload)
-        if path.is_file()
-            && path.file_name().and_then(|n| n.to_str()) == Some("bun_environment.js")
+        if path.is_file() && path.file_name().and_then(|n| n.to_str()) == Some("bun_environment.js")
         {
             // Verify hash if possible
             if let Ok(file_hash) = calculate_sha256(path) {
