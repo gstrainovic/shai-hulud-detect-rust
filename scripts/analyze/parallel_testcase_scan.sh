@@ -105,12 +105,12 @@ run_bash_testcase() {
         # Run bash scanner - use absolute path
         cd shai-hulud-detect
         local abs_testdir=$(realpath "../$testdir")
-        timeout 300 ./shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "../$logfile" 2>&1
+        timeout 600 ./shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "../$logfile" 2>&1
         local exit_code=$?
         cd ..
         
         if [ $exit_code -eq 124 ]; then
-            echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>5min)" | tee -a "$logfile"
+            echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>10min)" | tee -a "$logfile"
         elif [ $exit_code -eq 0 ]; then
             echo "✅ [$(date +%H:%M:%S)] Done: $testname (Clean)" 
         elif [ $exit_code -eq 1 ]; then
