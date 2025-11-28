@@ -81,6 +81,91 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 ));
             }
 
+            // November 2025 specific TruffleHog patterns from "The Second Coming" attack
+            // Bash lines 1310-1327
+            let trufflehog_patterns = [
+                "TruffleHog.*scan.*credential",
+                "download.*trufflehog",
+                "trufflehog.*env",
+                "trufflehog.*AWS",
+                "trufflehog.*NPM_TOKEN",
+            ];
+
+            let has_trufflehog_pattern = trufflehog_patterns.iter().any(|pattern| {
+                let re = regex::Regex::new(pattern).unwrap();
+                re.is_match(&content)
+            });
+
+            if has_trufflehog_pattern {
+                let content_sample: String = content.lines().take(20).collect::<Vec<_>>().join(" ");
+
+                // Look for specific patterns indicating automated TruffleHog credential harvesting
+                if content_sample.contains("download")
+                    && content_sample.contains("trufflehog")
+                    && content_sample.contains("scan")
+                {
+                    high_risk_files.insert(entry.path().to_path_buf());
+                    findings.push(Finding::new(
+                        entry.path().to_path_buf(),
+                        "November 2025 pattern - Automated TruffleHog download and credential scanning"
+                            .to_string(),
+                        RiskLevel::High,
+                        "trufflehog_november_2025",
+                    ));
+                } else if content_sample.contains("GitHub Action")
+                    && content_sample.contains("trufflehog")
+                {
+                    high_risk_files.insert(entry.path().to_path_buf());
+                    findings.push(Finding::new(
+                        entry.path().to_path_buf(),
+                        "November 2025 pattern - TruffleHog in GitHub Actions for credential theft"
+                            .to_string(),
+                        RiskLevel::High,
+                        "trufflehog_november_2025",
+                    ));
+                } else if content_sample.contains("environment")
+                    && content_sample.contains("token")
+                    && content_sample.contains("trufflehog")
+                {
+                    high_risk_files.insert(entry.path().to_path_buf());
+                    findings.push(Finding::new(
+                        entry.path().to_path_buf(),
+                        "November 2025 pattern - TruffleHog environment token harvesting".to_string(),
+                        RiskLevel::High,
+                        "trufflehog_november_2025",
+                    ));
+                } else if !high_risk_files.contains(entry.path()) {
+                    findings.push(Finding::new(
+                        entry.path().to_path_buf(),
+                        "Potential November 2025 TruffleHog attack pattern".to_string(),
+                        RiskLevel::Medium,
+                        "trufflehog_november_2025_potential",
+                    ));
+                }
+            }
+
+            // Check for specific command execution patterns used in November 2025 attack
+            let download_patterns = [
+                "curl.*trufflehog",
+                "wget.*trufflehog",
+                "bunExecutable.*trufflehog",
+            ];
+
+            let has_download_pattern = download_patterns.iter().any(|pattern| {
+                let re = regex::Regex::new(pattern).unwrap();
+                re.is_match(&content)
+            });
+
+            if has_download_pattern {
+                high_risk_files.insert(entry.path().to_path_buf());
+                findings.push(Finding::new(
+                    entry.path().to_path_buf(),
+                    "November 2025 pattern - Dynamic TruffleHog download via curl/wget/Bun".to_string(),
+                    RiskLevel::High,
+                    "trufflehog_november_2025_download",
+                ));
+            }
+
             // Enhanced credential pattern detection - BASH EXACT logic (line 716-738)
             if content.contains("AWS_ACCESS_KEY")
                 || content.contains("GITHUB_TOKEN")
@@ -142,11 +227,6 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             {
                 let path_str = entry.path().to_string_lossy();
 
-                // BASH EXACT: Skip if file already has HIGH RISK credential pattern
-                if high_risk_files.contains(entry.path()) {
-                    continue; // BASH: no duplicate risk classification for same file
-                }
-
                 // BASH line 750-755: node_modules/build_output = LOW RISK (if not legitimate)
                 if path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") {
                     // Check if it's legitimate pattern first - Vue/webpack/etc
@@ -198,14 +278,16 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 // BASH EXACT: Use content_sample for environment scanning too
                 let content_sample: String = content.lines().take(20).collect::<Vec<_>>().join(" ");
                 if content_sample.contains("webhook.site") && content_sample.contains("exfiltrat") {
-                    findings.push(Finding::new(
-                        entry.path().to_path_buf(),
-                        "Environment scanning with exfiltration".to_string(),
-                        RiskLevel::High,
-                        "env_exfiltration",
-                    ));
+                    if !high_risk_files.contains(entry.path()) {
+                        high_risk_files.insert(entry.path().to_path_buf());
+                        findings.push(Finding::new(
+                            entry.path().to_path_buf(),
+                            "Environment scanning with exfiltration".to_string(),
+                            RiskLevel::High,
+                            "env_exfiltration",
+                        ));
+                    }
                 } else if (content_sample.contains("scan") || content_sample.contains("harvest") || content_sample.contains("steal"))
-                    && !high_risk_files.contains(entry.path())
                     && !content_sample.contains("webpack") // BASH: additional filtering like is_legitimate_pattern
                     && !content_sample.contains("vite")
                     && !content_sample.contains("rollup")
@@ -215,6 +297,7 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     && !content_sample.contains("NODE_ENV")
                 // BASH: NODE_ENV usage is legitimate
                 {
+                    // BASH: Can add MEDIUM even if HIGH RISK already present (different patterns)
                     findings.push(Finding::new(
                         entry.path().to_path_buf(),
                         "Potentially suspicious environment variable access".to_string(),
