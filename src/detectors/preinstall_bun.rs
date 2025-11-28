@@ -50,7 +50,7 @@ pub fn check_preinstall_bun_patterns(scan_dir: &Path) -> Vec<Finding> {
                 {
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Malicious preinstall script: fake Bun runtime installation (November 2025 attack)".to_string(),
+                        "package.json contains malicious preinstall: node setup_bun.js".to_string(),
                         RiskLevel::High,
                         "preinstall_bun_patterns",
                     ));

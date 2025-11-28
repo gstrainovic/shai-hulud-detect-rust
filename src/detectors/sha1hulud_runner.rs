@@ -47,7 +47,7 @@ pub fn check_github_actions_runner(scan_dir: &Path) -> Vec<Finding> {
             if content.to_lowercase().contains("sha1hulud") {
                 findings.push(Finding::new(
                     path.to_path_buf(),
-                    "SHA1HULUD malicious runner reference detected (credential theft infrastructure)".to_string(),
+                    "GitHub Actions workflow contains SHA1HULUD runner references".to_string(),
                     RiskLevel::High,
                     "github_sha1hulud_runners",
                 ));

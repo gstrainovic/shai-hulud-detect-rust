@@ -112,9 +112,11 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
                 // Always check specific destructive patterns (low false positive risk)
                 for (i, regex) in destructive_regexes.iter().enumerate() {
                     if regex.is_match(&content) {
+                        // BASH COMPATIBILITY: Unescape \$ to $ for message to match Bash output
+                        let pattern_msg = destructive_patterns[i].replace("\\$", "$");
                         findings.push(Finding::new(
                             path.to_path_buf(),
-                            format!("Destructive pattern detected: {}", destructive_patterns[i]),
+                            format!("Destructive pattern detected: {}", pattern_msg),
                             RiskLevel::High,
                             "destructive_patterns",
                         ));

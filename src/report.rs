@@ -69,7 +69,12 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.bun_setup_files {
             println!("   - {}", crate::utils::normalize_path(&finding.file_path));
-            println!("     {}", finding.message);
+            // BASH COMPATIBILITY: Bash doesn't print the message here, only the file preview
+            // println!("     {}", finding.message);
+            show_file_preview(
+                &finding.file_path,
+                &format!("HIGH RISK: {}", finding.message),
+            );
         }
         println!();
     }
@@ -82,7 +87,12 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.bun_environment_files {
             println!("   - {}", crate::utils::normalize_path(&finding.file_path));
-            println!("     {}", finding.message);
+            // BASH COMPATIBILITY: Bash doesn't print the message here, only the file preview
+            // println!("     {}", finding.message);
+            show_file_preview(
+                &finding.file_path,
+                &format!("HIGH RISK: {}", finding.message),
+            );
         }
         println!();
     }
@@ -119,7 +129,12 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.discussion_workflows {
             println!("   - {}", crate::utils::normalize_path(&finding.file_path));
-            println!("     {}", finding.message);
+            // BASH COMPATIBILITY: Add "Reason: " prefix to match bash output format
+            println!("     Reason: {}", finding.message);
+            show_file_preview(
+                &finding.file_path,
+                "HIGH RISK: Discussion workflow - Enables arbitrary command execution via GitHub discussions",
+            );
         }
         println!();
     }
@@ -132,17 +147,27 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
         );
         for finding in &results.github_runners {
             println!("   - {}", crate::utils::normalize_path(&finding.file_path));
-            println!("     {}", finding.message);
+            // BASH COMPATIBILITY: Add "Reason: " prefix to match bash output format
+            println!("     Reason: {}", finding.message);
+            show_file_preview(
+                &finding.file_path,
+                "HIGH RISK: GitHub Actions runner - Self-hosted backdoor for persistent access",
+            );
         }
         println!();
     }
 
     // Destructive Patterns
     if !results.destructive_patterns.is_empty() {
-        print_status(Color::Red, "HIGH RISK: Destructive data deletion patterns:");
+        // BASH COMPATIBILITY: Use "CRITICAL" header instead of "HIGH RISK"
+        print_status(
+            Color::Red,
+            "CRITICAL: Destructive payload patterns detected:",
+        );
         for finding in &results.destructive_patterns {
             println!("   - {}", crate::utils::normalize_path(&finding.file_path));
-            println!("     {}", finding.message);
+            // BASH COMPATIBILITY: Add "Pattern: " prefix
+            println!("     Pattern: {}", finding.message);
         }
         println!();
     }

@@ -15,7 +15,7 @@ echo "  3. Compare results to ensure they're identical"
 echo ""
 echo "Expected duration: ~6-8 minutes"
 echo ""
-read -p "Press Enter to start..."
+# read -p "Press Enter to start..."
 echo ""
 
 cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1

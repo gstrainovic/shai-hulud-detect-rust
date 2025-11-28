@@ -46,9 +46,21 @@ cd /c/Users/gstra/Code/rust-scanner
 START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_DIR="dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR/$TIMESTAMP"
-mkdir -p "$LOG_DIR"
+# Check for existing logs from today to reuse
+TODAY=$(date +%Y%m%d)
+LATEST_LOG_DIR=$(find "dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR" -maxdepth 1 -type d -name "${TODAY}_*" 2>/dev/null | sort -r | head -n 1)
+
+if [[ -n "$LATEST_LOG_DIR" ]]; then
+    LOG_DIR="$LATEST_LOG_DIR"
+    echo "📂 Reusing existing log directory: $LOG_DIR"
+    REUSING_LOGS=true
+else
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    LOG_DIR="dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR/$TIMESTAMP"
+    mkdir -p "$LOG_DIR"
+    echo "📁 Created new log directory: $LOG_DIR"
+    REUSING_LOGS=false
+fi
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🚀 PARALLEL TEST ($MODE_LABEL)"
@@ -71,26 +83,49 @@ run_bash_testcase() {
     local testdir=$1
     local testname=$(basename "$testdir")
     local logfile="$LOG_DIR/bash_${testname}.log"
+    local summaryfile="$LOG_DIR/bash_${testname}_summary.txt"
     
-    echo "⏳ [$(date +%H:%M:%S)] Starting: $testname"
-    
-    # Run bash scanner - use absolute path
-    cd shai-hulud-detect
-    local abs_testdir=$(realpath "../$testdir")
-    timeout 300 ./shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "../$logfile" 2>&1
-    local exit_code=$?
-    cd ..
-    
-    if [ $exit_code -eq 124 ]; then
-        echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>5min)" | tee -a "$logfile"
-    elif [ $exit_code -eq 0 ]; then
-        echo "✅ [$(date +%H:%M:%S)] Done: $testname" 
+    # Check if log file already exists and appears valid (contains completion markers)
+    local skip_scan=false
+    if [[ -f "$logfile" && -s "$logfile" ]]; then
+        if grep -q "SUMMARY:" "$logfile" || grep -q "No indicators of Shai-Hulud compromise detected" "$logfile"; then
+            skip_scan=true
+        fi
+    fi
+
+    if [ "$skip_scan" = true ]; then
+        echo "⏩ [$(date +%H:%M:%S)] Skipping Bash scan (log exists & valid): $testname"
     else
-        echo "❌ [$(date +%H:%M:%S)] Error: $testname (exit $exit_code)" | tee -a "$logfile"
+        if [[ -f "$logfile" ]]; then
+            echo "🔄 [$(date +%H:%M:%S)] Re-running Bash scan (log invalid/incomplete): $testname"
+        else
+            echo "⏳ [$(date +%H:%M:%S)] Starting: $testname"
+        fi
+        
+        # Run bash scanner - use absolute path
+        cd shai-hulud-detect
+        local abs_testdir=$(realpath "../$testdir")
+        timeout 300 ./shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "../$logfile" 2>&1
+        local exit_code=$?
+        cd ..
+        
+        if [ $exit_code -eq 124 ]; then
+            echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>5min)" | tee -a "$logfile"
+        elif [ $exit_code -eq 0 ]; then
+            echo "✅ [$(date +%H:%M:%S)] Done: $testname (Clean)" 
+        elif [ $exit_code -eq 1 ]; then
+            echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (High Risk)" 
+        elif [ $exit_code -eq 2 ]; then
+            echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (Medium Risk)" 
+        else
+            echo "❌ [$(date +%H:%M:%S)] Error: $testname (exit $exit_code)" | tee -a "$logfile"
+        fi
     fi
     
-    # Extract summary
-    grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$logfile" > "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_${testname}_summary.txt"
+    # ALWAYS generate summary from the log file (whether skipped or run)
+    if [[ -f "$logfile" ]]; then
+        grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$logfile" > "$summaryfile" 2>/dev/null || echo "NO SUMMARY" > "$summaryfile"
+    fi
 }
 
 # Function to run rust scanner on a single test case
@@ -120,7 +155,11 @@ run_rust_testcase() {
     rm -rf "$temp_scan_dir"
     
     if [ $exit_code -eq 0 ]; then
-        echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust)"
+        echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust, Clean)"
+    elif [ $exit_code -eq 1 ]; then
+        echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (Rust, High Risk)"
+    elif [ $exit_code -eq 2 ]; then
+        echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (Rust, Medium Risk)"
     else
         echo "❌ [$(date +%H:%M:%S)] Error: $testname (Rust, exit $exit_code)" | tee -a "$logfile"
     fi

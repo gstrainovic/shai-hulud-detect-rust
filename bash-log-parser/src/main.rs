@@ -93,6 +93,7 @@ fn risk_marker(input: &str) -> IResult<&str, &str> {
         tag("HIGH RISK:"),
         tag("MEDIUM RISK:"),
         tag("LOW RISK:"),
+        tag("CRITICAL:"),
         // PARANOID mode formats
         tag("HIGH RISK (PARANOID):"),
         tag("MEDIUM RISK (PARANOID):"),
@@ -181,7 +182,7 @@ fn parse_paranoid_block(input: &str) -> IResult<&str, (String, Vec<(String, Stri
 }
 
 fn extract_risk(marker: &str) -> &str {
-    if marker.contains("HIGH") {
+    if marker.contains("HIGH") || marker.contains("CRITICAL") {
         "HIGH"
     } else if marker.contains("MEDIUM") {
         "MEDIUM"
@@ -247,7 +248,10 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
         let line = lines[i].trim();
 
         // Check for risk marker (normal or paranoid)
-        if (line.contains("RISK") && line.contains(":")) || line.contains("RISK FINDINGS") {
+        if (line.contains("RISK") && line.contains(":"))
+            || line.contains("RISK FINDINGS")
+            || line.contains("CRITICAL:")
+        {
             if let Ok((_, marker)) = risk_marker(line) {
                 current_risk = Some(extract_risk(marker));
             }
@@ -327,11 +331,42 @@ fn parse_bash_log(content: &str) -> Result<Vec<Finding>> {
             // Try: "- /path" (workflows)
             if let Ok((_, path)) = parse_simple_path(line) {
                 if !path.contains(':') && path.starts_with('/') {
-                    findings.push(Finding::new(
-                        path,
-                        "Known malicious workflow filename",
-                        risk,
-                    ));
+                    let mut message = "Known malicious workflow filename".to_string();
+
+                    // Check next lines for "Reason:", "Pattern:", or Context block
+                    if i + 1 < lines.len() {
+                        let next_line = lines[i + 1].trim();
+
+                        if next_line.starts_with("Reason: ") {
+                            message = next_line.trim_start_matches("Reason: ").trim().to_string();
+                            i += 1;
+                        } else if next_line.starts_with("Pattern: ") {
+                            message = next_line.trim_start_matches("Pattern: ").trim().to_string();
+                            i += 1;
+                        } else if next_line.starts_with("┌─ File:") {
+                            // Context block detected - look for "Context: HIGH RISK:" line
+                            let mut look_ahead = i + 2;
+                            while look_ahead < lines.len() {
+                                let context_line = lines[look_ahead].trim();
+                                // Handle "│  Context: HIGH RISK: ..."
+                                if context_line.contains("Context: HIGH RISK:") {
+                                    if let Some(idx) = context_line.find("HIGH RISK: ") {
+                                        message = context_line[idx + 11..].trim().to_string();
+                                    }
+                                    break;
+                                }
+                                // Stop at end of block
+                                if context_line.starts_with("└─") {
+                                    break;
+                                }
+                                look_ahead += 1;
+                            }
+                            // We don't increment i here, let the loop skip the context lines naturally
+                            // (since they don't match finding patterns)
+                        }
+                    }
+
+                    findings.push(Finding::new(path, &message, risk));
                 }
             }
         }
@@ -353,6 +388,13 @@ mod tests {
         assert_eq!(risk, "MEDIUM");
         assert_eq!(entries.len(), 2);
         assert!(entries[0].1.ends_with("/package.json") || entries[0].1.ends_with("package.json"));
+    }
+
+    #[test]
+    fn parse_critical_risk() {
+        let line = "🚨 CRITICAL: Destructive payload patterns detected:";
+        let (_, marker) = risk_marker(line).expect("should parse");
+        assert_eq!(marker, "CRITICAL:");
     }
 }
 
@@ -378,6 +420,17 @@ fn load_rust_json(path: &Path) -> Result<Vec<Finding>> {
         "typosquatting_warnings",
         "network_exfiltration_warnings",
         "lockfile_safe_versions",
+        // November 2025 "Second Coming" detectors
+        "bun_setup_files",
+        "bun_environment_files",
+        "new_workflow_files",
+        "actions_secrets_files",
+        "discussion_workflows",
+        "github_runners",
+        "destructive_patterns",
+        "preinstall_bun_patterns",
+        "github_sha1hulud_runners",
+        "second_coming_repos",
     ];
 
     findings.extend(

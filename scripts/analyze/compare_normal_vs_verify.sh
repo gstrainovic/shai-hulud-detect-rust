@@ -46,7 +46,11 @@ strip_verification_data() {
     grep -v "VERIFIED" | \
     grep -v "Verified:" | \
     grep -v "Total critical findings analyzed" | \
-    grep -v "verified as false positives"
+    grep -v "verified as false positives" | \
+    grep -v "⏱️  TIMING" | \
+    grep -v "Started: " | \
+    grep -v "Finished: " | \
+    grep -v "Duration: "
 }
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -129,7 +133,7 @@ if [ $MISMATCH_COUNT -eq 0 ]; then
             
             # Show first few differences
             echo "      First 5 differences:"
-            diff /tmp/normal_stripped.txt /tmp/verify_stripped.txt | head -10 | sed 's/^/      /'
+            diff /tmp/normal_stripped.txt /tmp/verify_stripped.txt | head -10 | sed 's/^/      /' || true
         fi
     done
     

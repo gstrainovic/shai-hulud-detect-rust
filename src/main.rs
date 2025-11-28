@@ -235,40 +235,9 @@ fn main() -> Result<()> {
             detectors::network::check_network_exfiltration(&args.scan_dir);
     }
 
-    // Calculate total_issues using same logic as report.rs
-    let high_risk = results.workflow_files.len()
-        + results.malicious_hashes.len()
-        + results.compromised_found.len()
-        + results
-            .crypto_patterns
-            .iter()
-            .filter(|f| f.risk_level == detectors::RiskLevel::High)
-            .count()
-        + results
-            .trufflehog_activity
-            .iter()
-            .filter(|f| f.risk_level == detectors::RiskLevel::High)
-            .count()
-        + results.postinstall_hooks.len()
-        + results.shai_hulud_repos.len();
-
-    let medium_risk = results.suspicious_found.len()
-        + results.suspicious_content.len()
-        + results
-            .crypto_patterns
-            .iter()
-            .filter(|f| f.risk_level == detectors::RiskLevel::Medium)
-            .count()
-        + results.git_branches.len()
-        + results
-            .trufflehog_activity
-            .iter()
-            .filter(|f| f.risk_level == detectors::RiskLevel::Medium)
-            .count()
-        + results.integrity_issues.len()
-        + results.typosquatting_warnings.len()
-        + results.network_exfiltration_warnings.len();
-
+    // Calculate total_issues using ScanResults methods which include all detectors
+    let high_risk = results.high_risk_count();
+    let medium_risk = results.medium_risk_count(args.paranoid);
     let total_issues = high_risk + medium_risk;
 
     // BASH EXACT: Apply namespace warning logic - only include in results if they would be shown
@@ -287,7 +256,6 @@ fn main() -> Result<()> {
     // BASH COMPATIBILITY: Remove LOW RISK findings from JSON if total_issues >= 5
     // (Bash doesn't show them in output, so they shouldn't be in our JSON either)
     let mut results_for_json = results.clone();
-    let total_issues = results.high_risk_count() + results.medium_risk_count(args.paranoid);
     if total_issues >= 5 {
         // Remove LOW RISK findings (namespace warnings and crypto patterns with LOW risk)
         results_for_json.namespace_warnings.clear();
@@ -332,9 +300,12 @@ fn main() -> Result<()> {
     );
     println!();
 
-    // IMPORTANT: Bash script DOES NOT exit with error codes based on findings!
-    // It always exits with 0, even if HIGH/MEDIUM risk issues are found.
-    // This matches the original bash behavior for 100% compatibility.
-
-    Ok(())
+    // Return appropriate exit code based on findings (matching bash script)
+    if high_risk > 0 {
+        std::process::exit(1); // High risk findings detected
+    } else if medium_risk > 0 {
+        std::process::exit(2); // Medium risk findings detected
+    } else {
+        Ok(()) // Clean - no significant findings (exit code 0)
+    }
 }

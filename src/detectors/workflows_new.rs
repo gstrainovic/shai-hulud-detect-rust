@@ -40,8 +40,7 @@ pub fn check_new_workflow_patterns(scan_dir: &Path) -> Vec<Finding> {
                     if parent.ends_with(".github/workflows") {
                         findings.push(Finding::new(
                             path.to_path_buf(),
-                            "Malicious formatter workflow pattern (November 2025 attack)"
-                                .to_string(),
+                            "formatter_*.yml - Malicious GitHub Actions workflow".to_string(),
                             RiskLevel::High,
                             "new_workflow_files",
                         ));
@@ -53,7 +52,7 @@ pub fn check_new_workflow_patterns(scan_dir: &Path) -> Vec<Finding> {
             if filename == "actionsSecrets.json" {
                 findings.push(Finding::new(
                     path.to_path_buf(),
-                    "Suspicious GitHub Actions secrets file (credential exfiltration)".to_string(),
+                    "actionsSecrets.json - Double Base64 encoded secrets exfiltration".to_string(),
                     RiskLevel::High,
                     "actions_secrets_files",
                 ));
