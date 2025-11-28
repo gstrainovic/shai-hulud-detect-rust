@@ -130,7 +130,8 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                     high_risk_files.insert(entry.path().to_path_buf());
                     findings.push(Finding::new(
                         entry.path().to_path_buf(),
-                        "November 2025 pattern - TruffleHog environment token harvesting".to_string(),
+                        "November 2025 pattern - TruffleHog environment token harvesting"
+                            .to_string(),
                         RiskLevel::High,
                         "trufflehog_november_2025",
                     ));
@@ -160,7 +161,8 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                 high_risk_files.insert(entry.path().to_path_buf());
                 findings.push(Finding::new(
                     entry.path().to_path_buf(),
-                    "November 2025 pattern - Dynamic TruffleHog download via curl/wget/Bun".to_string(),
+                    "November 2025 pattern - Dynamic TruffleHog download via curl/wget/Bun"
+                        .to_string(),
                     RiskLevel::High,
                     "trufflehog_november_2025_download",
                 ));
