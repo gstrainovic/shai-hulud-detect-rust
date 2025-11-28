@@ -114,9 +114,9 @@ run_bash_testcase() {
         elif [ $exit_code -eq 0 ]; then
             echo "✅ [$(date +%H:%M:%S)] Done: $testname (Clean)" 
         elif [ $exit_code -eq 1 ]; then
-            echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (High Risk)" 
+            echo "✅ [$(date +%H:%M:%S)] Done: $testname (High Risk)" 
         elif [ $exit_code -eq 2 ]; then
-            echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (Medium Risk)" 
+            echo "✅ [$(date +%H:%M:%S)] Done: $testname (Medium Risk)" 
         else
             echo "❌ [$(date +%H:%M:%S)] Error: $testname (exit $exit_code)" | tee -a "$logfile"
         fi
@@ -157,9 +157,9 @@ run_rust_testcase() {
     if [ $exit_code -eq 0 ]; then
         echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust, Clean)"
     elif [ $exit_code -eq 1 ]; then
-        echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (Rust, High Risk)"
+        echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust, High Risk)"
     elif [ $exit_code -eq 2 ]; then
-        echo "⚠️  [$(date +%H:%M:%S)] Done: $testname (Rust, Medium Risk)"
+        echo "✅ [$(date +%H:%M:%S)] Done: $testname (Rust, Medium Risk)"
     else
         echo "❌ [$(date +%H:%M:%S)] Error: $testname (Rust, exit $exit_code)" | tee -a "$logfile"
     fi
