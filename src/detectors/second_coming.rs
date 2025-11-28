@@ -26,7 +26,7 @@ pub fn check_second_coming_repos(scan_dir: &Path) -> Vec<Finding> {
     for entry in WalkDir::new(scan_dir)
         .follow_links(false)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
     {
         let path = entry.path();
 

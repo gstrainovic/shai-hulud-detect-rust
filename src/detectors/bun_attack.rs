@@ -38,7 +38,7 @@ pub fn check_bun_attack_files(scan_dir: &Path) -> Vec<Finding> {
     for entry in WalkDir::new(scan_dir)
         .follow_links(false)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
     {
         let path = entry.path();
 
@@ -117,5 +117,5 @@ fn calculate_sha256(path: &Path) -> Result<String, std::io::Error> {
     let mut hasher = Sha256::new();
     hasher.update(&contents);
     let result = hasher.finalize();
-    Ok(format!("{:x}", result))
+    Ok(format!("{result:x}"))
 }

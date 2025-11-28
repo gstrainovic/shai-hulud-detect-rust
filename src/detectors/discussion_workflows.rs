@@ -31,7 +31,7 @@ pub fn check_discussion_workflows(scan_dir: &Path) -> Vec<Finding> {
     for entry in WalkDir::new(scan_dir)
         .follow_links(false)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
     {
         let path = entry.path();
 
@@ -42,15 +42,16 @@ pub fn check_discussion_workflows(scan_dir: &Path) -> Vec<Finding> {
 
         let is_workflow = path
             .parent()
-            .map(|p| p.ends_with(".github/workflows"))
-            .unwrap_or(false);
+            .is_some_and(|p| p.ends_with(".github/workflows"));
 
         if !is_workflow {
             continue;
         }
 
         let filename = path.file_name().and_then(|n| n.to_str());
-        if !filename.map(|f| f.ends_with(".yml") || f.ends_with(".yaml")).unwrap_or(false) {
+        if !filename
+            .is_some_and(|f| f.ends_with(".yml") || f.ends_with(".yaml"))
+        {
             continue;
         }
 

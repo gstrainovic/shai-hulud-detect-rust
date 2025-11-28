@@ -43,22 +43,18 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
     ];
 
     // Conditional destruction patterns - need context limits for JS/Python
-    let conditional_patterns_js_py = vec![
-        r"if.{1,200}credential.{1,50}(fail|error).{1,50}(rm -|fs\.|rimraf|exec|spawn|child_process)",
+    let conditional_patterns_js_py = [r"if.{1,200}credential.{1,50}(fail|error).{1,50}(rm -|fs\.|rimraf|exec|spawn|child_process)",
         r"if.{1,200}token.{1,50}not.{1,20}found.{1,50}(rm -|del |fs\.|rimraf|unlinkSync|rmSync)",
         r"if.{1,200}github.{1,50}auth.{1,50}fail.{1,50}(rm -|fs\.|rimraf|exec)",
         r"catch.{1,100}(rm -rf|fs\.rm|rimraf|exec.*rm)",
-        r"error.{1,100}(rm -|del |fs\.|rimraf).{1,100}(\$HOME|~/|home.*(directory|folder|path))",
-    ];
+        r"error.{1,100}(rm -|del |fs\.|rimraf).{1,100}(\$HOME|~/|home.*(directory|folder|path))"];
 
     // Shell-specific patterns (broader for actual shell commands)
-    let conditional_patterns_shell = vec![
-        r"if.*credential.*(fail|error).*rm",
+    let conditional_patterns_shell = [r"if.*credential.*(fail|error).*rm",
         r"if.*token.*not.*found.*(delete|rm)",
         r"if.*github.*auth.*fail.*rm",
         r"catch.*rm -rf",
-        r"error.*delete.*home",
-    ];
+        r"error.*delete.*home"];
 
     // Compile regex patterns
     let destructive_regexes: Vec<Regex> = destructive_patterns
@@ -84,7 +80,7 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
         for entry in WalkDir::new(scan_dir)
             .follow_links(false)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
         {
             let path = entry.path();
 

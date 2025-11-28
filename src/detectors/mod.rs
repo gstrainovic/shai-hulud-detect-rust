@@ -113,7 +113,7 @@ pub struct ScanResults {
     pub integrity_issues: Vec<Finding>,
     pub typosquatting_warnings: Vec<Finding>,
     pub network_exfiltration_warnings: Vec<Finding>,
-    
+
     // November 2025 "Shai-Hulud: The Second Coming" Attack detectors
     pub bun_setup_files: Vec<Finding>,
     pub bun_environment_files: Vec<Finding>,

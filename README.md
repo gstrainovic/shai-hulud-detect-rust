@@ -1,6 +1,6 @@
 # Shai-Hulud NPM Supply Chain Attack Detector (Rust)
 
-**Version 2.6.3** - Rust implementation of [shai-hulud-detector v2.6.3](../shai-hulud-detect/)
+**Version 2.7.6** - Rust implementation of [shai-hulud-detector v2.7.6](../shai-hulud-detect/)
 
 ## 🎯 100% Compatible Rust Implementation
 
@@ -9,12 +9,12 @@ This is a **100% functionally identical** Rust implementation of the [https://gi
 ### ✅ Verification Status
 
 **Count-Level Verification** (H/M/L findings):
-- ✅ **Normal Mode**: 25/25 test cases perfect match
-- ✅ **PARANOID Mode**: 24/25 test cases match (1 known webhook.site bug in Bash)
+- ✅ **Normal Mode**: 26/26 test cases perfect match (including November 2025 attack)
+- ✅ **PARANOID Mode**: 26/26 test cases match
 
 **Pattern-Level Verification** (fingerprint matching):
-- ✅ **99% match rate** across all test cases
-- ⚠️ Known differences: webhook.site detection (Bash bug - [PR #50](https://github.com/Cobenian/shai-hulud-detect/pull/50))
+- ✅ **100% match rate** across all test cases
+- ✅ All known Bash bugs fixed (PR #50 merged)
 
 Run verification:
 ```bash
@@ -100,7 +100,14 @@ bash scripts/analyze/parallel_testcase_scan.sh
 See the original [shai-hulud-detect README](../shai-hulud-detect/README.md) for full details.
 
 Key detections:
-- 604+ compromised package versions
+- 1,700+ compromised package versions (November 2025 update)
+- **November 2025 "The Second Coming" Attack:**
+  - Fake Bun runtime installation (setup_bun.js, bun_environment.js)
+  - Malicious GitHub Actions workflows (formatter_*.yml)
+  - Discussion-triggered workflows
+  - Self-hosted runner backdoors
+  - Destructive data deletion patterns
+  - SHA1HULUD runner references
 - Malicious workflow files
 - Cryptocurrency theft patterns
 - Trufflehog/credential scanning activity

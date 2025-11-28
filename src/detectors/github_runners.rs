@@ -23,18 +23,13 @@ pub fn check_github_runners(scan_dir: &Path) -> Vec<Finding> {
     let mut findings = Vec::new();
 
     // Runner patterns to search for
-    let runner_patterns = [
-        ".dev-env",
-        "actions-runner",
-        ".runner",
-        "_work",
-    ];
+    let runner_patterns = [".dev-env", "actions-runner", ".runner", "_work"];
 
     for pattern in &runner_patterns {
         for entry in WalkDir::new(scan_dir)
             .follow_links(false)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
         {
             let path = entry.path();
 
@@ -56,7 +51,8 @@ pub fn check_github_runners(scan_dir: &Path) -> Vec<Finding> {
                 if has_runner_config {
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Runner configuration files found (potential persistent backdoor)".to_string(),
+                        "Runner configuration files found (potential persistent backdoor)"
+                            .to_string(),
                         RiskLevel::High,
                         "github_runners",
                     ));

@@ -185,7 +185,8 @@ fn main() -> Result<()> {
     }
 
     // check_new_workflow_patterns
-    let new_workflow_findings = detectors::workflows_new::check_new_workflow_patterns(&args.scan_dir);
+    let new_workflow_findings =
+        detectors::workflows_new::check_new_workflow_patterns(&args.scan_dir);
     for finding in new_workflow_findings {
         if finding.category == "new_workflow_files" {
             results.new_workflow_files.push(finding);
@@ -214,7 +215,8 @@ fn main() -> Result<()> {
         detectors::sha1hulud_runner::check_github_actions_runner(&args.scan_dir);
 
     // check_second_coming_repos
-    results.second_coming_repos = detectors::second_coming::check_second_coming_repos(&args.scan_dir);
+    results.second_coming_repos =
+        detectors::second_coming::check_second_coming_repos(&args.scan_dir);
 
     // Run additional security checks only in paranoid mode
     if args.paranoid {

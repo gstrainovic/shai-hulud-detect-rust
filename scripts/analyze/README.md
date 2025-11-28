@@ -267,10 +267,11 @@ The verification script compares these numbers for each test case:
 
 ## ✅ Verification Status
 
-**Last Run**: 2025-10-08
+**Last Run**: 2025-11-28
 
-**Normal Mode**: ✅ 100% MATCH (19 HIGH / 61 MEDIUM / 9 LOW)  
-**Paranoid Mode**: ✅ 100% MATCH (verified)  
+**Normal Mode**: ✅ 100% MATCH (including November 2025 attack detectors)
+**Paranoid Mode**: ✅ 100% MATCH (all PR #50 fixes integrated)
 **Test Cases**: 26/26 matched
+**Version**: 2.7.6 (matches Bash scanner)
 
 **Ready for production!** 🚀

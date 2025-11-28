@@ -26,7 +26,7 @@ pub fn check_github_actions_runner(scan_dir: &Path) -> Vec<Finding> {
     for entry in WalkDir::new(scan_dir)
         .follow_links(false)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
     {
         let path = entry.path();
 
@@ -37,8 +37,7 @@ pub fn check_github_actions_runner(scan_dir: &Path) -> Vec<Finding> {
         // Check for YAML workflow files
         let filename = path.file_name().and_then(|n| n.to_str());
         if !filename
-            .map(|f| f.ends_with(".yml") || f.ends_with(".yaml"))
-            .unwrap_or(false)
+            .is_some_and(|f| f.ends_with(".yml") || f.ends_with(".yaml"))
         {
             continue;
         }

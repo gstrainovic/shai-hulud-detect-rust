@@ -109,11 +109,9 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
             // Wildcard pattern (4.x, 1.2.x, 4.X, 1.2.X, x.x.x, etc.)
             // Parse pattern components, handling 'x'/'X' wildcards specially
             let pattern_parts: Vec<&str> = pattern.split('.').collect();
-            let subject_parts = vec![
-                subject.major.to_string(),
+            let subject_parts = [subject.major.to_string(),
                 subject.minor.to_string(),
-                subject.patch.to_string(),
-            ];
+                subject.patch.to_string()];
 
             // Check each component, skip comparison for 'x'/'X' wildcards
             let mut matches = true;
@@ -130,11 +128,11 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
                     // Extract numeric part (remove any non-numeric suffix)
                     let pattern_num = pattern_part
                         .chars()
-                        .take_while(|c| c.is_ascii_digit())
+                        .take_while(char::is_ascii_digit)
                         .collect::<String>();
                     let subject_num = subject_part
                         .chars()
-                        .take_while(|c| c.is_ascii_digit())
+                        .take_while(char::is_ascii_digit)
                         .collect::<String>();
 
                     // Compare numeric parts
