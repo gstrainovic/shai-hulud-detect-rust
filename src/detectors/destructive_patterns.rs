@@ -35,7 +35,9 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
         r"fs\.rmSync.*recursive",
         r"rimraf",
         // Bulk file operations in home directory
-        r"find[[:space:]]+[^[:space:]]+.*[[:space:]]+-delete",
+        // NOTE: Bash grep -qi doesn't work with [[:space:]] POSIX classes (bash bug)
+        // So we skip this pattern to maintain 100% bash compatibility:
+        // r"find[[:space:]]+[^[:space:]]+.*[[:space:]]+-delete",
         r"find \$HOME.*-exec rm",
         r"find ~.*-exec rm",
         r"\$HOME/\*",

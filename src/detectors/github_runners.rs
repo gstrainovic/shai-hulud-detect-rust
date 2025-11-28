@@ -56,7 +56,7 @@ pub fn check_github_runners(scan_dir: &Path) -> Vec<Finding> {
                         RiskLevel::High,
                         "github_runners",
                     ));
-                    continue;
+                    // NOTE: No continue - bash checks all patterns for each directory
                 }
 
                 // Check for runner binaries
@@ -71,7 +71,7 @@ pub fn check_github_runners(scan_dir: &Path) -> Vec<Finding> {
                         RiskLevel::High,
                         "github_runners",
                     ));
-                    continue;
+                    // NOTE: No continue - bash checks all patterns for each directory
                 }
 
                 // Check for .dev-env specifically (from Koi.ai report)

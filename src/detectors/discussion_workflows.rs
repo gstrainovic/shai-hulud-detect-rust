@@ -24,7 +24,10 @@ pub fn check_discussion_workflows(scan_dir: &Path) -> Vec<Finding> {
     let mut findings = Vec::new();
 
     // Regex patterns for detection
-    let discussion_trigger = Regex::new(r"on:.*discussion|on:\s*discussion").unwrap();
+    // NOTE: Bash grep doesn't match across newlines, so we need to be specific
+    // Pattern matches: "on: discussion" or "on:.*discussion" (on same line only)
+    // Use [ \t]* instead of \s* because \s includes newlines in Rust regex
+    let discussion_trigger = Regex::new(r"on:[ \t]*discussion").unwrap();
     let self_hosted_runner = Regex::new(r"runs-on:.*self-hosted").unwrap();
     let dynamic_payload = Regex::new(r"\$\{\{ github\.event\..*\.body \}\}").unwrap();
 
