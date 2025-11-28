@@ -62,7 +62,7 @@ pub fn check_discussion_workflows(scan_dir: &Path) -> Vec<Finding> {
             if discussion_trigger.is_match(&content) {
                 findings.push(Finding::new(
                     path.to_path_buf(),
-                    "Discussion trigger detected (enables arbitrary command execution)".to_string(),
+                    "Discussion trigger detected".to_string(),
                     RiskLevel::High,
                     "discussion_workflows",
                 ));
@@ -72,7 +72,7 @@ pub fn check_discussion_workflows(scan_dir: &Path) -> Vec<Finding> {
             if self_hosted_runner.is_match(&content) && dynamic_payload.is_match(&content) {
                 findings.push(Finding::new(
                     path.to_path_buf(),
-                    "Self-hosted runner with dynamic payload execution (high risk)".to_string(),
+                    "Self-hosted runner with dynamic payload execution".to_string(),
                     RiskLevel::High,
                     "discussion_workflows",
                 ));
@@ -82,7 +82,7 @@ pub fn check_discussion_workflows(scan_dir: &Path) -> Vec<Finding> {
             if filename == Some("discussion.yaml") || filename == Some("discussion.yml") {
                 findings.push(Finding::new(
                     path.to_path_buf(),
-                    "Suspicious discussion workflow filename (matches Koi.ai IOC)".to_string(),
+                    "Suspicious discussion workflow filename".to_string(),
                     RiskLevel::High,
                     "discussion_workflows",
                 ));

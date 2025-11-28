@@ -51,8 +51,7 @@ pub fn check_github_runners(scan_dir: &Path) -> Vec<Finding> {
                 if has_runner_config {
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Runner configuration files found (potential persistent backdoor)"
-                            .to_string(),
+                        "Runner configuration files found".to_string(),
                         RiskLevel::High,
                         "github_runners",
                     ));
@@ -67,7 +66,7 @@ pub fn check_github_runners(scan_dir: &Path) -> Vec<Finding> {
                 if has_runner_binary {
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Runner executable files found (potential persistent backdoor)".to_string(),
+                        "Runner executable files found".to_string(),
                         RiskLevel::High,
                         "github_runners",
                     ));
@@ -78,7 +77,7 @@ pub fn check_github_runners(scan_dir: &Path) -> Vec<Finding> {
                 if dirname == ".dev-env" {
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Suspicious .dev-env directory (matches Koi.ai report IOC)".to_string(),
+                        "Suspicious .dev-env directory (matches Koi.ai report)".to_string(),
                         RiskLevel::High,
                         "github_runners",
                     ));

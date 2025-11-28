@@ -56,9 +56,10 @@ pub fn check_bun_attack_files(scan_dir: &Path) -> Vec<Finding> {
                 } else {
                     // Found setup_bun.js but hash doesn't match known malicious
                     // Still suspicious due to naming convention
+                    // BASH COMPATIBILITY: Match exact message from shai-hulud-detector.sh
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Suspicious Bun setup file (unknown hash variant)".to_string(),
+                        "setup_bun.js - Fake Bun runtime installation malware".to_string(),
                         RiskLevel::High,
                         "bun_setup_files",
                     ));
@@ -67,7 +68,7 @@ pub fn check_bun_attack_files(scan_dir: &Path) -> Vec<Finding> {
                 // Hash calculation failed, report anyway
                 findings.push(Finding::new(
                     path.to_path_buf(),
-                    "Suspicious Bun setup file (hash verification failed)".to_string(),
+                    "setup_bun.js - Fake Bun runtime installation malware".to_string(),
                     RiskLevel::High,
                     "bun_setup_files",
                 ));
@@ -89,9 +90,11 @@ pub fn check_bun_attack_files(scan_dir: &Path) -> Vec<Finding> {
                 } else {
                     // Found bun_environment.js but hash doesn't match known malicious
                     // Still highly suspicious due to naming and typical size
+                    // BASH COMPATIBILITY: Match exact message from shai-hulud-detector.sh
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Suspicious Bun environment file (unknown hash variant)".to_string(),
+                        "bun_environment.js - 10MB+ obfuscated credential harvesting payload"
+                            .to_string(),
                         RiskLevel::High,
                         "bun_environment_files",
                     ));
@@ -100,7 +103,8 @@ pub fn check_bun_attack_files(scan_dir: &Path) -> Vec<Finding> {
                 // Hash calculation failed, report anyway
                 findings.push(Finding::new(
                     path.to_path_buf(),
-                    "Suspicious Bun environment file (hash verification failed)".to_string(),
+                    "bun_environment.js - 10MB+ obfuscated credential harvesting payload"
+                        .to_string(),
                     RiskLevel::High,
                     "bun_environment_files",
                 ));
