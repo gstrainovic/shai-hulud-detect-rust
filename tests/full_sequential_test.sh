@@ -41,14 +41,15 @@ else
     MODE_LABEL="Normal Mode"
 fi
 
- cd /c/Users/gstra/Code/rust-scanner
+# cd /c/Users/gstra/Code/rust-scanner # REMOVED
 
 START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_DIR="dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR/$TIMESTAMP"
- mkdir -p "$LOG_DIR"
+# Adjusted path
+LOG_DIR="tests/$LOG_SUBDIR/$TIMESTAMP"
+mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🔧 FULL SEQUENTIAL TEST - $MODE_LABEL"
@@ -60,20 +61,21 @@ echo ""
 
 # Start building Rust scanner in background
 echo "🔨 Building Rust scanner binary in background..."
- cd dev-rust-scanner-1
- cargo build --release --quiet &
+# cd dev-rust-scanner-1 # REMOVED
+cargo build --release --quiet &
 BUILD_PID=$!
- cd ..
+# cd .. # REMOVED
 echo "✅ Build started (PID: $BUILD_PID)"
 echo ""
 
 # Phase 1: Bash scanner (runs while Rust builds)
 # Timeout: 30 minutes (1800s) - scanning 32+ test cases takes time
 echo "🔵 Phase 1: Running Bash scanner on ENTIRE test-cases directory..."
- cd shai-hulud-detect
- timeout 1800 ./shai-hulud-detector.sh $PARANOID_MODE test-cases/ > "../$LOG_DIR/bash_full_scan.log" 2>&1
+# cd shai-hulud-detect # REMOVED
+# Adjusted path
+timeout 1800 ../shai-hulud-detect/shai-hulud-detector.sh $PARANOID_MODE ../shai-hulud-detect/test-cases/ > "$LOG_DIR/bash_full_scan.log" 2>&1
 bash_exit=$?
- cd ..
+# cd .. # REMOVED
 
 if [ $bash_exit -eq 124 ]; then
     echo "⏱️  Bash TIMEOUT (>30 min)"
@@ -83,12 +85,12 @@ else
     echo "⚠️  Bash exit code: $bash_exit"
 fi
 
- grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/bash_full_scan.log" > "$LOG_DIR/bash_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_summary.txt"
+grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/bash_full_scan.log" > "$LOG_DIR/bash_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/bash_summary.txt"
 
 # Wait for Rust build
 echo ""
 echo "⏳ Waiting for Rust build to complete..."
- wait $BUILD_PID
+wait $BUILD_PID
 BUILD_EXIT=$?
 if [ $BUILD_EXIT -ne 0 ]; then
     echo "❌ Rust build failed with exit code $BUILD_EXIT!"
@@ -100,16 +102,17 @@ echo ""
 
 # Phase 2: Rust scanner
 echo "🟢 Phase 2: Running Rust scanner on ENTIRE test-cases directory..."
- cd dev-rust-scanner-1
- ./target/release/shai-hulud-detector $PARANOID_MODE $VERIFY_MODE ../shai-hulud-detect/test-cases/ > "../$LOG_DIR/rust_full_scan.log" 2>&1
+# cd dev-rust-scanner-1 # REMOVED
+# Adjusted path
+./target/release/shai-hulud-detector $PARANOID_MODE $VERIFY_MODE ../shai-hulud-detect/test-cases/ > "$LOG_DIR/rust_full_scan.log" 2>&1
 rust_exit=$?
 
 if [ -f "scan_results.json" ]; then
-     mv "scan_results.json" "../$LOG_DIR/rust_full_scan.json"
+    mv "scan_results.json" "$LOG_DIR/rust_full_scan.json"
     echo "💾 JSON saved"
 fi
 
- cd ..
+# cd .. # REMOVED
 
 if [ $rust_exit -eq 0 ]; then
     echo "✅ Rust completed"
@@ -117,13 +120,13 @@ else
     echo "⚠️  Rust exit code: $rust_exit"
 fi
 
- grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/rust_full_scan.log" > "$LOG_DIR/rust_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/rust_summary.txt"
+grep -E "High Risk Issues:|Medium Risk Issues:|Low Risk.*informational" "$LOG_DIR/rust_full_scan.log" > "$LOG_DIR/rust_summary.txt" 2>/dev/null || echo "NO SUMMARY" > "$LOG_DIR/rust_summary.txt"
 
 echo ""
 echo "📊 Comparing results..."
 
 strip_ansi() {
-     sed 's/\x1b\[[0-9;]*m//g'
+    sed 's/\x1b\[[0-9;]*m//g'
 }
 
 bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
@@ -163,12 +166,13 @@ printf "Bash: %s/%s/%s | Rust: %s/%s/%s | %s\n" "$bash_high" "$bash_med" "$bash_
 echo ""
 echo "🔬 Pattern-level verification..."
 
-PARSER_BIN="dev-rust-scanner-1/bash-log-parser/target/release/bash-log-parser"
+# Adjusted path
+PARSER_BIN="bash-log-parser/target/release/bash-log-parser"
 if [[ ! -x "$PARSER_BIN" ]]; then
     echo "🔨 Building parser..."
-     cd dev-rust-scanner-1/bash-log-parser
-     cargo build --release --quiet
-     cd ../../
+    cd bash-log-parser
+    cargo build --release --quiet
+    cd ..
 fi
 
 if [ -f "$LOG_DIR/rust_full_scan.json" ]; then

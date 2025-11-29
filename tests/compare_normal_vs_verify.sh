@@ -12,18 +12,19 @@ echo "This script compares logs to verify that --verify flag ONLY adds"
 echo "verification tags and does NOT change H/M/L counts or findings."
 echo ""
 
-cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1
+# cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1 # REMOVED
 
 # Find latest log directories
-NORMAL_DIR=$(find scripts/analyze/per-testcase-logs -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
-VERIFY_DIR=$(find scripts/analyze/per-testcase-logs-verify -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
+# Adjusted paths to tests/per-testcase-logs...
+NORMAL_DIR=$(find tests/per-testcase-logs -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
+VERIFY_DIR=$(find tests/per-testcase-logs-verify -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
 
 if [ -z "$NORMAL_DIR" ] || [ -z "$VERIFY_DIR" ]; then
     echo "❌ Missing log directories!"
     echo ""
     echo "Please run:"
-    echo "  1. bash scripts/analyze/parallel_testcase_scan.sh"
-    echo "  2. bash scripts/analyze/parallel_testcase_scan_verify.sh"
+    echo "  1. bash tests/parallel_testcase_scan.sh"
+    echo "  2. bash tests/parallel_testcase_scan_verify.sh"
     echo ""
     exit 1
 fi

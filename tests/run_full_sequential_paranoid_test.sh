@@ -18,14 +18,14 @@ echo ""
 # read -p "Press Enter to start..."
 echo ""
 
-cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1
+# cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1 # REMOVED
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📊 Phase 1: Running SEQUENTIAL PARANOID mode"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-bash scripts/analyze/full_sequential_test_paranoid.sh
+bash tests/full_sequential_test_paranoid.sh
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -33,7 +33,7 @@ echo "🔍 Phase 2: Running SEQUENTIAL VERIFY PARANOID mode"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-bash scripts/analyze/full_sequential_test_verify_paranoid.sh
+bash tests/full_sequential_test_verify_paranoid.sh
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -41,7 +41,7 @@ echo "🔬 Phase 3: Comparing results"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-bash scripts/analyze/compare_sequential_paranoid_vs_verify_paranoid.sh
+bash tests/compare_sequential_paranoid_vs_verify_paranoid.sh
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

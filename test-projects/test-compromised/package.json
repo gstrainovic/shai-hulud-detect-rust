@@ -1,8 +1,0 @@
-{
-  "name": "test-compromised",
-  "version": "1.0.0",
-  "dependencies": {
-    "chalk": "^5.0.0",
-    "debug": "^4.3.0"
-  }
-}

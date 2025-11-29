@@ -41,14 +41,15 @@ else
     MODE_LABEL="Normal Mode"
 fi
 
-cd /c/Users/gstra/Code/rust-scanner
+# cd /c/Users/gstra/Code/rust-scanner # REMOVED: Don't hardcode absolute paths
 
 START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Check for existing logs from today to reuse
 TODAY=$(date +%Y%m%d)
-LATEST_LOG_DIR=$(find "dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR" -maxdepth 1 -type d -name "${TODAY}_*" 2>/dev/null | sort -r | head -n 1)
+# Adjusted path: look in current directory's tests/per-testcase-logs...
+LATEST_LOG_DIR=$(find "tests/$LOG_SUBDIR" -maxdepth 1 -type d -name "${TODAY}_*" 2>/dev/null | sort -r | head -n 1)
 
 if [[ -n "$LATEST_LOG_DIR" ]]; then
     LOG_DIR="$LATEST_LOG_DIR"
@@ -56,7 +57,7 @@ if [[ -n "$LATEST_LOG_DIR" ]]; then
     REUSING_LOGS=true
 else
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-    LOG_DIR="dev-rust-scanner-1/scripts/analyze/$LOG_SUBDIR/$TIMESTAMP"
+    LOG_DIR="tests/$LOG_SUBDIR/$TIMESTAMP"
     mkdir -p "$LOG_DIR"
     echo "📁 Created new log directory: $LOG_DIR"
     REUSING_LOGS=false
@@ -71,10 +72,10 @@ echo ""
 
 # Start building Rust scanner in background (can happen during bash scans)
 echo "🔨 Building Rust scanner binary in background..."
-cd dev-rust-scanner-1
+# cd dev-rust-scanner-1 # REMOVED
 cargo build --release --quiet &
 BUILD_PID=$!
-cd ..
+# cd .. # REMOVED
 echo "✅ Build started (PID: $BUILD_PID) - will complete during bash scans"
 echo ""
 
@@ -103,11 +104,12 @@ run_bash_testcase() {
         fi
         
         # Run bash scanner - use absolute path
-        cd shai-hulud-detect
+        # cd shai-hulud-detect # REMOVED
         local abs_testdir=$(realpath "../$testdir")
-        timeout 600 ./shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "../$logfile" 2>&1
+        # Execute bash scanner from sibling directory
+        timeout 600 ../shai-hulud-detect/shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "$logfile" 2>&1
         local exit_code=$?
-        cd ..
+        # cd .. # REMOVED
         
         if [ $exit_code -eq 124 ]; then
             echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>10min)" | tee -a "$logfile"
@@ -137,13 +139,14 @@ run_rust_testcase() {
     echo "⚡ [$(date +%H:%M:%S)] Starting: $testname (Rust)"
     
     # Create temp directory for this scan to avoid JSON conflicts
-    local temp_scan_dir="dev-rust-scanner-1/temp_scan_$$_${testname}"
+    local temp_scan_dir="temp_scan_$$_${testname}"
     mkdir -p "$temp_scan_dir"
     
     # Run rust scanner - use pre-built binary
     cd "$temp_scan_dir"
     local abs_testdir=$(realpath "../../$testdir")
-    ../target/release/shai-hulud-detector "$abs_testdir" $PARANOID_MODE $VERIFY_MODE > "../../$logfile" 2>&1
+    # Adjusted path to binary
+    ../../target/release/shai-hulud-detector "$abs_testdir" $PARANOID_MODE $VERIFY_MODE > "../../$logfile" 2>&1
     local exit_code=$?
     
     # Copy JSON output to log directory
@@ -174,7 +177,8 @@ export LOG_DIR
 export PARANOID_MODE
 
 # Get all test case directories
-TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
+# Adjusted path to test cases
+TESTCASES=($(find ../shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
 
 echo "Found ${#TESTCASES[@]} test cases"
 echo ""
@@ -193,7 +197,7 @@ if [ $BUILD_EXIT -ne 0 ]; then
     echo "❌ Rust build failed with exit code $BUILD_EXIT!"
     exit 1
 fi
-echo "✅ Rust binary ready: dev-rust-scanner-1/target/release/shai-hulud-detector"
+echo "✅ Rust binary ready: target/release/shai-hulud-detector"
 echo ""
 echo "🟢 Phase 2: Running Rust scanners in parallel (max $CPU_CORES concurrent - optimal)..."
 printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_rust_testcase "$@"' _ {}
@@ -286,13 +290,14 @@ echo ""
 
 # Build bash-log-parser once
 echo "🔨 Building bash-log-parser..."
-cd dev-rust-scanner-1/bash-log-parser
+# Adjusted path
+cd bash-log-parser
 cargo build --release --quiet
 if [ $? -ne 0 ]; then
     echo "❌ Failed to build bash-log-parser!"
     exit 1
 fi
-cd ../../
+cd ..
 
 PATTERN_FAILED=0
 PATTERN_TOTAL=0
@@ -314,7 +319,8 @@ for testdir in "${TESTCASES[@]}"; do
     PATTERN_TOTAL=$((PATTERN_TOTAL + 1))
     
     # Run Rust bash-log-parser verification
-    verification_output=$(dev-rust-scanner-1/bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1)
+    # Adjusted path
+    verification_output=$(bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1)
     verification_exit=$?
     
     # Extract findings counts with defaults
