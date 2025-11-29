@@ -43,13 +43,18 @@ fi
 
 # cd /c/Users/gstra/Code/rust-scanner # REMOVED: Don't hardcode absolute paths
 
+# Get the absolute path of the script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+TESTCASES_ROOT="$(cd "$PROJECT_ROOT/../shai-hulud-detect/test-cases" && pwd)"
+
 START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Check for existing logs from today to reuse
 TODAY=$(date +%Y%m%d)
-# Adjusted path: look in current directory's tests/per-testcase-logs...
-LATEST_LOG_DIR=$(find "tests/$LOG_SUBDIR" -maxdepth 1 -type d -name "${TODAY}_*" 2>/dev/null | sort -r | head -n 1)
+# Use absolute path for LOG_DIR
+LATEST_LOG_DIR=$(find "$SCRIPT_DIR/$LOG_SUBDIR" -maxdepth 1 -type d -name "${TODAY}_*" 2>/dev/null | sort -r | head -n 1)
 
 if [[ -n "$LATEST_LOG_DIR" ]]; then
     LOG_DIR="$LATEST_LOG_DIR"
@@ -57,7 +62,7 @@ if [[ -n "$LATEST_LOG_DIR" ]]; then
     REUSING_LOGS=true
 else
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-    LOG_DIR="tests/$LOG_SUBDIR/$TIMESTAMP"
+    LOG_DIR="$SCRIPT_DIR/$LOG_SUBDIR/$TIMESTAMP"
     mkdir -p "$LOG_DIR"
     echo "📁 Created new log directory: $LOG_DIR"
     REUSING_LOGS=false
@@ -104,12 +109,10 @@ run_bash_testcase() {
         fi
         
         # Run bash scanner - use absolute path
-        # cd shai-hulud-detect # REMOVED
-        local abs_testdir=$(realpath "../$testdir")
+        local abs_testdir="$TESTCASES_ROOT/$testname"
         # Execute bash scanner from sibling directory
-        timeout 600 ../shai-hulud-detect/shai-hulud-detector.sh "$abs_testdir" $PARANOID_MODE > "$logfile" 2>&1
+        timeout 600 "$PROJECT_ROOT/../shai-hulud-detect/shai-hulud-detector.sh" "$abs_testdir" $PARANOID_MODE > "$logfile" 2>&1
         local exit_code=$?
-        # cd .. # REMOVED
         
         if [ $exit_code -eq 124 ]; then
             echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>10min)" | tee -a "$logfile"
@@ -139,22 +142,19 @@ run_rust_testcase() {
     echo "⚡ [$(date +%H:%M:%S)] Starting: $testname (Rust)"
     
     # Create temp directory for this scan to avoid JSON conflicts
-    local temp_scan_dir="temp_scan_$$_${testname}"
-    mkdir -p "$temp_scan_dir"
+    local temp_scan_dir=$(mktemp -d)
     
-    # Run rust scanner - use pre-built binary
+    # Run rust scanner - use pre-built binary with absolute paths
     cd "$temp_scan_dir"
-    local abs_testdir=$(realpath "../../$testdir")
-    # Adjusted path to binary
-    ../../target/release/shai-hulud-detector "$abs_testdir" $PARANOID_MODE $VERIFY_MODE > "../../$logfile" 2>&1
+    "$PROJECT_ROOT/target/release/shai-hulud-detector" "$TESTCASES_ROOT/$testname" $PARANOID_MODE $VERIFY_MODE > "$logfile" 2>&1
     local exit_code=$?
     
     # Copy JSON output to log directory
     if [ -f "scan_results.json" ]; then
-        mv "scan_results.json" "../../$LOG_DIR/rust_${testname}.json"
+        mv "scan_results.json" "$LOG_DIR/rust_${testname}.json"
     fi
     
-    cd ../..
+    cd "$PROJECT_ROOT"
     rm -rf "$temp_scan_dir"
     
     if [ $exit_code -eq 0 ]; then
@@ -175,10 +175,11 @@ export -f run_bash_testcase
 export -f run_rust_testcase
 export LOG_DIR
 export PARANOID_MODE
+export PROJECT_ROOT
+export TESTCASES_ROOT
 
-# Get all test case directories
-# Adjusted path to test cases
-TESTCASES=($(find ../shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
+# Get all test case directories using absolute path
+TESTCASES=($(find "$TESTCASES_ROOT" -mindepth 1 -maxdepth 1 -type d | sort))
 
 echo "Found ${#TESTCASES[@]} test cases"
 echo ""
@@ -290,14 +291,13 @@ echo ""
 
 # Build bash-log-parser once
 echo "🔨 Building bash-log-parser..."
-# Adjusted path
-cd bash-log-parser
+cd "$PROJECT_ROOT/bash-log-parser"
 cargo build --release --quiet
 if [ $? -ne 0 ]; then
     echo "❌ Failed to build bash-log-parser!"
     exit 1
 fi
-cd ..
+cd "$PROJECT_ROOT"
 
 PATTERN_FAILED=0
 PATTERN_TOTAL=0
@@ -319,8 +319,7 @@ for testdir in "${TESTCASES[@]}"; do
     PATTERN_TOTAL=$((PATTERN_TOTAL + 1))
     
     # Run Rust bash-log-parser verification
-    # Adjusted path
-    verification_output=$(bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1)
+    verification_output=$("$PROJECT_ROOT/bash-log-parser/target/release/bash-log-parser" "$bash_log" "$rust_json" 2>&1)
     verification_exit=$?
     
     # Extract findings counts with defaults

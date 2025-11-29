@@ -41,14 +41,17 @@ else
     MODE_LABEL="Normal Mode"
 fi
 
-# cd /c/Users/gstra/Code/rust-scanner # REMOVED
+# Get the absolute path of the script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+TESTCASES_ROOT="$(cd "$PROJECT_ROOT/../shai-hulud-detect/test-cases" && pwd)"
+BASH_SCANNER="$PROJECT_ROOT/../shai-hulud-detect/shai-hulud-detector.sh"
 
 START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-# Adjusted path
-LOG_DIR="tests/$LOG_SUBDIR/$TIMESTAMP"
+LOG_DIR="$SCRIPT_DIR/$LOG_SUBDIR/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -61,21 +64,17 @@ echo ""
 
 # Start building Rust scanner in background
 echo "🔨 Building Rust scanner binary in background..."
-# cd dev-rust-scanner-1 # REMOVED
+cd "$PROJECT_ROOT"
 cargo build --release --quiet &
 BUILD_PID=$!
-# cd .. # REMOVED
 echo "✅ Build started (PID: $BUILD_PID)"
 echo ""
 
 # Phase 1: Bash scanner (runs while Rust builds)
 # Timeout: 30 minutes (1800s) - scanning 32+ test cases takes time
 echo "🔵 Phase 1: Running Bash scanner on ENTIRE test-cases directory..."
-# cd shai-hulud-detect # REMOVED
-# Adjusted path
-timeout 1800 ../shai-hulud-detect/shai-hulud-detector.sh $PARANOID_MODE ../shai-hulud-detect/test-cases/ > "$LOG_DIR/bash_full_scan.log" 2>&1
+timeout 1800 "$BASH_SCANNER" $PARANOID_MODE "$TESTCASES_ROOT" > "$LOG_DIR/bash_full_scan.log" 2>&1
 bash_exit=$?
-# cd .. # REMOVED
 
 if [ $bash_exit -eq 124 ]; then
     echo "⏱️  Bash TIMEOUT (>30 min)"
@@ -102,17 +101,13 @@ echo ""
 
 # Phase 2: Rust scanner
 echo "🟢 Phase 2: Running Rust scanner on ENTIRE test-cases directory..."
-# cd dev-rust-scanner-1 # REMOVED
-# Adjusted path
-./target/release/shai-hulud-detector $PARANOID_MODE $VERIFY_MODE ../shai-hulud-detect/test-cases/ > "$LOG_DIR/rust_full_scan.log" 2>&1
+"$PROJECT_ROOT/target/release/shai-hulud-detector" $PARANOID_MODE $VERIFY_MODE "$TESTCASES_ROOT" > "$LOG_DIR/rust_full_scan.log" 2>&1
 rust_exit=$?
 
 if [ -f "scan_results.json" ]; then
     mv "scan_results.json" "$LOG_DIR/rust_full_scan.json"
     echo "💾 JSON saved"
 fi
-
-# cd .. # REMOVED
 
 if [ $rust_exit -eq 0 ]; then
     echo "✅ Rust completed"
@@ -166,13 +161,12 @@ printf "Bash: %s/%s/%s | Rust: %s/%s/%s | %s\n" "$bash_high" "$bash_med" "$bash_
 echo ""
 echo "🔬 Pattern-level verification..."
 
-# Adjusted path
-PARSER_BIN="bash-log-parser/target/release/bash-log-parser"
+PARSER_BIN="$PROJECT_ROOT/bash-log-parser/target/release/bash-log-parser"
 if [[ ! -x "$PARSER_BIN" ]]; then
     echo "🔨 Building parser..."
-    cd bash-log-parser
+    cd "$PROJECT_ROOT/bash-log-parser"
     cargo build --release --quiet
-    cd ..
+    cd "$PROJECT_ROOT"
 fi
 
 if [ -f "$LOG_DIR/rust_full_scan.json" ]; then

@@ -27,14 +27,17 @@ run_test_script() {
     
     echo "🔍 [$(date +%H:%M:%S)] Starting: $script_name"
     
-    # Run the script and capture output
-    if bash "$script_path" > "$log_file" 2>&1; then
+    # Run the script and capture output while showing it
+    # Use pipefail to ensure we catch the exit code of the script, not tee
+    set -o pipefail
+    if bash "$script_path" 2>&1 | tee "$log_file"; then
         echo "✅ [$(date +%H:%M:%S)] Completed: $script_name"
     else
         local exit_code=$?
         echo "❌ [$(date +%H:%M:%S)] Failed (exit $exit_code): $script_name"
         echo "Exit code: $exit_code" >> "$log_file"
     fi
+    set +o pipefail
 }
 
 export -f run_test_script

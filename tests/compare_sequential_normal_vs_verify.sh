@@ -9,18 +9,18 @@ echo "🔍 COMPARING SEQUENTIAL NORMAL vs VERIFY"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1
+# cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1 # REMOVED
 
 # Find latest log directories
-NORMAL_DIR=$(find scripts/analyze/sequential-logs -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
-VERIFY_DIR=$(find scripts/analyze/sequential-logs-verify -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
+NORMAL_DIR=$(find tests/sequential-logs -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
+VERIFY_DIR=$(find tests/sequential-logs-verify -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
 
 if [ -z "$NORMAL_DIR" ] || [ -z "$VERIFY_DIR" ]; then
     echo "❌ Missing log directories!"
     echo ""
     echo "Please run:"
-    echo "  1. bash scripts/analyze/full_sequential_test.sh"
-    echo "  2. bash scripts/analyze/full_sequential_test_verify.sh"
+    echo "  1. bash tests/full_sequential_test.sh"
+    echo "  2. bash tests/full_sequential_test_verify.sh"
     echo ""
     exit 1
 fi

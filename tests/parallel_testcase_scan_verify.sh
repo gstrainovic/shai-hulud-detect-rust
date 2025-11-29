@@ -6,7 +6,7 @@ START_TIME=$(date +%s)
 START_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_DIR="dev-rust-scanner-1/scripts/analyze/per-testcase-logs-verify/$TIMESTAMP"
+LOG_DIR="tests/per-testcase-logs-verify/$TIMESTAMP"
 mkdir -p "$LOG_DIR"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -18,15 +18,15 @@ echo ""
 
 # Start building Rust scanner in background
 echo "🔨 Building Rust scanner binary in background..."
-cd dev-rust-scanner-1
+# cd dev-rust-scanner-1 # REMOVED
 cargo build --release --quiet &
 BUILD_PID=$!
-cd ..
+# cd .. # REMOVED
 echo "✅ Build started (PID: $BUILD_PID) - will complete during bash scans"
 echo ""
 
 # Find test cases
-TESTCASES=($(find shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
+TESTCASES=($(find ../shai-hulud-detect/test-cases -mindepth 1 -maxdepth 1 -type d | sort))
 
 export -f run_bash_testcase
 export -f run_rust_testcase
@@ -43,11 +43,11 @@ run_bash_testcase() {
     
     echo "⏳ [$(date +%H:%M:%S)] Starting: $testname"
     
-    cd shai-hulud-detect
-    local abs_testdir=$(realpath "../$testdir")
-    timeout 300 ./shai-hulud-detector.sh "$abs_testdir" > "../$logfile" 2>&1
+    # cd shai-hulud-detect # REMOVED
+    local abs_testdir=$(realpath "../shai-hulud-detect/test-cases/$testname")
+    timeout 300 ../shai-hulud-detect/shai-hulud-detector.sh "$abs_testdir" > "$logfile" 2>&1
     local exit_code=$?
-    cd ..
+    # cd .. # REMOVED
     
     if [ $exit_code -eq 124 ]; then
         echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>5min)" | tee -a "$logfile"
@@ -68,13 +68,13 @@ run_rust_testcase() {
     
     echo "⚡ [$(date +%H:%M:%S)] Starting: $testname (Rust + --verify)"
     
-    local temp_scan_dir="dev-rust-scanner-1/temp_scan_$$_${testname}"
+    local temp_scan_dir="temp_scan_$$_${testname}"
     mkdir -p "$temp_scan_dir"
     
     cd "$temp_scan_dir"
-    local abs_testdir=$(realpath "../../$testdir")
+    local abs_testdir=$(realpath "../../shai-hulud-detect/test-cases/$testname")
     # KEY CHANGE: Add --verify flag
-    ../target/release/shai-hulud-detector --verify "$abs_testdir" > "../../$logfile" 2>&1
+    ../../target/release/shai-hulud-detector --verify "$abs_testdir" > "../../$logfile" 2>&1
     local exit_code=$?
     
     if [ -f "scan_results.json" ]; then
@@ -107,7 +107,7 @@ if [ $BUILD_EXIT -ne 0 ]; then
     echo "❌ Rust build failed with exit code $BUILD_EXIT!"
     exit 1
 fi
-echo "✅ Rust binary ready: dev-rust-scanner-1/target/release/shai-hulud-detector"
+echo "✅ Rust binary ready: target/release/shai-hulud-detector"
 echo ""
 echo "🟢 Phase 2: Running Rust scanners WITH --verify (max $CPU_CORES concurrent)..."
 printf '%s\n' "${TESTCASES[@]}" | xargs -P $CPU_CORES -I {} bash -c 'run_rust_testcase "$@"' _ {}
@@ -192,9 +192,10 @@ echo ""
 echo "🔬 Running pattern-level verification (nom-based parser)..."
 echo ""
 echo "🔨 Building bash-log-parser..."
-cd dev-rust-scanner-1/bash-log-parser
+# Adjusted path
+cd bash-log-parser
 cargo build --release --quiet 2>/dev/null
-cd ../..
+cd ..
 
 for testdir in "${TESTCASES[@]}"; do
     testname=$(basename "$testdir")
@@ -203,7 +204,8 @@ for testdir in "${TESTCASES[@]}"; do
     rust_json="$LOG_DIR/rust_${testname}.json"
     
     if [ -f "$bash_log" ] && [ -f "$rust_json" ]; then
-        result=$(dev-rust-scanner-1/bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1 || true)
+        # Adjusted path
+        result=$(bash-log-parser/target/release/bash-log-parser "$bash_log" "$rust_json" 2>&1 || true)
         
         if echo "$result" | grep -q "Perfect match"; then
             findings=$(echo "$result" | grep "findings" | head -1 | awk '{print $1}')
