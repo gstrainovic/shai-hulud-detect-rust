@@ -80,7 +80,8 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             if DOWNLOAD_PATTERN.is_match(&content) {
                 findings.push(Finding::new(
                     entry.path().to_path_buf(),
-                    "November 2025 pattern - Dynamic TruffleHog download via curl/wget/Bun".to_string(),
+                    "November 2025 pattern - Dynamic TruffleHog download via curl/wget/Bun"
+                        .to_string(),
                     RiskLevel::High,
                     "trufflehog_download",
                 ));
@@ -113,7 +114,10 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     for entry in &code_files {
         let path_str = entry.path().to_string_lossy();
         // BASH: grep -v "/node_modules/\|\.d\.ts$"
-        if path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") || path_str.ends_with(".d.ts") {
+        if path_str.contains("/node_modules/")
+            || path_str.contains("\\node_modules\\")
+            || path_str.ends_with(".d.ts")
+        {
             continue;
         }
         if let Ok(content) = fs::read_to_string(entry.path()) {
@@ -133,11 +137,17 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     // 5. MEDIUM PRIORITY: Trufflehog references in source code (not node_modules/docs)
     for entry in &code_files {
         let path_key = entry.path().to_string_lossy().to_lowercase();
-        if flagged_files.contains(&path_key) { continue; }
+        if flagged_files.contains(&path_key) {
+            continue;
+        }
         let path_str = entry.path().to_string_lossy();
         // BASH: grep -v "/node_modules/\|\.md$\|/docs/\|\.d\.ts$"
-        if path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") 
-            || path_str.ends_with(".md") || path_str.contains("/docs/") || path_str.ends_with(".d.ts") {
+        if path_str.contains("/node_modules/")
+            || path_str.contains("\\node_modules\\")
+            || path_str.ends_with(".md")
+            || path_str.contains("/docs/")
+            || path_str.ends_with(".d.ts")
+        {
             continue;
         }
         if let Ok(content) = fs::read_to_string(entry.path()) {
@@ -156,11 +166,16 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     // 6. MEDIUM PRIORITY: Credential scanning patterns (not in type definitions)
     for entry in &code_files {
         let path_key = entry.path().to_string_lossy().to_lowercase();
-        if flagged_files.contains(&path_key) { continue; }
+        if flagged_files.contains(&path_key) {
+            continue;
+        }
         let path_str = entry.path().to_string_lossy();
         // BASH: grep -v "/node_modules/\|\.d\.ts$\|/docs/"
-        if path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") 
-            || path_str.ends_with(".d.ts") || path_str.contains("/docs/") {
+        if path_str.contains("/node_modules/")
+            || path_str.contains("\\node_modules\\")
+            || path_str.ends_with(".d.ts")
+            || path_str.contains("/docs/")
+        {
             continue;
         }
         if let Ok(content) = fs::read_to_string(entry.path()) {
@@ -180,10 +195,15 @@ pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     // BASH EXACT: (process\.env|os\.environ|getenv).*(scan|harvest|steal|exfiltrat)
     for entry in &code_files {
         let path_key = entry.path().to_string_lossy().to_lowercase();
-        if flagged_files.contains(&path_key) { continue; }
+        if flagged_files.contains(&path_key) {
+            continue;
+        }
         let path_str = entry.path().to_string_lossy();
         // BASH: grep -v "/node_modules/\|\.d\.ts$"
-        if path_str.contains("/node_modules/") || path_str.contains("\\node_modules\\") || path_str.ends_with(".d.ts") {
+        if path_str.contains("/node_modules/")
+            || path_str.contains("\\node_modules\\")
+            || path_str.ends_with(".d.ts")
+        {
             continue;
         }
         if let Ok(content) = fs::read_to_string(entry.path()) {
