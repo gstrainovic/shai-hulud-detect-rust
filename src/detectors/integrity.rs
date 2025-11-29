@@ -80,26 +80,14 @@ pub fn check_package_integrity<P: AsRef<Path>>(
             }
 
             // Check for @ctrl packages (potential worm activity)
-            // Only flag if lockfile was modified in the last 30 days (bash compatibility)
+            // BASH EXACT: No time check - just check if @ctrl is present
             if content.contains("@ctrl") {
-                if let Ok(metadata) = entry.metadata() {
-                    if let Ok(modified) = metadata.modified() {
-                        if let Ok(duration) = std::time::SystemTime::now().duration_since(modified)
-                        {
-                            const THIRTY_DAYS: std::time::Duration =
-                                std::time::Duration::from_secs(30 * 24 * 60 * 60);
-                            if duration < THIRTY_DAYS {
-                                findings.push(Finding::new(
-                                    entry.path().to_path_buf(),
-                                    "Recently modified lockfile contains @ctrl packages (potential worm activity)"
-                                        .to_string(),
-                                    RiskLevel::Medium,
-                                    "integrity",
-                                ));
-                            }
-                        }
-                    }
-                }
+                findings.push(Finding::new(
+                    entry.path().to_path_buf(),
+                    "Lockfile contains @ctrl packages (potential worm activity)".to_string(),
+                    RiskLevel::Medium,
+                    "integrity",
+                ));
             }
         }
     }
@@ -113,7 +101,8 @@ fn check_json_lockfile(
     compromised_packages: &HashSet<CompromisedPackage>,
     findings: &mut Vec<Finding>,
 ) {
-    let mut found_packages = std::collections::HashSet::new(); // BASH: prevent duplicates per lockfile
+    // BASH EXACT: NO deduplication! Bash outputs once per section (packages + dependencies)
+    // So if a package appears in both sections, it gets reported twice
 
     // Check "packages" section (npm lockfile v2+)
     if let Some(packages) = json.get("packages").and_then(|p| p.as_object()) {
@@ -121,20 +110,17 @@ fn check_json_lockfile(
             // Extract package name from node_modules path
             if let Some(pkg_name) = pkg_path.strip_prefix("node_modules/") {
                 if let Some(version) = pkg_data.get("version").and_then(|v| v.as_str()) {
-                    // Check against compromised packages - BASH: exact logic
+                    // Check against compromised packages
                     for comp_pkg in compromised_packages {
                         if comp_pkg.name == pkg_name && comp_pkg.version == version {
                             let package_key = format!("{pkg_name}@{version}");
-                            if !found_packages.contains(&package_key) {
-                                found_packages.insert(package_key.clone());
-                                findings.push(Finding::new(
-                                    path.to_path_buf(),
-                                    format!("Compromised package in lockfile: {package_key}"),
-                                    RiskLevel::Medium,
-                                    "integrity",
-                                ));
-                                break; // BASH: only one finding per package per lockfile
-                            }
+                            findings.push(Finding::new(
+                                path.to_path_buf(),
+                                format!("Compromised package in lockfile: {package_key}"),
+                                RiskLevel::Medium,
+                                "integrity",
+                            ));
+                            break;
                         }
                     }
                 }
@@ -146,20 +132,17 @@ fn check_json_lockfile(
     if let Some(dependencies) = json.get("dependencies").and_then(|d| d.as_object()) {
         for (pkg_name, pkg_data) in dependencies {
             if let Some(version) = pkg_data.get("version").and_then(|v| v.as_str()) {
-                // Check against compromised packages - BASH: prevent duplicates
+                // Check against compromised packages
                 for comp_pkg in compromised_packages {
                     if &comp_pkg.name == pkg_name && comp_pkg.version == version {
                         let package_key = format!("{pkg_name}@{version}");
-                        if !found_packages.contains(&package_key) {
-                            found_packages.insert(package_key.clone());
-                            findings.push(Finding::new(
-                                path.to_path_buf(),
-                                format!("Compromised package in lockfile: {package_key}"),
-                                RiskLevel::Medium,
-                                "integrity",
-                            ));
-                            break; // BASH: only one finding per package per lockfile
-                        }
+                        findings.push(Finding::new(
+                            path.to_path_buf(),
+                            format!("Compromised package in lockfile: {package_key}"),
+                            RiskLevel::Medium,
+                            "integrity",
+                        ));
+                        break;
                     }
                 }
             }
