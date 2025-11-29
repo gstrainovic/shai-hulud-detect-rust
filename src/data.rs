@@ -276,7 +276,10 @@ fn download_from_github() -> Result<String> {
         .call()
         .context("HTTP request failed")?;
 
-    response.into_body().read_to_string().context("Failed to read response")
+    response
+        .into_body()
+        .read_to_string()
+        .context("Failed to read response")
 }
 
 // Helper to load both packages and hashes
