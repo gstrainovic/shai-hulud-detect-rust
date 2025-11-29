@@ -1,9 +1,9 @@
 // Package Detector
 // Rust port of: check_packages()
+// Updated to match PR #84 changes: only exact matches, no semver matching for package.json
 
 use crate::data::CompromisedPackage;
-use crate::detectors::{lockfile_resolver::LockfileResolver, verification, Finding, RiskLevel};
-use crate::semver;
+use crate::detectors::{lockfile_resolver::LockfileResolver, Finding, RiskLevel};
 use serde_json::Value;
 use std::collections::HashSet;
 use std::fs;
@@ -13,14 +13,19 @@ use walkdir::WalkDir;
 // Function: check_packages
 // Purpose: Scan package.json files for compromised packages and suspicious namespaces
 // Args: $1 = scan_dir (directory to scan), compromised_packages - set of known bad packages
-//       lockfile_resolver - optional lockfile for verification
-// Modifies: COMPROMISED_FOUND, SUSPICIOUS_FOUND, LOCKFILE_SAFE_VERSIONS, NAMESPACE_WARNINGS (global arrays)
-// Returns: Populates arrays with matches using exact and semver pattern matching
+//       lockfile_resolver - optional lockfile for verification (unused after PR #84)
+// Modifies: COMPROMISED_FOUND, NAMESPACE_WARNINGS (global arrays)
+// Returns: Populates arrays with exact matches only (no semver matching per PR #84)
+//
+// PR #84 CHANGE: The bash scanner now uses comm -12 for O(n) set intersection
+// This means ONLY exact "package_name:version" matches are found - no semver matching.
+// The old semver matching logic was removed for performance.
+#[allow(unused_variables)]
 pub fn check_packages<P: AsRef<Path>>(
     scan_dir: P,
     compromised_packages: &HashSet<CompromisedPackage>,
     lockfile_resolver: Option<&LockfileResolver>,
-    mut runtime_resolver: Option<&mut crate::detectors::runtime_resolver::RuntimeResolver>,
+    runtime_resolver: Option<&mut crate::detectors::runtime_resolver::RuntimeResolver>,
 ) -> (Vec<Finding>, Vec<Finding>, Vec<Finding>, Vec<Finding>) {
     let scan_dir = scan_dir.as_ref();
     let files_count = crate::utils::count_files_by_name(scan_dir, "package.json");
@@ -31,8 +36,8 @@ pub fn check_packages<P: AsRef<Path>>(
     );
 
     let mut compromised_found = Vec::new();
-    let mut suspicious_found = Vec::new();
-    let mut lockfile_safe_versions = Vec::new();
+    let suspicious_found = Vec::new(); // No longer used after PR #84
+    let lockfile_safe_versions = Vec::new(); // No longer used after PR #84
     let mut namespace_warnings = Vec::new();
 
     let mut processed = 0;
@@ -58,91 +63,32 @@ pub fn check_packages<P: AsRef<Path>>(
                     "optionalDependencies",
                 ] {
                     if let Some(deps) = json.get(section).and_then(|v| v.as_object()) {
-                        // BASH MATCH: Iterate in package.json order, not compromised_packages order
-                        // This maintains discovery order instead of HashSet random order
+                        // PR #84: Iterate through dependencies and check for EXACT matches only
+                        // No semver matching - just check if "package_name:version" exists in compromised set
                         for (package_name, package_version) in deps {
                             let version_str = package_version.as_str().unwrap_or("");
 
-                            // Check if this package is in the compromised list
-                            for comp_pkg in compromised_packages {
-                                if package_name != &comp_pkg.name {
-                                    continue;
-                                }
+                            // PR #84: Exact match only - no semver
+                            // Check if this exact package:version is in the compromised list
+                            let lookup_key = CompromisedPackage {
+                                name: package_name.clone(),
+                                version: version_str.to_string(),
+                            };
 
-                                // Exact match
-                                if version_str == comp_pkg.version {
-                                    compromised_found.push(Finding::new(
-                                        entry.path().to_path_buf(),
-                                        format!("{package_name}@{version_str}"),
-                                        RiskLevel::High,
-                                        "compromised_package",
-                                    ));
-                                }
-                                // Semver pattern match - check lockfile for actual version
-                                else if semver::semver_match(&comp_pkg.version, version_str) {
-                                    // BASH LINE 447-461: Check lockfile for exact installed version
-                                    let package_dir = entry.path().parent().unwrap();
-                                    if let Some(actual_version) =
-                                        crate::detectors::integrity::get_lockfile_version(
-                                            package_name,
-                                            package_dir,
-                                        )
-                                    {
-                                        if actual_version == comp_pkg.version {
-                                            // Lockfile has exact compromised version!
-                                            compromised_found.push(Finding::new(
-                                                entry.path().to_path_buf(),
-                                                format!("{package_name}@{actual_version}"),
-                                                RiskLevel::High,
-                                                "compromised_package",
-                                            ));
-                                        } else {
-                                            // Lockfile has safe version - informational only
-                                            // This goes to LOCKFILE_SAFE_VERSIONS in Bash (LOW risk)
-                                            lockfile_safe_versions.push(Finding::new(
-                                                entry.path().to_path_buf(),
-                                                format!(
-                                                    "{package_name}@{version_str} (locked to {actual_version} - safe)"
-                                                ),
-                                                RiskLevel::Low,
-                                                "lockfile_safe",
-                                            ));
-                                        }
-                                    } else {
-                                        // No lockfile - suspicious (could install compromised on npm install)
-                                        let mut finding = Finding::new(
-                                            entry.path().to_path_buf(),
-                                            format!("{package_name}@{version_str}"),
-                                            RiskLevel::Medium,
-                                            "suspicious_package",
-                                        );
-
-                                        // Only verify via lockfile/runtime (NO hardcoded patterns!)
-                                        let verification_status = verification::verify_via_lockfile(
-                                            package_name,
-                                            lockfile_resolver,
-                                            runtime_resolver.as_deref_mut(),
-                                            compromised_packages,
-                                        );
-
-                                        if let verification::VerificationStatus::Verified {
-                                            ..
-                                        } = verification_status
-                                        {
-                                            finding.verification = Some(verification_status);
-                                        }
-
-                                        suspicious_found.push(finding);
-                                    }
-                                }
+                            if compromised_packages.contains(&lookup_key) {
+                                compromised_found.push(Finding::new(
+                                    entry.path().to_path_buf(),
+                                    format!("{package_name}@{version_str}"),
+                                    RiskLevel::High,
+                                    "compromised_package",
+                                ));
                             }
                         }
                     }
                 }
 
                 // Check for suspicious namespaces - BASH EXACT: warn for EACH namespace found
-                // Bash script line 453-457: warns once per namespace, no break
-                // If file has @ctrl AND @nativescript, it generates 2 warnings
+                // Bash script: warns once per namespace per file
                 let package_str = serde_json::to_string(&json).unwrap_or_default();
                 for namespace in crate::data::COMPROMISED_NAMESPACES {
                     if package_str.contains(&format!("\"{namespace}/")) {
@@ -158,10 +104,9 @@ pub fn check_packages<P: AsRef<Path>>(
                                     .unwrap_or_default()
                                     .to_string_lossy()
                             ),
-                            RiskLevel::Low, // BASH EXACT: namespace warnings are LOW risk in LOW_RISK_FINDINGS
+                            RiskLevel::Low, // BASH EXACT: namespace warnings are LOW risk
                             "namespace_warning",
                         ));
-                        // BASH EXACT: No break! Check ALL namespaces
                     }
                 }
             }
