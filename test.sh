@@ -5,6 +5,17 @@
 
 set -e
 
+# Ask user about deleting test logs in tests/ to speed up tests
+echo "Do you want to delete existing test logs in tests/ to speed up tests, or keep them? (d/k): "
+read -r choice
+if [[ "$choice" == "d" ]]; then
+    find tests/ -type d -name "*-logs*" -exec rm -rf {} + 2>/dev/null || true
+    echo "Deleted existing log directories in tests/."
+else
+    echo "Keeping existing log directories in tests/."
+fi
+echo ""
+
 # Directory setup
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
