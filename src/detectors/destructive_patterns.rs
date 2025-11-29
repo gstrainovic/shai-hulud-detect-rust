@@ -116,7 +116,7 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
                         let pattern_msg = destructive_patterns[i].replace("\\$", "$");
                         findings.push(Finding::new(
                             path.to_path_buf(),
-                            format!("Destructive pattern detected: {}", pattern_msg),
+                            format!("Destructive pattern detected: {pattern_msg}"),
                             RiskLevel::High,
                             "destructive_patterns",
                         ));

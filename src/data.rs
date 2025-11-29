@@ -270,11 +270,13 @@ fn download_from_github() -> Result<String> {
     let url = "https://raw.githubusercontent.com/Cobenian/shai-hulud-detect/main/compromised-packages.txt";
 
     let response = ureq::get(url)
-        .timeout(std::time::Duration::from_secs(10))
+        .config()
+        .timeout_global(Some(std::time::Duration::from_secs(10)))
+        .build()
         .call()
         .context("HTTP request failed")?;
 
-    response.into_string().context("Failed to read response")
+    response.into_body().read_to_string().context("Failed to read response")
 }
 
 // Helper to load both packages and hashes

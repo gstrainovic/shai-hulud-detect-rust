@@ -1,38 +1,10 @@
 # Shai-Hulud NPM Supply Chain Attack Detector (Rust)
 
-**Version 2.7.6** - Rust implementation of [shai-hulud-detector v2.7.6](../shai-hulud-detect/)
+**Version 2.7.6** 
 
 ## 🎯 100% Compatible Rust Implementation
 
 This is a **100% functionally identical** Rust implementation of the [https://github.com/Cobenian/shai-hulud-detect](https://github.com/Cobenian/shai-hulud-detect) Bash scanner.
-
-### ✅ Verification Status
-
-**Count-Level Verification** (H/M/L findings):
-- ✅ **Normal Mode**: 26/26 test cases perfect match (including November 2025 attack)
-- ✅ **PARANOID Mode**: 26/26 test cases match
-
-**Pattern-Level Verification** (fingerprint matching):
-- ✅ **100% match rate** across all test cases
-- ✅ All known Bash bugs fixed (PR #50 merged)
-
-Run verification:
-```bash
-# Per-test-case verification
-bash scripts/analyze/parallel_testcase_scan.sh           # Normal mode
-bash scripts/analyze/parallel_testcase_scan_paranoid.sh  # PARANOID mode
-
-# Full directory scan verification
-bash scripts/analyze/full_sequential_test.sh             # Normal mode
-bash scripts/analyze/full_sequential_test_paranoid.sh    # PARANOID mode
-```
-
-### ⚡ Performance
-
-~50x faster than Bash while maintaining 100% accuracy:
-- **Per-test-case scan**: ~0.5s (Rust) vs ~25s (Bash)
-- **Full parallel scan** (25 test cases): 2m 30s (Rust+Bash) with pattern verification
-- **Memory**: ~15MB (Rust) vs ~50MB (Bash)
 
 ### 🚀 Quick Start
 

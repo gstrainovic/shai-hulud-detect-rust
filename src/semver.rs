@@ -85,7 +85,7 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
 
             match subject.minor.cmp(&pattern_ver.minor) {
                 Ordering::Greater => return true,
-                Ordering::Less => continue,
+                Ordering::Less => (),
                 Ordering::Equal => {
                     if subject.patch >= pattern_ver.patch {
                         return true;
@@ -109,9 +109,11 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
             // Wildcard pattern (4.x, 1.2.x, 4.X, 1.2.X, x.x.x, etc.)
             // Parse pattern components, handling 'x'/'X' wildcards specially
             let pattern_parts: Vec<&str> = pattern.split('.').collect();
-            let subject_parts = [subject.major.to_string(),
+            let subject_parts = [
+                subject.major.to_string(),
                 subject.minor.to_string(),
-                subject.patch.to_string()];
+                subject.patch.to_string(),
+            ];
 
             // Check each component, skip comparison for 'x'/'X' wildcards
             let mut matches = true;

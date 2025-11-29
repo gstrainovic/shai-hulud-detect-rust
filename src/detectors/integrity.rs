@@ -84,7 +84,8 @@ pub fn check_package_integrity<P: AsRef<Path>>(
             if content.contains("@ctrl") {
                 if let Ok(metadata) = entry.metadata() {
                     if let Ok(modified) = metadata.modified() {
-                        if let Ok(duration) = std::time::SystemTime::now().duration_since(modified) {
+                        if let Ok(duration) = std::time::SystemTime::now().duration_since(modified)
+                        {
                             const THIRTY_DAYS: std::time::Duration =
                                 std::time::Duration::from_secs(30 * 24 * 60 * 60);
                             if duration < THIRTY_DAYS {

@@ -36,9 +36,7 @@ pub fn check_github_actions_runner(scan_dir: &Path) -> Vec<Finding> {
 
         // Check for YAML workflow files
         let filename = path.file_name().and_then(|n| n.to_str());
-        if !filename
-            .is_some_and(|f| f.ends_with(".yml") || f.ends_with(".yaml"))
-        {
+        if !filename.is_some_and(|f| f.ends_with(".yml") || f.ends_with(".yaml")) {
             continue;
         }
 
