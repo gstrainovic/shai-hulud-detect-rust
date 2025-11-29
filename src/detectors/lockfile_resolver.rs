@@ -1,6 +1,8 @@
 // Lockfile Resolver - Parse package-lock.json, yarn.lock, pnpm-lock.yaml
 // Purpose: Extract actual installed versions to verify against compromised packages
 
+#![allow(dead_code)]
+
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -22,6 +24,7 @@ pub struct LockfileResolver {
 
 impl LockfileResolver {
     /// Load lockfiles from a directory
+    #[allow(clippy::unnecessary_wraps)]
     pub fn load_from_dir<P: AsRef<Path>>(dir: P) -> Result<Self> {
         let dir = dir.as_ref();
 

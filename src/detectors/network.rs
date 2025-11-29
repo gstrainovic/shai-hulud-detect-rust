@@ -2,15 +2,15 @@
 // Rust port of: check_network_exfiltration()
 
 use crate::detectors::{Finding, RiskLevel};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::fs;
 use std::path::Path;
+use std::sync::LazyLock;
 use walkdir::WalkDir;
 
-lazy_static! {
-    static ref IP_PATTERN: Regex = Regex::new(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b").unwrap();
-}
+static IP_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b").unwrap());
+static WS_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"wss?://[^\s"'']+"#).unwrap());
 
 // Suspicious domains and patterns beyond webhook.site
 const SUSPICIOUS_DOMAINS: &[&str] = &[
@@ -41,6 +41,7 @@ const SUSPICIOUS_DOMAINS: &[&str] = &[
 // Args: $1 = scan_dir (directory to scan)
 // Modifies: NETWORK_EXFILTRATION_WARNINGS (global array)
 // Returns: Populates array with hardcoded IPs and suspicious domains
+#[allow(clippy::too_many_lines)]
 pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     let mut findings = Vec::new();
     let extensions = &["js", "ts", "json", "mjs"];
@@ -240,8 +241,7 @@ pub fn check_network_exfiltration<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
             // BASH LINE 1194-1209: Check for WebSocket connections to unusual endpoints
             if content.contains("ws://") || content.contains("wss://") {
                 // BASH extracts all ws:// endpoints first, then filters
-                let ws_regex = Regex::new(r#"wss?://[^\s"'']+"#).unwrap();
-                for cap in ws_regex.find_iter(&content) {
+                for cap in WS_REGEX.find_iter(&content) {
                     let endpoint = cap.as_str();
                     // BASH LINE 1202: Skip localhost/127.0.0.1
                     if !endpoint.contains("localhost") && !endpoint.contains("127.0.0.1") {

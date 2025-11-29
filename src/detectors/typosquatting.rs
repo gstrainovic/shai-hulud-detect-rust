@@ -42,6 +42,7 @@ const POPULAR_PACKAGES: &[&str] = &[
 // Args: $1 = scan_dir (directory to scan)
 // Modifies: TYPOSQUATTING_WARNINGS (global array)
 // Returns: Populates TYPOSQUATTING_WARNINGS with Unicode chars, confusables, and similar names
+#[allow(clippy::too_many_lines)]
 pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     let mut findings = Vec::new();
 

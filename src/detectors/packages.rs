@@ -20,12 +20,12 @@ use walkdir::WalkDir;
 // PR #84 CHANGE: The bash scanner now uses comm -12 for O(n) set intersection
 // This means ONLY exact "package_name:version" matches are found - no semver matching.
 // The old semver matching logic was removed for performance.
-#[allow(unused_variables)]
+#[allow(clippy::needless_pass_by_value)]
 pub fn check_packages<P: AsRef<Path>>(
     scan_dir: P,
     compromised_packages: &HashSet<CompromisedPackage>,
-    lockfile_resolver: Option<&LockfileResolver>,
-    runtime_resolver: Option<&mut crate::detectors::runtime_resolver::RuntimeResolver>,
+    _lockfile_resolver: Option<&LockfileResolver>,
+    _runtime_resolver: Option<&mut crate::detectors::runtime_resolver::RuntimeResolver>,
 ) -> (Vec<Finding>, Vec<Finding>, Vec<Finding>, Vec<Finding>) {
     let scan_dir = scan_dir.as_ref();
     let files_count = crate::utils::count_files_by_name(scan_dir, "package.json");

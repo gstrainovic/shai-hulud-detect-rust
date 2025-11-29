@@ -3,6 +3,7 @@
 
 use colored::Colorize;
 
+#[derive(Copy, Clone)]
 pub enum Color {
     Red,
     Yellow,

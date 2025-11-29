@@ -1,6 +1,8 @@
 // Report Generation
 // Rust port of: generate_report()
 
+#![allow(clippy::cast_precision_loss)]
+
 use crate::colors::{print_status, Color};
 use crate::detectors::{verification, RiskLevel, ScanResults};
 use std::path::Path;
@@ -24,6 +26,7 @@ fn show_file_preview(file_path: &Path, context: &str) {
 // Args: results - scan results, paranoid_mode - whether paranoid mode is enabled
 // Modifies: None (reads all global finding arrays)
 // Returns: Outputs formatted report to stdout with HIGH/MEDIUM/LOW risk sections
+#[allow(clippy::too_many_lines)]
 pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
     println!();
     print_status(
@@ -760,6 +763,7 @@ pub fn generate_report(results: &ScanResults, paranoid_mode: bool) {
 }
 
 /// Print verification summary showing false positive analysis
+#[allow(clippy::too_many_lines)]
 fn print_verification_summary(results: &ScanResults, _paranoid_mode: bool) {
     // Check if any findings have verification
     let has_verification = results

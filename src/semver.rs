@@ -2,14 +2,14 @@
 //! Port of `semver_bash` from the original shell script
 //! Origin: <https://github.com/cloudflare/semver_bash/blob/6cc9ce10/semver.sh>
 
-use lazy_static::lazy_static;
+#![allow(dead_code)]
+
 use regex::Regex;
 use std::cmp::Ordering;
+use std::sync::LazyLock;
 
-lazy_static! {
-    static ref SEMVER_RE: Regex =
-        Regex::new(r"[^0-9]*([0-9]+)\.([0-9]+)\.([0-9]+)([0-9A-Za-z\-]*)").unwrap();
-}
+static SEMVER_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[^0-9]*([0-9]+)\.([0-9]+)\.([0-9]+)([0-9A-Za-z\-]*)").unwrap());
 
 /// Parsed semantic version components
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -58,9 +58,8 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
     }
 
     // Destructure subject
-    let subject = match SemVer::parse(test_subject) {
-        Some(v) => v,
-        None => return false,
+    let Some(subject) = SemVer::parse(test_subject) else {
+        return false;
     };
 
     // Handle multi-variant patterns (splits '||' into individual patterns)
@@ -72,11 +71,10 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
             return true;
         }
 
-        if pattern.starts_with('^') {
+        if let Some(stripped) = pattern.strip_prefix('^') {
             // Caret: Major must match, minor.patch >= pattern
-            let pattern_ver = match SemVer::parse(&pattern[1..]) {
-                Some(v) => v,
-                None => continue,
+            let Some(pattern_ver) = SemVer::parse(stripped) else {
+                continue;
             };
 
             if subject.major != pattern_ver.major {
@@ -92,11 +90,10 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
                     }
                 }
             }
-        } else if pattern.starts_with('~') {
+        } else if let Some(stripped) = pattern.strip_prefix('~') {
             // Tilde: Major+minor must match, patch >= pattern
-            let pattern_ver = match SemVer::parse(&pattern[1..]) {
-                Some(v) => v,
-                None => continue,
+            let Some(pattern_ver) = SemVer::parse(stripped) else {
+                continue;
             };
 
             if subject.major == pattern_ver.major
@@ -150,9 +147,8 @@ pub fn semver_match(test_subject: &str, test_pattern: &str) -> bool {
             }
         } else {
             // Exact match
-            let pattern_ver = match SemVer::parse(pattern) {
-                Some(v) => v,
-                None => continue,
+            let Some(pattern_ver) = SemVer::parse(pattern) else {
+                continue;
             };
 
             if subject.major == pattern_ver.major

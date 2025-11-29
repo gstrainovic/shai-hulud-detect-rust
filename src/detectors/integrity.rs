@@ -1,6 +1,8 @@
 // Package Integrity Detector
 // Rust port of: check_package_integrity()
 
+#![allow(dead_code)]
+
 use crate::data::CompromisedPackage;
 use crate::detectors::{Finding, RiskLevel};
 use serde_json::Value;
@@ -101,8 +103,11 @@ fn check_json_lockfile(
     compromised_packages: &HashSet<CompromisedPackage>,
     findings: &mut Vec<Finding>,
 ) {
-    // BASH EXACT: NO deduplication! Bash outputs once per section (packages + dependencies)
-    // So if a package appears in both sections, it gets reported twice
+    // BASH EXACT: Bash AWK parser extracts packages ONCE using block-based parsing
+    // It doesn't distinguish between "packages" and "dependencies" sections
+    // So we need to deduplicate to match Bash behavior
+
+    let mut found_packages: HashSet<String> = HashSet::new();
 
     // Check "packages" section (npm lockfile v2+)
     if let Some(packages) = json.get("packages").and_then(|p| p.as_object()) {
@@ -110,13 +115,18 @@ fn check_json_lockfile(
             // Extract package name from node_modules path
             if let Some(pkg_name) = pkg_path.strip_prefix("node_modules/") {
                 if let Some(version) = pkg_data.get("version").and_then(|v| v.as_str()) {
+                    let package_key = format!("{pkg_name}:{version}");
+                    // Skip if already found
+                    if found_packages.contains(&package_key) {
+                        continue;
+                    }
                     // Check against compromised packages
                     for comp_pkg in compromised_packages {
                         if comp_pkg.name == pkg_name && comp_pkg.version == version {
-                            let package_key = format!("{pkg_name}@{version}");
+                            found_packages.insert(package_key.clone());
                             findings.push(Finding::new(
                                 path.to_path_buf(),
-                                format!("Compromised package in lockfile: {package_key}"),
+                                format!("Compromised package in lockfile: {pkg_name}@{version}"),
                                 RiskLevel::Medium,
                                 "integrity",
                             ));
@@ -132,13 +142,18 @@ fn check_json_lockfile(
     if let Some(dependencies) = json.get("dependencies").and_then(|d| d.as_object()) {
         for (pkg_name, pkg_data) in dependencies {
             if let Some(version) = pkg_data.get("version").and_then(|v| v.as_str()) {
+                let package_key = format!("{pkg_name}:{version}");
+                // Skip if already found in packages section
+                if found_packages.contains(&package_key) {
+                    continue;
+                }
                 // Check against compromised packages
                 for comp_pkg in compromised_packages {
                     if &comp_pkg.name == pkg_name && comp_pkg.version == version {
-                        let package_key = format!("{pkg_name}@{version}");
+                        found_packages.insert(package_key.clone());
                         findings.push(Finding::new(
                             path.to_path_buf(),
-                            format!("Compromised package in lockfile: {package_key}"),
+                            format!("Compromised package in lockfile: {pkg_name}@{version}"),
                             RiskLevel::Medium,
                             "integrity",
                         ));

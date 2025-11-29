@@ -2,6 +2,8 @@
 // Purpose: Supplement lockfile parsing by querying actual installed packages
 // Usage: ONLY when --verify flag is enabled
 
+#![allow(dead_code)]
+
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -51,6 +53,7 @@ pub struct RuntimeResolver {
 
 impl RuntimeResolver {
     /// Try to resolve packages using runtime package manager query
+    #[allow(clippy::unnecessary_wraps)]
     pub fn from_runtime<P: AsRef<Path>>(dir: P) -> Result<Self> {
         let dir = dir.as_ref();
         let base_dir = dir.to_path_buf();
@@ -169,6 +172,7 @@ impl RuntimeResolver {
 
     /// Fallback: Scan `node_modules` directory for package.json files
     /// This handles cases where pnpm list doesn't return all packages
+    #[allow(clippy::unnecessary_wraps)]
     fn scan_node_modules_fallback<P: AsRef<Path>>(
         dir: P,
         output: &mut HashMap<String, String>,

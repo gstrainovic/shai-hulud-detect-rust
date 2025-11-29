@@ -1,6 +1,8 @@
 // Verification Module - Verify findings to reduce false positives
 // Purpose: Check if findings are legitimate patterns vs actual threats
 
+#![allow(dead_code)]
+
 use crate::data::{CompromisedPackage, VERIFIED_FILES};
 use crate::detectors::lockfile_resolver::LockfileResolver;
 use serde::{Deserialize, Serialize};
@@ -95,9 +97,8 @@ pub fn verify_via_lockfile(
 /// Verify file by SHA-256 hash against AI-reviewed whitelist
 pub fn verify_file_by_hash(file_path: &Path) -> VerificationStatus {
     // Calculate SHA-256 hash of file
-    let hash = match calculate_file_hash(file_path) {
-        Ok(h) => h,
-        Err(_) => return VerificationStatus::Unknown,
+    let Ok(hash) = calculate_file_hash(file_path) else {
+        return VerificationStatus::Unknown;
     };
 
     // Check against verified files list

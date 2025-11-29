@@ -4,32 +4,45 @@
 // IMPORTANT: Bash uses "skip if already flagged" logic - only ONE finding per file!
 
 use crate::detectors::{Finding, RiskLevel};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
+use std::sync::LazyLock;
 use walkdir::WalkDir;
 
-lazy_static! {
-    // HIGH PRIORITY: Dynamic TruffleHog download patterns
-    static ref DOWNLOAD_PATTERN: Regex = Regex::new(r"curl.*trufflehog|wget.*trufflehog|bunExecutable.*trufflehog|download.*trufflehog").unwrap();
-    // HIGH PRIORITY: TruffleHog credential harvesting patterns
-    static ref CREDENTIAL_SCAN_PATTERN: Regex = Regex::new(r"TruffleHog.*scan.*credential|trufflehog.*env|trufflehog.*AWS|trufflehog.*NPM_TOKEN").unwrap();
-    // HIGH PRIORITY: Credential patterns with exfiltration
-    static ref EXFIL_PATTERN: Regex = Regex::new(r"(AWS_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN).*(webhook\.site|curl|https\.request)").unwrap();
-    // MEDIUM PRIORITY: Trufflehog references
-    static ref TRUFFLEHOG_REF: Regex = Regex::new(r"(?i)trufflehog").unwrap();
-    // MEDIUM PRIORITY: Credential scanning patterns
-    static ref CREDENTIAL_PATTERN: Regex = Regex::new(r"AWS_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN").unwrap();
-    // LOW PRIORITY: Environment variable scanning with suspicious patterns
-    static ref ENV_SUSPICIOUS: Regex = Regex::new(r"(process\.env|os\.environ|getenv).*(scan|harvest|steal|exfiltrat)").unwrap();
-}
+// HIGH PRIORITY: Dynamic TruffleHog download patterns
+static DOWNLOAD_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"curl.*trufflehog|wget.*trufflehog|bunExecutable.*trufflehog|download.*trufflehog")
+        .unwrap()
+});
+// HIGH PRIORITY: TruffleHog credential harvesting patterns
+static CREDENTIAL_SCAN_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"TruffleHog.*scan.*credential|trufflehog.*env|trufflehog.*AWS|trufflehog.*NPM_TOKEN",
+    )
+    .unwrap()
+});
+// HIGH PRIORITY: Credential patterns with exfiltration
+static EXFIL_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(AWS_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN).*(webhook\.site|curl|https\.request)")
+        .unwrap()
+});
+// MEDIUM PRIORITY: Trufflehog references
+static TRUFFLEHOG_REF: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(?i)trufflehog").unwrap());
+// MEDIUM PRIORITY: Credential scanning patterns
+static CREDENTIAL_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"AWS_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN").unwrap());
+// LOW PRIORITY: Environment variable scanning with suspicious patterns
+static ENV_SUSPICIOUS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(process\.env|os\.environ|getenv).*(scan|harvest|steal|exfiltrat)").unwrap()
+});
 
 /// Detect Trufflehog secret scanning activity - BASH EXACT version
-/// Matches bash check_trufflehog_activity() exactly:
+/// Matches bash `check_trufflehog_activity()` exactly:
 /// - Only ONE finding per file (skip if already flagged)
 /// - Same pattern order and risk levels as bash
+#[allow(clippy::too_many_lines)]
 pub fn check_trufflehog_activity<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     crate::colors::print_status(
         crate::colors::Color::Blue,

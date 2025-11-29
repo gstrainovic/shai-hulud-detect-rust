@@ -6,26 +6,28 @@
 // ONLY the last check (Ethereum wallet patterns) skips already-flagged files.
 
 use crate::detectors::{verification, Finding, RiskLevel};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
+use std::sync::LazyLock;
 use walkdir::WalkDir;
 
-lazy_static! {
-    static ref ETH_WALLET: Regex = Regex::new(r"0x[a-fA-F0-9]{40}").unwrap();
-    static ref KNOWN_WALLETS: Regex = Regex::new(
-        r"0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976|1H13VnQJKtT4HjD5ZFKaaiZEetMbG7nDHx|TB9emsCq6fQw6wRk4HBxxNnU6Hwt1DnV67"
-    ).unwrap();
-    static ref MALICIOUS_FUNCTIONS: Regex =
-        Regex::new(r"checkethereumw|runmask|newdlocal|_0x19ca67").unwrap();
-}
+static ETH_WALLET: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"0x[a-fA-F0-9]{40}").unwrap());
+static KNOWN_WALLETS: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"0xFc4a4858bafef54D1b1d7697bfb5c52F4c166976|1H13VnQJKtT4HjD5ZFKaaiZEetMbG7nDHx|TB9emsCq6fQw6wRk4HBxxNnU6Hwt1DnV67",
+    )
+    .unwrap()
+});
+static MALICIOUS_FUNCTIONS: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"checkethereumw|runmask|newdlocal|_0x19ca67").unwrap());
 
 /// Detect cryptocurrency theft patterns - BASH EXACT version
-/// Matches bash check_crypto_theft_patterns() exactly:
+/// Matches bash `check_crypto_theft_patterns()` exactly:
 /// - NO deduplication between checks (file can have multiple findings)
 /// - ONLY the last check (Ethereum wallet) skips already-flagged files
+#[allow(clippy::too_many_lines)]
 pub fn check_crypto_theft_patterns<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     crate::colors::print_status(
         crate::colors::Color::Blue,

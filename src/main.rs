@@ -22,6 +22,7 @@ use std::time::Instant;
 // Args: Command line arguments (--paranoid, --help, --parallelism N, directory_path)
 // Modifies: All global arrays via detection functions
 // Returns: Exit code 0 for clean, 1 for high-risk findings, 2 for medium-risk findings
+#[allow(clippy::too_many_lines)]
 fn main() -> Result<()> {
     let start_time = Instant::now();
     let start_timestamp = chrono::Local::now();

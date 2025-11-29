@@ -34,7 +34,11 @@ pub fn check_new_workflow_patterns(scan_dir: &Path) -> Vec<Finding> {
 
         // Look for formatter_123456789.yml workflow files in .github/workflows/
         if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
-            if filename.starts_with("formatter_") && filename.ends_with(".yml") {
+            if filename.starts_with("formatter_")
+                && std::path::Path::new(filename)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("yml"))
+            {
                 // Check if in .github/workflows/ directory
                 if let Some(parent) = path.parent() {
                     if parent.ends_with(".github/workflows") {
