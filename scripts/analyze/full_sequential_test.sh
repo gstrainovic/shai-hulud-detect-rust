@@ -68,14 +68,15 @@ echo "✅ Build started (PID: $BUILD_PID)"
 echo ""
 
 # Phase 1: Bash scanner (runs while Rust builds)
+# Timeout: 30 minutes (1800s) - scanning 32+ test cases takes time
 echo "🔵 Phase 1: Running Bash scanner on ENTIRE test-cases directory..."
  cd shai-hulud-detect
- timeout 600 ./shai-hulud-detector.sh $PARANOID_MODE test-cases/ > "../$LOG_DIR/bash_full_scan.log" 2>&1
+ timeout 1800 ./shai-hulud-detector.sh $PARANOID_MODE test-cases/ > "../$LOG_DIR/bash_full_scan.log" 2>&1
 bash_exit=$?
  cd ..
 
 if [ $bash_exit -eq 124 ]; then
-    echo "⏱️  Bash TIMEOUT (>10 min)"
+    echo "⏱️  Bash TIMEOUT (>30 min)"
 elif [ $bash_exit -eq 0 ]; then
     echo "✅ Bash completed"
 else
