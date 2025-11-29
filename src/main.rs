@@ -73,6 +73,7 @@ fn main() -> Result<()> {
     println!();
 
     // Load verification resolvers (if --verify flag is set)
+    // NOTE: Status messages are Rust-only feature, tests ignore them via strip_verification_data
     let (lockfile_resolver, mut runtime_resolver) = if args.verify {
         // Try lockfile first (static analysis)
         let lockfile =
@@ -82,7 +83,7 @@ fn main() -> Result<()> {
                         colors::Color::Green,
                         &format!(
                             "✅ Lockfile loaded ({:?} format, {} packages)",
-                            resolver.lockfile_type.unwrap(),
+                            resolver.lockfile_type.as_ref().unwrap(),
                             resolver.packages.len()
                         ),
                     );

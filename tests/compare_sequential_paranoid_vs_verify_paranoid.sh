@@ -9,11 +9,14 @@ echo "🔍 COMPARING SEQUENTIAL PARANOID vs VERIFY PARANOID"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1
+# Get script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
 
 # Find latest log directories
-NORMAL_DIR=$(find scripts/analyze/sequential-logs-paranoid -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
-VERIFY_DIR=$(find scripts/analyze/sequential-logs-paranoid-verify -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
+NORMAL_DIR=$(find tests/sequential-logs-paranoid -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
+VERIFY_DIR=$(find tests/sequential-logs-paranoid-verify -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r | head -1)
 
 if [ -z "$NORMAL_DIR" ] || [ -z "$VERIFY_DIR" ]; then
     echo "❌ Missing log directories!"
@@ -30,6 +33,7 @@ echo "📁 Verify Paranoid logs: $VERIFY_DIR"
 echo ""
 
 # Strip verification tags and timestamps for comparison
+# These are Rust-only --verify mode features that Bash doesn't have
 strip_verification_data() {
     sed 's/\[VERIFIED[^]]*\]//g' | \
     sed 's/\[.*confidence\]://g' | \
@@ -39,7 +43,9 @@ strip_verification_data() {
     sed 's/\x1b\[[0-9;]*m//g' | \
     grep -v "^$" | \
     grep -v "Runtime resolver" | \
+    grep -v "Runtime resolution" | \
     grep -v "Querying package manager" | \
+    grep -v "Lockfile loaded" | \
     grep -v "VERIFIED" | \
     grep -v "Verified:" | \
     grep -v "Total critical findings analyzed" | \

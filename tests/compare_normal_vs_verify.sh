@@ -34,6 +34,7 @@ echo "📁 Verify mode logs: $VERIFY_DIR"
 echo ""
 
 # Strip verification tags and timestamps for comparison
+# These are Rust-only --verify mode features that Bash doesn't have
 strip_verification_data() {
     sed 's/\[VERIFIED[^]]*\]//g' | \
     sed 's/\[.*confidence\]://g' | \
@@ -43,7 +44,9 @@ strip_verification_data() {
     sed 's/\x1b\[[0-9;]*m//g' | \
     grep -v "^$" | \
     grep -v "Runtime resolver" | \
+    grep -v "Runtime resolution" | \
     grep -v "Querying package manager" | \
+    grep -v "Lockfile loaded" | \
     grep -v "VERIFIED" | \
     grep -v "Verified:" | \
     grep -v "Total critical findings analyzed" | \

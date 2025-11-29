@@ -339,12 +339,7 @@ for testdir in "${TESTCASES[@]}"; do
     # Check if perfect match (exit 0) or pattern mismatch (exit != 0)
     if [ $verification_exit -ne 0 ]; then
         echo "⚠️  $testname: Pattern mismatch detected!"
-        
-        # Check if it's the known webhook.site bug
-        if echo "$verification_output" | grep -q "webhook.site"; then
-            echo "   ℹ️  Note: Likely webhook.site bug - see https://github.com/Cobenian/shai-hulud-detect/pull/50"
-        fi
-        
+        # PR #50 merged - no special webhook.site handling needed anymore
         PATTERN_FAILED=$((PATTERN_FAILED + 1))
     else
         if [ $bash_count -eq 0 ]; then

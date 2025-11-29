@@ -607,18 +607,8 @@ fn main() -> Result<()> {
             });
         }
 
-        let webhook_mismatch = unmatched_bash
-            .iter()
-            .chain(unmatched_rust.iter())
-            .any(|fp| fp.contains("webhook.site"));
-        if webhook_mismatch {
-            println!();
-            println!(
-                "{}",
-                "NOTE: Bekannte Abweichung rund um webhook.site – siehe https://github.com/Cobenian/shai-hulud-detect/pull/50 (WIP)."
-                    .bright_yellow()
-            );
-        }
+        // PR #50 merged - webhook.site detection is now in Bash too
+        // No special handling needed anymore
 
         std::process::exit(1);
     }

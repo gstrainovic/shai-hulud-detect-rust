@@ -72,18 +72,22 @@ extract_summary() {
     local script_name=$(basename "$log_file" .log)
     
     # Check for success/failure patterns
+    # IMPORTANT: Check failures FIRST - a log can have both ✅ and ❌
     local status="UNKNOWN"
     local details=""
     
-    if grep -q "All tests passed\|SUCCESS\|✅" "$log_file"; then
-        status="PASSED"
-        details=$(grep -o "All tests passed\|SUCCESS\|✅.*" "$log_file" | head -1 || echo "")
-    elif grep -q "FAILED\|❌\|failed" "$log_file"; then
+    if grep -q "FAILURE\|❌ FAILURE\|MISMATCH" "$log_file"; then
         status="FAILED"
-        details=$(grep -o "FAILED\|❌.*\|failed.*" "$log_file" | head -1 || echo "")
-    elif grep -q "Exit code:" "$log_file"; then
+        details=$(grep -o "FAILURE.*\|❌.*\|MISMATCH.*" "$log_file" | head -1 || echo "")
+    elif grep -q "Exit code: [1-9]" "$log_file"; then
         status="FAILED"
         details="Exit code: $(grep "Exit code:" "$log_file" | tail -1)"
+    elif grep -q "All tests passed\|🎉 ALL TEST\|100% FINDING-LEVEL" "$log_file"; then
+        status="PASSED"
+        details=$(grep -o "All tests passed\|🎉.*\|100%.*" "$log_file" | head -1 || echo "")
+    elif grep -q "Match Rate: 33 / 33\|Perfect Matches: 33" "$log_file"; then
+        status="PASSED"
+        details="33/33 test cases matched"
     else
         # Check for test counts or other indicators
         local passed=$(grep -o "[0-9]* passed" "$log_file" | grep -o "[0-9]*" | head -1 || echo "0")
