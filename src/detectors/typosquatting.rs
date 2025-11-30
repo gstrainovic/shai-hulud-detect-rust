@@ -3,6 +3,7 @@
 
 use crate::detectors::{Finding, RiskLevel};
 use serde_json::Value;
+use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
@@ -45,6 +46,9 @@ const POPULAR_PACKAGES: &[&str] = &[
 #[allow(clippy::too_many_lines)]
 pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
     let mut findings = Vec::new();
+    // BASH EXACT: Deduplicate by package_name only (not file:package)
+    // Bash's warned_packages array effectively deduplicates by package name across all files
+    let mut warned_packages: HashSet<String> = HashSet::new();
 
     for entry in WalkDir::new(scan_dir)
         .into_iter()
@@ -79,7 +83,8 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     || c == '-'
                             });
 
-                            if has_unicode {
+                            if has_unicode && !warned_packages.contains(package_name) {
+                                warned_packages.insert(package_name.clone());
                                 findings.push(Finding::new(
                                     entry.path().to_path_buf(),
                                     format!(
@@ -118,7 +123,10 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                 ("oo", "o"),
                             ];
                             for (pattern, _target) in &confusables {
-                                if package_name.contains(pattern) {
+                                if package_name.contains(pattern)
+                                    && !warned_packages.contains(package_name)
+                                {
+                                    warned_packages.insert(package_name.clone());
                                     findings.push(Finding::new(
                                         entry.path().to_path_buf(),
                                         format!(
@@ -137,6 +145,11 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                     continue; // Exact match is OK
                                 }
 
+                                // Skip if already warned about this package
+                                if warned_packages.contains(package_name) {
+                                    continue;
+                                }
+
                                 // BASH LINE 1001: Check for single character differences
                                 // BASH LINE 1005: Only flag if no dashes (avoid legit variations)
                                 if package_name.len() == popular.len() && package_name.len() > 4 {
@@ -150,6 +163,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                         && !package_name.contains('-')
                                         && !popular.contains('-')
                                     {
+                                        warned_packages.insert(package_name.clone());
                                         findings.push(Finding::new(
                                             entry.path().to_path_buf(),
                                             format!("Potential typosquatting of '{popular}': {package_name} (1 character difference)"),
@@ -160,7 +174,9 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                 }
 
                                 // Check for missing character
-                                if package_name.len() == popular.len() - 1 {
+                                if package_name.len() == popular.len() - 1
+                                    && !warned_packages.contains(package_name)
+                                {
                                     for i in 0..=popular.len() {
                                         let test_name = format!(
                                             "{}{}",
@@ -168,6 +184,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                             &popular[i.min(popular.len())..].get(1..).unwrap_or("")
                                         );
                                         if *package_name == test_name {
+                                            warned_packages.insert(package_name.clone());
                                             findings.push(Finding::new(
                                                 entry.path().to_path_buf(),
                                                 format!("Potential typosquatting of '{popular}': {package_name} (missing character)"),
@@ -180,7 +197,9 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                 }
 
                                 // Check for extra character - UNICODE SAFE
-                                if package_name.chars().count() == popular.chars().count() + 1 {
+                                if package_name.chars().count() == popular.chars().count() + 1
+                                    && !warned_packages.contains(package_name)
+                                {
                                     let pkg_chars: Vec<char> = package_name.chars().collect();
                                     for i in 0..=pkg_chars.len() {
                                         let mut test_chars = pkg_chars.clone();
@@ -189,6 +208,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                         }
                                         let test_name: String = test_chars.iter().collect();
                                         if test_name == *popular {
+                                            warned_packages.insert(package_name.clone());
                                             findings.push(Finding::new(
                                                 entry.path().to_path_buf(),
                                                 format!("Potential typosquatting of '{popular}': {package_name} (extra character)"),
@@ -202,7 +222,9 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                             }
 
                             // Check for namespace confusion
-                            if package_name.starts_with('@') {
+                            if package_name.starts_with('@')
+                                && !warned_packages.contains(package_name)
+                            {
                                 let suspicious_namespaces = [
                                     "@types",
                                     "@angular",
@@ -229,6 +251,7 @@ pub fn check_typosquatting<P: AsRef<Path>>(scan_dir: P) -> Vec<Finding> {
                                                     .filter(|(a, b)| a != b)
                                                     .count();
                                                 if (1..=2).contains(&diff) {
+                                                    warned_packages.insert(package_name.clone());
                                                     findings.push(Finding::new(
                                                         entry.path().to_path_buf(),
                                                         format!("Suspicious namespace variation: {namespace} (similar to {suspicious})"),

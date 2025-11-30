@@ -90,10 +90,11 @@ run_bash_testcase() {
     local testname=$(basename "$testdir")
     local logfile="$LOG_DIR/bash_${testname}.log"
     local summaryfile="$LOG_DIR/bash_${testname}_summary.txt"
+    local exitfile="$LOG_DIR/bash_${testname}_exit.txt"
     
     # Check if log file already exists and appears valid (contains completion markers)
     local skip_scan=false
-    if [[ -f "$logfile" && -s "$logfile" ]]; then
+    if [[ -f "$logfile" && -s "$logfile" && -f "$exitfile" ]]; then
         if grep -q "SUMMARY:" "$logfile" || grep -q "No indicators of Shai-Hulud compromise detected" "$logfile"; then
             skip_scan=true
         fi
@@ -113,6 +114,9 @@ run_bash_testcase() {
         # Execute bash scanner from sibling directory
         timeout 600 "$PROJECT_ROOT/../shai-hulud-detect/shai-hulud-detector.sh" "$abs_testdir" $PARANOID_MODE > "$logfile" 2>&1
         local exit_code=$?
+        
+        # Save exit code to file for comparison
+        echo "$exit_code" > "$exitfile"
         
         if [ $exit_code -eq 124 ]; then
             echo "⏱️  [$(date +%H:%M:%S)] TIMEOUT: $testname (>10min)" | tee -a "$logfile"
@@ -138,6 +142,7 @@ run_rust_testcase() {
     local testdir=$1
     local testname=$(basename "$testdir")
     local logfile="$LOG_DIR/rust_${testname}.log"
+    local exitfile="$LOG_DIR/rust_${testname}_exit.txt"
     
     echo "⚡ [$(date +%H:%M:%S)] Starting: $testname (Rust)"
     
@@ -148,6 +153,9 @@ run_rust_testcase() {
     cd "$temp_scan_dir"
     "$PROJECT_ROOT/target/release/shai-hulud-detector" "$TESTCASES_ROOT/$testname" $PARANOID_MODE $VERIFY_MODE > "$logfile" 2>&1
     local exit_code=$?
+    
+    # Save exit code to file for comparison
+    echo "$exit_code" > "$exitfile"
     
     # Copy JSON output to log directory
     if [ -f "scan_results.json" ]; then
@@ -211,13 +219,17 @@ strip_ansi() {
     sed 's/\x1b\[[0-9;]*m//g'
 }
 
-# Create comparison CSV
+# Create comparison CSV with exit codes
 cat > "$LOG_DIR/comparison.csv" << 'CSVHEADER'
-TestCase,Bash_High,Bash_Medium,Bash_Low,Rust_High,Rust_Medium,Rust_Low,Match
+TestCase,Bash_Exit,Rust_Exit,Bash_High,Bash_Medium,Bash_Low,Rust_High,Rust_Medium,Rust_Low,Exit_Match,Count_Match
 CSVHEADER
 
 for testdir in "${TESTCASES[@]}"; do
     testname=$(basename "$testdir")
+    
+    # Extract exit codes
+    bash_exit=$(cat "$LOG_DIR/bash_${testname}_exit.txt" 2>/dev/null || echo "?")
+    rust_exit=$(cat "$LOG_DIR/rust_${testname}_exit.txt" 2>/dev/null || echo "?")
     
     # Extract bash numbers with ANSI stripping
     bash_high=$(grep "High Risk Issues:" "$LOG_DIR/bash_${testname}_summary.txt" 2>/dev/null | strip_ansi | awk '{print $NF}' | tr -d ' ')
@@ -237,35 +249,43 @@ for testdir in "${TESTCASES[@]}"; do
     rust_med=${rust_med:-0}
     rust_low=${rust_low:-0}
     
-    # Check match
-    if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
-        match="✅"
+    # Check exit code match
+    if [ "$bash_exit" = "$rust_exit" ]; then
+        exit_match="✅"
     else
-        match="❌"
+        exit_match="❌"
     fi
     
-    echo "$testname,$bash_high,$bash_med,$bash_low,$rust_high,$rust_med,$rust_low,$match" >> "$LOG_DIR/comparison.csv"
+    # Check count match
+    if [ "$bash_high" = "$rust_high" ] && [ "$bash_med" = "$rust_med" ] && [ "$bash_low" = "$rust_low" ]; then
+        count_match="✅"
+    else
+        count_match="❌"
+    fi
+    
+    echo "$testname,$bash_exit,$rust_exit,$bash_high,$bash_med,$bash_low,$rust_high,$rust_med,$rust_low,$exit_match,$count_match" >> "$LOG_DIR/comparison.csv"
 done
 
 echo ""
 echo "✅ Done! Results in: $LOG_DIR"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 PER-TEST-CASE COMPARISON"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-printf "%-35s %12s %12s %8s\n" "Test Case" "Bash (H/M/L)" "Rust (H/M/L)" "Match"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📊 PER-TEST-CASE COMPARISON (Exit Codes + Counts)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+printf "%-35s %6s %6s %12s %12s %6s %6s\n" "Test Case" "B.Exit" "R.Exit" "Bash (H/M/L)" "Rust (H/M/L)" "Exit" "Count"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Print formatted table from CSV (skip header)
-tail -n +2 "$LOG_DIR/comparison.csv" | while IFS=, read -r testname bash_h bash_m bash_l rust_h rust_m rust_l match; do
-    printf "%-35s %4s/%2s/%2s      %4s/%2s/%2s    %s\n" "$testname" "$bash_h" "$bash_m" "$bash_l" "$rust_h" "$rust_m" "$rust_l" "$match"
+tail -n +2 "$LOG_DIR/comparison.csv" | while IFS=, read -r testname bash_exit rust_exit bash_h bash_m bash_l rust_h rust_m rust_l exit_match count_match; do
+    printf "%-35s %6s %6s  %4s/%2s/%2s    %4s/%2s/%2s   %s    %s\n" "$testname" "$bash_exit" "$rust_exit" "$bash_h" "$bash_m" "$bash_l" "$rust_h" "$rust_m" "$rust_l" "$exit_match" "$count_match"
 done
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Summary
+# Summary - now with exit code stats
 total_tests=${#TESTCASES[@]}
-matched=$(grep "✅" "$LOG_DIR/comparison.csv" | wc -l)
+exit_matched=$(grep -c "✅" <<< "$(cut -d',' -f10 "$LOG_DIR/comparison.csv" | tail -n +2)")
+count_matched=$(grep -c "✅" <<< "$(cut -d',' -f11 "$LOG_DIR/comparison.csv" | tail -n +2)")
 
 END_TIME=$(date +%s)
 END_READABLE=$(date "+%Y-%m-%d %H:%M:%S")
@@ -274,7 +294,9 @@ MINUTES=$((DURATION / 60))
 SECONDS=$((DURATION % 60))
 
 echo ""
-echo "📈 Match Rate: $matched / $total_tests test cases"
+echo "📈 Match Rate:"
+echo "   Exit Codes: $exit_matched / $total_tests"
+echo "   H/M/L Counts: $count_matched / $total_tests"
 echo ""
 echo "⏱️  TIMING:"
 echo "   Started:  $START_READABLE"
@@ -282,7 +304,7 @@ echo "   Finished: $END_READABLE"
 echo "   Duration: ${MINUTES}m ${SECONDS}s"
 echo ""
 echo "💾 Results saved: $LOG_DIR"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Pattern-level verification for test cases with findings
 echo ""
@@ -375,3 +397,15 @@ else
 fi
 
 echo ""
+
+# Final exit code based on all checks
+if [ "$exit_matched" -ne "$total_tests" ] || [ "$count_matched" -ne "$total_tests" ] || [ $PATTERN_FAILED -gt 0 ]; then
+    echo "❌ TESTS FAILED!"
+    echo "   Exit Code Matches: $exit_matched / $total_tests"
+    echo "   Count Matches: $count_matched / $total_tests"
+    echo "   Pattern Matches: $((PATTERN_TOTAL - PATTERN_FAILED)) / $PATTERN_TOTAL"
+    exit 1
+else
+    echo "✅ ALL TESTS PASSED!"
+    exit 0
+fi
