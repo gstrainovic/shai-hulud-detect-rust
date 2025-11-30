@@ -61,18 +61,18 @@ MEDIUM RISK: Suspicious package versions detected:
 ### 🧪 Testing
 
 ```bash
-# Run unit tests (9 tests in ~0.02s)
+# Run unit tests
 cargo test
 
 # Run full verification suite
-bash scripts/analyze/parallel_testcase_scan.sh
+bash tests/parallel_testcase_scan.sh
 ```
 ### 📦 What It Detects
 
 See the original [shai-hulud-detect README](../shai-hulud-detect/README.md) for full details.
 
 Key detections:
-- 1,700+ compromised package versions (November 2025 update)
+- Constantly updated compromised package versions (auto-fetched from GitHub)
 - **November 2025 "The Second Coming" Attack:**
   - Fake Bun runtime installation (setup_bun.js, bun_environment.js)
   - Malicious GitHub Actions workflows (formatter_*.yml)

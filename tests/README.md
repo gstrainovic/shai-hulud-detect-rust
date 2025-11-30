@@ -51,7 +51,7 @@ bash dev-rust-scanner-1/scripts/analyze/full_sequential_test_paranoid.sh
 ## 📋 Scripts Overview
 
 ### `parallel_testcase_scan.sh` ⭐ RECOMMENDED
-**Purpose**: Run both Bash and Rust scanners on all 26 test cases in parallel (normal mode)
+**Purpose**: Run both Bash and Rust scanners on all test cases in parallel (normal mode)
 
 **Supports**: `[--paranoid] [--verify]` flags
 
@@ -192,7 +192,7 @@ scripts/analyze/
 
 ## 🧪 Cargo Test Integration
 
-**Note**: The full 100% verification is NOT part of `cargo test` because it takes 3+ minutes to scan all 26 test cases.
+**Note**: The full 100% verification is NOT part of `cargo test` because it takes several minutes to scan all test cases.
 
 Instead:
 - ✅ `cargo test` runs fast unit tests (~1 second)
@@ -209,9 +209,10 @@ To verify 100% compatibility, use the scripts above instead of cargo test.
 - ✅ HIGH risk count (exact match)
 - ✅ MEDIUM risk count (exact match)
 - ✅ LOW risk count (exact match)
+- ✅ Exit codes (exact match)
 
 ### Overall:
-- ✅ All 26 test cases must match
+- ✅ All test cases must match
 - ✅ Both normal and paranoid modes
 - ✅ No timeouts or crashes
 
@@ -267,11 +268,6 @@ The verification script compares these numbers for each test case:
 
 ## ✅ Verification Status
 
-**Last Run**: 2025-11-28
-
-**Normal Mode**: ✅ 100% MATCH (including November 2025 attack detectors)
-**Paranoid Mode**: ✅ 100% MATCH (all PR #50 fixes integrated)
-**Test Cases**: 26/26 matched
-**Version**: 2.7.6 (matches Bash scanner)
+Run `bash test.sh` to verify current status.
 
 **Ready for production!** 🚀
