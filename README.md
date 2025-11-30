@@ -1,6 +1,6 @@
 # Shai-Hulud NPM Supply Chain Attack Detector (Rust)
 
-**Version 2.7.6** 
+**Version 3.0.0** (synced with Bash scanner) 
 
 ## 🎯 100% Compatible Rust Implementation
 

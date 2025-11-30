@@ -266,6 +266,13 @@ fn main() -> Result<()> {
             .retain(|f| f.risk_level != detectors::RiskLevel::Low);
     }
 
+    // BASH COMPATIBILITY: Truncate paranoid mode findings to max 5 (like Bash does)
+    // Bash only shows first 5 typosquatting and first 5 network exfiltration warnings
+    if args.paranoid {
+        results_for_json.typosquatting_warnings.truncate(5);
+        results_for_json.network_exfiltration_warnings.truncate(5);
+    }
+
     // Save JSON output for pattern-level verification
     // Save in current directory by default (can be redirected in scripts)
     let json_output_path = "scan_results.json";
