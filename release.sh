@@ -17,6 +17,9 @@ echo "🏷️  Tag will be: $TAG"
 echo ""
 
 # Check if tag already exists
+# Git remote name
+REMOTE="master-remote"
+
 if git rev-parse "$TAG" >/dev/null 2>&1; then
     echo "⚠️  Tag $TAG already exists!"
     read -p "Delete and recreate? (y/n) " -n 1 -r
@@ -24,7 +27,7 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "Deleting old tag..."
          git tag -d "$TAG"
-         git push origin ":refs/tags/$TAG" || true
+         git push "$REMOTE" ":refs/tags/$TAG" || true
     else
         echo "❌ Aborted"
         exit 1
@@ -44,7 +47,7 @@ if [ -n "$STATUS" ]; then
          git add -A
         read -p "Commit message: " COMMIT_MSG
          git commit -m "$COMMIT_MSG"
-         git push origin master
+         git push "$REMOTE" master
     fi
 fi
 
@@ -75,7 +78,7 @@ echo "4️⃣ Creating git tag $TAG..."
 
 echo ""
 echo "5️⃣ Pushing tag to GitHub (triggers CI)..."
- git push origin "$TAG"
+ git push "$REMOTE" "$TAG"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -88,5 +91,5 @@ echo "  2. Run tests"
 echo "  3. Create release"
 echo "  4. Upload binaries"
 echo ""
-echo "Monitor: https://github.com/gstrainovic/dev-rust-scanner-1/actions"
-echo "Release: https://github.com/gstrainovic/dev-rust-scanner-1/releases/tag/$TAG"
+echo "Monitor: https://github.com/gstrainovic/shai-hulud-detect-rust/actions"
+echo "Release: https://github.com/gstrainovic/shai-hulud-detect-rust/releases/tag/$TAG"
