@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo ""
- cd /c/Users/gstra/Code/rust-scanner/dev-rust-scanner-1
+# Already in the correct directory (shai-hulud-detect-rust)
 
 echo "🚀 Automated Release Script"
 echo "============================"
