@@ -1,0 +1,124 @@
+# Reusable Security Scan Workflow
+# This workflow scans the repository for npm supply chain attacks using shai-hulud-detector
+#
+# Usage in other repos:
+# 1. Copy this file to .github/workflows/security-scan.yml
+# 2. Or reference it as a reusable workflow
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  # Allow manual trigger
+  workflow_dispatch:
+  # Weekly scheduled scan
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6 AM UTC
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Download shai-hulud-detector
+        run: |
+          # Download latest release from GitHub
+          RELEASE_URL="https://github.com/gstrainovic/shai-hulud-detect-rust/releases/latest/download/shai-hulud-detector-linux"
+          curl -L -o shai-hulud-detector "$RELEASE_URL" || {
+            echo "::warning::Could not download pre-built binary, building from source..."
+            # Fallback: Build from source
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source $HOME/.cargo/env
+            git clone https://github.com/gstrainovic/shai-hulud-detect-rust.git /tmp/scanner
+            cd /tmp/scanner
+            cargo build --release
+            cp target/release/shai-hulud-detector $GITHUB_WORKSPACE/
+          }
+          chmod +x shai-hulud-detector
+      
+      - name: Run Security Scan
+        id: scan
+        run: |
+          echo "🔍 Running Shai-Hulud Security Scan..."
+          echo ""
+          
+          # Run scanner and capture output
+          ./shai-hulud-detector . > scan_results.txt 2>&1 || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          
+          # Show results
+          cat scan_results.txt
+          
+          # Extract counts
+          HIGH=$(grep -o "High Risk Issues: [0-9]*" scan_results.txt | grep -o "[0-9]*" || echo "0")
+          MEDIUM=$(grep -o "Medium Risk Issues: [0-9]*" scan_results.txt | grep -o "[0-9]*" || echo "0")
+          LOW=$(grep -o "Low Risk Issues: [0-9]*" scan_results.txt | grep -o "[0-9]*" || echo "0")
+          
+          echo ""
+          echo "📊 Summary: High=$HIGH, Medium=$MEDIUM, Low=$LOW"
+          
+          # Set outputs
+          echo "high=$HIGH" >> $GITHUB_OUTPUT
+          echo "medium=$MEDIUM" >> $GITHUB_OUTPUT
+          echo "low=$LOW" >> $GITHUB_OUTPUT
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          # Fail on HIGH risk findings
+          if [ "$HIGH" -gt 0 ]; then
+            echo ""
+            echo "🚨 HIGH RISK findings detected! Review required."
+            exit 1
+          fi
+          
+          # Warn on MEDIUM risk findings (don't fail)
+          if [ "$MEDIUM" -gt 0 ]; then
+            echo ""
+            echo "⚠️  MEDIUM RISK findings detected. Consider reviewing."
+          fi
+          
+          echo ""
+          echo "✅ Security scan completed."
+      
+      - name: Upload Scan Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: scan_results.txt
+          retention-days: 30
+      
+      - name: Create Issue on High Risk (optional)
+        if: failure() && steps.scan.outputs.high > 0
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const high = '${{ steps.scan.outputs.high }}';
+            const medium = '${{ steps.scan.outputs.medium }}';
+            
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'security,shai-hulud',
+              state: 'open'
+            });
+            
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Security Scan: High Risk Findings Detected',
+                body: `## Security Scan Results\n\n` +
+                      `**High Risk:** ${high}\n` +
+                      `**Medium Risk:** ${medium}\n\n` +
+                      `Please review the scan results in the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).\n\n` +
+                      `_This issue was automatically created by the security scan workflow._`,
+                labels: ['security', 'shai-hulud']
+              });
+            }
