@@ -2,13 +2,12 @@
 // Detects file deletion patterns used when credential theft fails
 //
 // Corresponds to bash function:
-// - check_destructive_patterns() - Lines 686-740 in shai-hulud-detector.sh
+// - check_destructive_patterns() - Lines 760-830 in shai-hulud-detector.sh
 //
-// Updated to match PRs #85 and #86 changes:
-// - Standalone rimraf, fs.unlinkSync, fs.rmSync removed to reduce false positives (Issue #74)
-// - Only flags deletion commands that target user directories ($HOME, ~, /home/)
-// - ~[^a-zA-Z0-9_/] excludes Vue.js import aliases like ~/path
-// - exec.{1,30}rm limits span to avoid matching minified code
+// Updated for v3.0.2-3.0.4:
+// - Replaced overly broad conditional patterns with tight Shai-Hulud 2.0 wiper signatures
+// - Removed standalone glob patterns ($HOME/*, ~/*) that matched path examples in comments
+// - Single-pass search to avoid catastrophic backtracking on minified files
 
 use super::{Finding, RiskLevel};
 use crate::colors;
@@ -29,8 +28,8 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
 
     let mut findings = Vec::new();
 
-    // PR #85/#86: Basic destructive patterns - ONLY flag when targeting user directories ($HOME, ~, /home/)
-    // Standalone rimraf/unlinkSync/rmSync removed to reduce false positives (GitHub issue #74)
+    // v3.0.2: Basic destructive patterns - command-context patterns only
+    // Removed context-free glob patterns ($HOME/*, ~/*) that caused false positives
     let basic_destructive_patterns = vec![
         // Pattern, Description
         (
@@ -53,37 +52,42 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
             r"find\s+(\$HOME|~[^a-zA-Z0-9_/]|/home/).*-delete",
             "find -delete targeting user directory",
         ),
-        (r"\$HOME/\*", "$HOME/* wildcard deletion"),
-        (r"~/\*", "~/* wildcard deletion (literal asterisk)"),
-        (r"/home/[^/]+/\*", "/home/user/* wildcard deletion"),
+        // NOTE: Removed $HOME/*, ~/* standalone patterns (v3.0.2) - caused false positives in comments
     ];
 
-    // Conditional destruction patterns - need context limits for JS/Python
-    // Note: exec.{1,30}rm limits span to avoid matching minified code where "exec" and "rm" are far apart
-    let conditional_patterns_js_py = [
+    // v3.0.2: Shai-Hulud 2.0 wiper signatures (replaces overly broad conditional patterns)
+    // Based on actual Koi Security malware disclosure
+    let shai_hulud_wiper_patterns = [
+        // Bun.spawnSync with cmd.exe/bash and destructive commands
         (
-            r"if.{1,200}credential.{1,50}(fail|error).{1,50}(rm -|fs\.|rimraf|exec|spawn|child_process)",
-            "credential failure triggers deletion",
+            r"Bun\.spawnSync.{1,50}(cmd\.exe|bash).{1,100}(del /F|shred|cipher /W)",
+            "Bun.spawnSync wiper pattern",
         ),
+        // shred with secure delete flags targeting $HOME
         (
-            r"if.{1,200}token.{1,50}not.{1,20}found.{1,50}(rm -|del |fs\.|rimraf|unlinkSync|rmSync)",
-            "token not found triggers deletion",
+            r"shred.{1,30}-[nuvz].{1,50}(\$HOME|~/)",
+            "shred targeting home directory",
         ),
+        // cipher /W secure wipe on Windows
         (
-            r"if.{1,200}github.{1,50}auth.{1,50}fail.{1,50}(rm -|fs\.|rimraf|exec)",
-            "github auth failure triggers deletion",
+            r"cipher\s*/W:.{0,30}USERPROFILE",
+            "cipher /W Windows secure wipe",
         ),
+        // del /F /Q /S with USERPROFILE
         (
-            r"catch.{1,100}(rm -rf|fs\.rm|rimraf|exec.{1,30}rm)",
-            "catch block with deletion",
+            r"del\s*/F\s*/Q\s*/S.{1,30}USERPROFILE",
+            "del /F /Q /S Windows wiper",
         ),
+        // find $HOME ... shred pipeline
         (
-            r"error.{1,100}(rm -|del |fs\.|rimraf).{1,100}(\$HOME|~/|home.*(directory|folder|path))",
-            "error handler with home directory deletion",
+            r"find.{1,30}\$HOME.{1,50}shred",
+            "find + shred wiper pattern",
         ),
+        // rd /S /Q recursive delete
+        (r"rd\s*/S\s*/Q.{1,30}USERPROFILE", "rd /S /Q Windows wiper"),
     ];
 
-    // Shell-specific patterns (broader for actual shell commands)
+    // Shell-specific patterns (broader for actual shell scripts)
     let conditional_patterns_shell = [
         (
             r"if.*credential.*(fail|error).*rm",
@@ -107,7 +111,7 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
         .filter_map(|(p, desc)| Regex::new(p).ok().map(|r| (r, *desc)))
         .collect();
 
-    let conditional_js_py_regexes: Vec<(Regex, &str)> = conditional_patterns_js_py
+    let wiper_regexes: Vec<(Regex, &str)> = shai_hulud_wiper_patterns
         .iter()
         .filter_map(|(p, desc)| Regex::new(p).ok().map(|r| (r, *desc)))
         .collect();
@@ -183,8 +187,8 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
                         }
                     }
                 } else if path_str.ends_with(".js") || path_str.ends_with(".py") {
-                    // JavaScript/Python: Use limited span patterns only
-                    for (regex, _desc) in &conditional_js_py_regexes {
+                    // v3.0.2: JavaScript/Python - Use Shai-Hulud 2.0 wiper signatures
+                    for (regex, _desc) in &wiper_regexes {
                         if regex.is_match(&content) {
                             found_conditional = true;
                             break;
@@ -194,7 +198,7 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
                 if found_conditional {
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Conditional destruction pattern detected".to_string(),
+                        "Shai-Hulud wiper pattern detected".to_string(),
                         RiskLevel::High,
                         "destructive_patterns",
                     ));

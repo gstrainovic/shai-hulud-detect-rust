@@ -73,7 +73,8 @@ echo ""
 # Phase 1: Bash scanner (runs while Rust builds)
 # Timeout: 30 minutes (1800s) - scanning 32+ test cases takes time
 echo "🔵 Phase 1: Running Bash scanner on ENTIRE test-cases directory..."
-timeout 1800 "$BASH_SCANNER" $PARANOID_MODE "$TESTCASES_ROOT" > "$LOG_DIR/bash_full_scan.log" 2>&1
+# NOTE: --use-grep is required because git-grep searches entire repo instead of specified directory
+timeout 1800 "$BASH_SCANNER" --use-grep $PARANOID_MODE "$TESTCASES_ROOT" > "$LOG_DIR/bash_full_scan.log" 2>&1
 bash_exit=$?
 
 if [ $bash_exit -eq 124 ]; then

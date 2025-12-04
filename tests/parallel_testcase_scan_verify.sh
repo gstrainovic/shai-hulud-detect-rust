@@ -45,7 +45,8 @@ run_bash_testcase() {
     
     # cd shai-hulud-detect # REMOVED
     local abs_testdir=$(realpath "../shai-hulud-detect/test-cases/$testname")
-    timeout 300 ../shai-hulud-detect/shai-hulud-detector.sh "$abs_testdir" > "$logfile" 2>&1
+    # NOTE: --use-grep is required because git-grep searches entire repo instead of specified directory
+    timeout 300 ../shai-hulud-detect/shai-hulud-detector.sh --use-grep "$abs_testdir" > "$logfile" 2>&1
     local exit_code=$?
     # cd .. # REMOVED
     

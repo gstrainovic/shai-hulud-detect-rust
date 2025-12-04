@@ -112,7 +112,8 @@ run_bash_testcase() {
         # Run bash scanner - use absolute path
         local abs_testdir="$TESTCASES_ROOT/$testname"
         # Execute bash scanner from sibling directory
-        timeout 600 "$PROJECT_ROOT/../shai-hulud-detect/shai-hulud-detector.sh" "$abs_testdir" $PARANOID_MODE > "$logfile" 2>&1
+        # NOTE: --use-grep is required because git-grep searches entire repo instead of specified directory
+        timeout 600 "$PROJECT_ROOT/../shai-hulud-detect/shai-hulud-detector.sh" --use-grep "$abs_testdir" $PARANOID_MODE > "$logfile" 2>&1
         local exit_code=$?
         
         # Save exit code to file for comparison
