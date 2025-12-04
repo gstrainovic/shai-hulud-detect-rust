@@ -20,6 +20,7 @@ use walkdir::WalkDir;
 // Purpose: Detect destructive patterns that can cause data loss when credential theft fails
 // Args: scan_dir (directory to scan)
 // Returns: Vec<Finding> with paths to files containing destructive patterns
+#[allow(clippy::too_many_lines)]
 pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
     colors::print_status(
         colors::Color::Blue,
@@ -30,7 +31,7 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
 
     // v3.0.2: Basic destructive patterns - command-context patterns only
     // Removed context-free glob patterns ($HOME/*, ~/*) that caused false positives
-    let basic_destructive_patterns = vec![
+    let basic_destructive_patterns = [
         // Pattern, Description
         (
             r"rm -rf\s+(\$HOME|~[^a-zA-Z0-9_/]|/home/)",
