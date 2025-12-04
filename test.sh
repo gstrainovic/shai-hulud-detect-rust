@@ -82,7 +82,7 @@ extract_summary() {
     elif grep -q "Exit code: [1-9]" "$log_file"; then
         status="FAILED"
         details="Exit code: $(grep "Exit code:" "$log_file" | tail -1)"
-    elif grep -q "All tests passed\|🎉 ALL TEST\|100% FINDING-LEVEL" "$log_file"; then
+    elif grep -q "All tests passed\|🎉 ALL TEST\|100% FINDING-LEVEL\|🎉 FULL VERIFICATION PASSED\|🎉 SUCCESS" "$log_file"; then
         status="PASSED"
         details=$(grep -o "All tests passed\|🎉.*\|100%.*" "$log_file" | head -1 || echo "")
     elif grep -q "Match Rate: 33 / 33\|Perfect Matches: 33" "$log_file"; then
@@ -90,8 +90,11 @@ extract_summary() {
         details="33/33 test cases matched"
     else
         # Check for test counts or other indicators
-        local passed=$(grep -o "[0-9]* passed" "$log_file" | grep -o "[0-9]*" | head -1 || echo "0")
-        local failed=$(grep -o "[0-9]* failed" "$log_file" | grep -o "[0-9]*" | head -1 || echo "0")
+        local passed=$(grep -o "[0-9]* passed" "$log_file" | grep -o "[0-9]*" | head -1 || echo "")
+        local failed=$(grep -o "[0-9]* failed" "$log_file" | grep -o "[0-9]*" | head -1 || echo "")
+        # Default to 0 if empty
+        passed=${passed:-0}
+        failed=${failed:-0}
         if [ "$passed" -gt 0 ] && [ "$failed" -eq 0 ]; then
             status="PASSED"
             details="$passed passed"
