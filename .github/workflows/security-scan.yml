@@ -91,7 +91,7 @@ jobs:
       
       - name: Create Issue on High Risk (optional)
         if: failure() && steps.scan.outputs.high > 0
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const high = '${{ steps.scan.outputs.high }}';
