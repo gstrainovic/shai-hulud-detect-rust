@@ -17,9 +17,10 @@ static DOWNLOAD_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
         .unwrap()
 });
 // HIGH PRIORITY: TruffleHog credential harvesting patterns
+// BASH uses grep -i (case-insensitive), so we need (?i) flag
 static CREDENTIAL_SCAN_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r"TruffleHog.*scan.*credential|trufflehog.*env|trufflehog.*AWS|trufflehog.*NPM_TOKEN",
+        r"(?i)TruffleHog.*scan.*credential|trufflehog.*env|trufflehog.*AWS|trufflehog.*NPM_TOKEN",
     )
     .unwrap()
 });

@@ -16,12 +16,22 @@ pub enum Color {
 // Args: color - color code, message - message text
 // Modifies: None (outputs to stdout)
 // Returns: Prints colored message
+// NOTE: Adds emoji prefix for HIGH RISK (🚨) and MEDIUM RISK (⚠️) to match bash output
 pub fn print_status(color: Color, message: &str) {
+    // Add emoji prefix to match bash output format
+    let formatted_msg = if message.starts_with("HIGH RISK:") {
+        format!("🚨 {message}")
+    } else if message.starts_with("MEDIUM RISK:") {
+        format!("⚠️  {message}")
+    } else {
+        message.to_string()
+    };
+
     let colored_msg = match color {
-        Color::Red => message.red(),
-        Color::Yellow => message.yellow(),
-        Color::Green => message.green(),
-        Color::Blue => message.blue(),
+        Color::Red => formatted_msg.red(),
+        Color::Yellow => formatted_msg.yellow(),
+        Color::Green => formatted_msg.green(),
+        Color::Blue => formatted_msg.blue(),
     };
     println!("{colored_msg}");
 }

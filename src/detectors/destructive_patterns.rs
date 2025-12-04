@@ -196,9 +196,15 @@ pub fn check_destructive_patterns(scan_dir: &Path) -> Vec<Finding> {
                     }
                 }
                 if found_conditional {
+                    // BASH COMPATIBILITY: Include context suffix for JS/Python files
+                    let message = if path_str.ends_with(".js") || path_str.ends_with(".py") {
+                        "Shai-Hulud wiper pattern detected (JS/Python context)".to_string()
+                    } else {
+                        "Shai-Hulud wiper pattern detected".to_string()
+                    };
                     findings.push(Finding::new(
                         path.to_path_buf(),
-                        "Shai-Hulud wiper pattern detected".to_string(),
+                        message,
                         RiskLevel::High,
                         "destructive_patterns",
                     ));
