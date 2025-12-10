@@ -82,7 +82,7 @@ extract_summary() {
     elif grep -q "Exit code: [1-9]" "$log_file"; then
         status="FAILED"
         details="Exit code: $(grep "Exit code:" "$log_file" | tail -1)"
-    elif grep -q "All tests passed\|🎉 ALL TEST\|100% FINDING-LEVEL\|🎉 FULL VERIFICATION PASSED\|🎉 SUCCESS" "$log_file"; then
+    elif grep -q "All tests passed\|🎉 ALL TEST\|100% FINDING-LEVEL\|🎉 FULL VERIFICATION PASSED!\|🎉 SUCCESS!" "$log_file"; then
         status="PASSED"
         details=$(grep -o "All tests passed\|🎉.*\|100%.*" "$log_file" | head -1 || echo "")
     elif grep -q "Match Rate: 33 / 33\|Perfect Matches: 33" "$log_file"; then
