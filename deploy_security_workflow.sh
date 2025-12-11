@@ -1,11 +1,11 @@
 #!/bin/bash
 # deploy_security_workflow.sh - Deploy security scan workflow to all workspace projects
-# This script copies the security-scan.yml workflow to specified projects
+# This script copies the security-scan-template.yml workflow to specified projects
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKFLOW_SOURCE="$SCRIPT_DIR/.github/workflows/security-scan.yml"
+WORKFLOW_SOURCE="$SCRIPT_DIR/.github/templates/security-scan-template.yml"
 
 # Projects to deploy to (excluding rust-scanner itself)
 PROJECTS=(
