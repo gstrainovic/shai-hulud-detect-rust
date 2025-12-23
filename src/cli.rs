@@ -26,6 +26,12 @@ pub struct Cli {
     /// Set the number of threads to use for parallelized steps
     #[arg(long, default_value = "4")]
     pub parallelism: usize,
+
+    /// Check if package.json semver ranges (^, ~) could resolve to
+    /// compromised versions. Reports LOW risk (informational) since
+    /// packages are largely unpublished from npm.
+    #[arg(long)]
+    pub check_semver_ranges: bool,
 }
 
 impl Cli {

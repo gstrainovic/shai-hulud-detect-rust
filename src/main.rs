@@ -153,6 +153,16 @@ fn main() -> Result<()> {
     results.lockfile_safe_versions = lockfile_safe;
     results.namespace_warnings = ns;
 
+    // 3.5. check_semver_ranges (if enabled)
+    if args.check_semver_ranges {
+        let semver_findings = detectors::packages::check_semver_ranges(
+            &args.scan_dir,
+            &compromised_packages,
+            lockfile_resolver.as_ref(),
+        );
+        results.lockfile_safe_versions.extend(semver_findings);
+    }
+
     // 4. check_postinstall_hooks
     results.postinstall_hooks = detectors::postinstall::check_postinstall_hooks(&args.scan_dir);
 

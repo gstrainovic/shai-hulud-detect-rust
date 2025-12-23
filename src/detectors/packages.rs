@@ -125,3 +125,118 @@ pub fn check_packages<P: AsRef<Path>>(
         namespace_warnings,
     )
 }
+
+// Function: check_semver_ranges
+// Purpose: Check if package.json semver ranges (^, ~) could resolve to compromised versions
+// Args: scan_dir, compromised_packages, lockfile_resolver
+// Returns: lockfile_safe_versions - LOW risk findings
+#[allow(clippy::needless_pass_by_value)]
+pub fn check_semver_ranges<P: AsRef<Path>>(
+    scan_dir: P,
+    compromised_packages: &HashSet<CompromisedPackage>,
+    lockfile_resolver: Option<&LockfileResolver>,
+) -> Vec<Finding> {
+    let scan_dir = scan_dir.as_ref();
+    let files_count = crate::utils::count_files_by_name(scan_dir, "package.json");
+
+    crate::colors::print_status(
+        crate::colors::Color::Blue,
+        &format!("Checking {files_count} package.json files for semver ranges that could resolve to compromised versions..."),
+    );
+
+    let mut lockfile_safe_versions = Vec::new();
+
+    let mut processed = 0;
+
+    // Collect and sort package.json files for consistent order
+    let mut package_files: Vec<_> = WalkDir::new(scan_dir)
+        .into_iter()
+        .filter_map(std::result::Result::ok)
+        .filter(|e| e.file_type().is_file() && e.file_name() == "package.json")
+        .collect();
+
+    // Sort by path for deterministic order matching Bash's find
+    package_files.sort_by(|a, b| a.path().cmp(b.path()));
+
+    for entry in package_files {
+        if let Ok(content) = fs::read_to_string(entry.path()) {
+            if let Ok(json) = serde_json::from_str::<Value>(&content) {
+                // Check dependencies sections
+                for section in &[
+                    "dependencies",
+                    "devDependencies",
+                    "peerDependencies",
+                    "optionalDependencies",
+                ] {
+                    if let Some(deps) = json.get(section).and_then(|v| v.as_object()) {
+                        for (package_name, package_version) in deps {
+                            let version_range = package_version.as_str().unwrap_or("");
+
+                            // Only check ranges that start with ^ or ~
+                            if !version_range.starts_with('^') && !version_range.starts_with('~') {
+                                continue;
+                            }
+
+                            // Find compromised versions for this package
+                            for comp in compromised_packages
+                                .iter()
+                                .filter(|c| c.name == *package_name)
+                            {
+                                if crate::semver::semver_match(&comp.version, version_range) {
+                                    let file_path = entry.path().to_path_buf();
+                                    let message = format!("{package_name}@{version_range} (could match {comp_version})", comp_version = comp.version);
+
+                                    // Check if lockfile protects against this
+                                    let locked_version = lockfile_resolver
+                                        .and_then(|lr| lr.get_version(package_name));
+
+                                    if let Some(locked) = locked_version {
+                                        // Lockfile exists - check if locked version is safe
+                                        if locked != comp.version {
+                                            // Safe due to lockfile
+                                            lockfile_safe_versions.push(Finding::new(
+                                                file_path,
+                                                format!("{message}, locked to {locked}"),
+                                                RiskLevel::Low,
+                                                "lockfile_safe_version",
+                                            ));
+                                        } else {
+                                            // Lockfile pins to compromised version - still LOW risk (informational)
+                                            lockfile_safe_versions.push(Finding::new(
+                                                file_path,
+                                                format!("{message}, locked to {locked}"),
+                                                RiskLevel::Low,
+                                                "lockfile_safe_version",
+                                            ));
+                                        }
+                                    } else {
+                                        // No lockfile - LOW risk (packages largely unpublished, only matters with stale caches)
+                                        lockfile_safe_versions.push(Finding::new(
+                                            file_path,
+                                            format!(
+                                                "{message} (no lockfile, could resolve to {})",
+                                                comp.version
+                                            ),
+                                            RiskLevel::Low,
+                                            "lockfile_safe_version",
+                                        ));
+                                    }
+
+                                    // Found a match, no need to check other versions for this package
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        processed += 1;
+        crate::utils::show_progress(processed, files_count);
+    }
+
+    crate::utils::clear_progress();
+
+    lockfile_safe_versions
+}
