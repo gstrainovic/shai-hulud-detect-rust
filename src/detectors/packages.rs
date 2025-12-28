@@ -192,8 +192,8 @@ pub fn check_semver_ranges<P: AsRef<Path>>(
 
                                     if let Some(locked) = locked_version {
                                         // Lockfile exists - check if locked version is safe
-                                        if locked != comp.version {
-                                            // Safe due to lockfile
+                                        if locked == comp.version {
+                                            // Lockfile pins to compromised version - still LOW risk (informational)
                                             lockfile_safe_versions.push(Finding::new(
                                                 file_path,
                                                 format!("{message}, locked to {locked}"),
@@ -201,7 +201,7 @@ pub fn check_semver_ranges<P: AsRef<Path>>(
                                                 "lockfile_safe_version",
                                             ));
                                         } else {
-                                            // Lockfile pins to compromised version - still LOW risk (informational)
+                                            // Safe due to lockfile
                                             lockfile_safe_versions.push(Finding::new(
                                                 file_path,
                                                 format!("{message}, locked to {locked}"),

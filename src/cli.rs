@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(name = "shai-hulud-detector")]
-#[command(version = "2.5.1")]
+#[command(version = "3.0.5")]
 #[command(about = "Shai-Hulud NPM Supply Chain Attack Detector", long_about = None)]
 pub struct Cli {
     /// Directory to scan for indicators of compromise
