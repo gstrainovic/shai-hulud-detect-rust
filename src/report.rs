@@ -1,10 +1,13 @@
 // Report Generation
-// Rust port of: generate_report()
+// Rust port of: generate_report() and write_log_file()
 
 #![allow(clippy::cast_precision_loss)]
 
 use crate::colors::{print_status, Color};
 use crate::detectors::{verification, RiskLevel, ScanResults};
+use std::collections::BTreeSet;
+use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 
 // Helper: show_file_preview
@@ -927,4 +930,196 @@ fn print_verification_summary(results: &ScanResults, _paranoid_mode: bool) {
         );
     }
     println!();
+}
+
+// Function: write_log_file
+// Purpose: Write all detected file paths to a log file, grouped by severity
+// Args: log_path - output file path, results - scan results, paranoid_mode - whether paranoid mode is enabled
+// Modifies: Creates/overwrites the specified output file
+// Returns: Result indicating success or failure
+#[allow(clippy::too_many_lines)]
+pub fn write_log_file(
+    log_path: &Path,
+    results: &ScanResults,
+    paranoid_mode: bool,
+) -> std::io::Result<()> {
+    let mut file = File::create(log_path)?;
+
+    // HIGH RISK files (sorted, deduplicated)
+    let mut high_files: BTreeSet<String> = BTreeSet::new();
+
+    // Workflow files
+    for finding in &results.workflow_files {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Malicious hashes
+    for finding in &results.malicious_hashes {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Bun attack files
+    for finding in &results.bun_setup_files {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+    for finding in &results.bun_environment_files {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+    for finding in &results.new_workflow_files {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+    for finding in &results.actions_secrets_files {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Discussion workflows, runners
+    for finding in &results.discussion_workflows {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+    for finding in &results.github_runners {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Destructive patterns
+    for finding in &results.destructive_patterns {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Preinstall patterns, SHA1HULUD runners
+    for finding in &results.preinstall_bun_patterns {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+    for finding in &results.github_sha1hulud_runners {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Second coming repos
+    for finding in &results.second_coming_repos {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Compromised packages
+    for finding in &results.compromised_found {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Trufflehog activity (HIGH risk only)
+    for finding in &results.trufflehog_activity {
+        if finding.risk_level == RiskLevel::High {
+            high_files.insert(crate::utils::normalize_path(&finding.file_path));
+        }
+    }
+
+    // Shai-Hulud repos
+    for finding in &results.shai_hulud_repos {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // High-risk crypto patterns
+    for finding in &results.crypto_patterns {
+        if finding.risk_level == RiskLevel::High {
+            high_files.insert(crate::utils::normalize_path(&finding.file_path));
+        }
+    }
+
+    // Postinstall hooks (HIGH risk)
+    for finding in &results.postinstall_hooks {
+        high_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Write HIGH section
+    writeln!(file, "# HIGH")?;
+    for path in &high_files {
+        writeln!(file, "{path}")?;
+    }
+
+    // MEDIUM RISK files (sorted, deduplicated)
+    let mut medium_files: BTreeSet<String> = BTreeSet::new();
+
+    // Suspicious packages
+    for finding in &results.suspicious_found {
+        medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Suspicious content
+    for finding in &results.suspicious_content {
+        medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Git branches
+    for finding in &results.git_branches {
+        medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Integrity issues
+    for finding in &results.integrity_issues {
+        medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Typosquatting warnings (paranoid mode)
+    if paranoid_mode {
+        for finding in &results.typosquatting_warnings {
+            medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+        }
+    }
+
+    // Network exfiltration (paranoid mode)
+    if paranoid_mode {
+        for finding in &results.network_exfiltration_warnings {
+            medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+        }
+    }
+
+    // Medium-risk crypto patterns
+    for finding in &results.crypto_patterns {
+        if finding.risk_level == RiskLevel::Medium {
+            medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+        }
+    }
+
+    // Trufflehog activity (MEDIUM risk)
+    for finding in &results.trufflehog_activity {
+        if finding.risk_level == RiskLevel::Medium {
+            medium_files.insert(crate::utils::normalize_path(&finding.file_path));
+        }
+    }
+
+    // Write MEDIUM section
+    writeln!(file, "# MEDIUM")?;
+    for path in &medium_files {
+        writeln!(file, "{path}")?;
+    }
+
+    // LOW RISK files (sorted, deduplicated)
+    let mut low_files: BTreeSet<String> = BTreeSet::new();
+
+    // Lockfile safe versions
+    for finding in &results.lockfile_safe_versions {
+        low_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Low-risk crypto patterns
+    for finding in &results.crypto_patterns {
+        if finding.risk_level == RiskLevel::Low {
+            low_files.insert(crate::utils::normalize_path(&finding.file_path));
+        }
+    }
+
+    // Namespace warnings
+    for finding in &results.namespace_warnings {
+        low_files.insert(crate::utils::normalize_path(&finding.file_path));
+    }
+
+    // Write LOW section
+    writeln!(file, "# LOW")?;
+    for path in &low_files {
+        writeln!(file, "{path}")?;
+    }
+
+    print_status(
+        Color::Green,
+        &format!("Log saved to: {}", log_path.display()),
+    );
+
+    Ok(())
 }

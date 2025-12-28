@@ -32,6 +32,11 @@ pub struct Cli {
     /// packages are largely unpublished from npm.
     #[arg(long)]
     pub check_semver_ranges: bool,
+
+    /// Save all detected file paths to FILE, grouped by severity.
+    /// Output format: # HIGH / # MEDIUM / # LOW headers with file paths
+    #[arg(long)]
+    pub save_log: Option<PathBuf>,
 }
 
 impl Cli {

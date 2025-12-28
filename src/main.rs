@@ -265,6 +265,13 @@ fn main() -> Result<()> {
     // Generate report
     report::generate_report(&results, args.paranoid);
 
+    // Write log file if --save-log was specified
+    if let Some(ref log_path) = args.save_log {
+        if let Err(e) = report::write_log_file(log_path, &results, args.paranoid) {
+            colors::print_status(colors::Color::Red, &format!("Error writing log file: {e}"));
+        }
+    }
+
     // BASH COMPATIBILITY: Remove LOW RISK findings from JSON if total_issues >= 5
     // (Bash doesn't show them in output, so they shouldn't be in our JSON either)
     let mut results_for_json = results.clone();
